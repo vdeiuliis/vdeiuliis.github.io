@@ -1,0 +1,8 @@
+{% include base_path %}
+<li class="pub-entry">
+  {{ post.authors | replace: "V. De Iuliis", "<strong>V. De Iuliis</strong>" }},
+  “<a href="{{ base_path }}{{ post.url }}" rel="permalink">{{ post.title }}</a>”,
+  <i>{{ post.venue }}</i>{% if post.details %}, {{ post.details }}{% endif %}, {% if post.year %}{{ post.year }}{% else %}{{ post.date | date: "%Y" }}{% endif %}.
+  {% if post.note %}<span class="pub-note">{{ post.note }}</span>{% endif %}
+  {% if post.paperurl %}<a class="pub-link" href="{{ post.paperurl }}"><i class="fas fa-fw fa-file-lines" aria-hidden="true"></i>Paper</a>{% endif %}
+</li>

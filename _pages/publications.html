@@ -1,0 +1,29 @@
+---
+layout: archive
+title: "Publications"
+permalink: /publications/
+author_profile: true
+---
+
+{% include base_path %}
+
+{% if site.author.googlescholar %}
+  <div class="wordwrap">An up-to-date list is also available on my <a href="{{ site.author.googlescholar }}">Google Scholar profile</a>.</div>
+{% endif %}
+
+{% comment %}
+  Each publication is a Markdown file in the _publications folder.
+  The "category" field of each file decides the section; sections are defined in _config.yml (publication_category).
+{% endcomment %}
+
+{% for category in site.publication_category %}
+  {% assign items = site.publications | where: "category", category[0] | reverse %}
+  {% if items.size > 0 %}
+    <h2 id="{{ category[0] }}">{{ category[1].title }}</h2><hr />
+    <ol class="pub-list">
+    {% for post in items %}
+      {% include publication-entry.html %}
+    {% endfor %}
+    </ol>
+  {% endif %}
+{% endfor %}
