@@ -13,7 +13,7 @@ Sito accademico di Vittorio De Iuliis, basato sul template [Academic Pages](http
 | Activities (editorial, reviewing, progetti) | `_pages/activities.md` |
 | Personal page | `_pages/personal.md` |
 | Pubblicazioni (un file per lavoro) | `_publications/*.md` |
-| Foto profilo | `images/profile.png` (sostituiscila con la tua foto, stesso nome, oppure cambia `avatar` in `_config.yml`) |
+| Foto profilo | `images/profile.jpg` (sostituiscila con la tua foto, stesso nome, oppure cambia `avatar` in `_config.yml`) |
 | PDF e altri file scaricabili | cartella `files/` → visibili su `https://vdeiuliis.github.io/files/nome.pdf` |
 
 ### Aggiungere una pubblicazione
