@@ -14,7 +14,7 @@ package-lock.json
 
 # Ignore the vendor file at root level and bundle for alternative installation
 /vendor/
-.bundle/
+/.bundle/
 
 # Ignore folders related to IDEs
 .vscode/
@@ -23,8 +23,9 @@ package-lock.json
 .DS_Store
 
 # Local gems
-vendor/
-.bundle/
+/vendor/
+/.bundle/
 
 # Setup archive (can be deleted)
 _site-setup.tar.gz
+.DS_Store
