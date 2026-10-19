@@ -13,6 +13,12 @@ My research lies in **systems and control theory**, with a focus on time-delay s
 
 {% include news-latest.html limit=5 %}
 
+Teaching (current)
+------
+- **San Raffaele University of Rome:** *Fondamenti di Automatica* (Fundamentals of Control Systems), 6 CFU
+
+See the [Teaching](/teaching/) page for details.
+
 Research interests
 ------
 - Systems and control theory
@@ -39,12 +45,6 @@ Education
 Qualifications
 ------
 - Italian National Scientific Qualification (*Abilitazione Scientifica Nazionale*) as **Associate Professor**, call 2023/2025, sector 09/G1 — *Systems and Control Engineering*
-
-Teaching (current)
-------
-- **San Raffaele University of Rome:** *Fondamenti di Automatica* (Fundamentals of Control Systems), 6 CFU
-
-See the [Teaching](/teaching/) page for details.
 
 Contact
 ------
