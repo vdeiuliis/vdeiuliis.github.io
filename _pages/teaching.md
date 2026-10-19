@@ -13,6 +13,9 @@ Current courses
 
 An introductory course on the fundamentals of systems and control theory.
 
+Past courses
+------
+
 ### Control Systems and Machine Learning
 *University of L'Aquila* · Mathematical Engineering · in English  
 30 hours (3 CFU) out of 90 — A.Y. 2025/2026
@@ -30,9 +33,6 @@ Filtering theory for linear and nonlinear systems, parameter estimation, stochas
 20 hours (2 CFU) out of 90 — A.Y. 2025/2026; 30 hours (3 CFU) out of 90 — A.Y. 2024/2025
 
 Modeling, analysis, simulation and control of industrial robots. Course material is available on the [website of Prof. Costanzo Manes](http://ing.univaq.it/manes/Didattica_Teoria_dei_Sistemi/Teoria_dei_Sistemi_Manes.html).
-
-Past courses
-------
 
 ### Teoria dei sistemi (Systems Theory)
 *University of L'Aquila* · B.Sc. in Information Engineering  

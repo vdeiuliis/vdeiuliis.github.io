@@ -235,3 +235,27 @@ html[data-theme="dark"] .news-date { color: #0f1419; }
   line-height: 1.35;
   color: var(--c-muted);
 }
+
+/* Phones/tablets: no "Follow" button — show university, email and profile links directly */
+@media (max-width: 1023.98px) {
+  .author__urls-wrapper { display: block; width: 100%; margin-top: .6em; }
+  .author__urls-wrapper button { display: none; }
+  .author__urls {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: .2em 1.3em;
+    position: static;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+    z-index: auto;
+  }
+  .author__urls:before,
+  .author__urls:after { display: none !important; }
+  .author__urls li { margin: 0; }
+  .author__urls a { margin: 0; font-size: .8rem; }
+  .sidebar .author__urls li.author__desktop { display: block; flex-basis: 100%; margin-bottom: .3em; }
+  .author__dept { font-size: .85em; }
+}
