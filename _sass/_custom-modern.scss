@@ -266,3 +266,8 @@ html[data-theme="dark"] .news-date { color: #0f1419; }
   #main { margin-top: 1em; }
   .sidebar { margin-top: 0 !important; padding-top: 0 !important; }
 }
+
+/* Publications: numbered per type, e.g. [J15] ... [J1] */
+ol.pub-list { list-style: none; padding-left: 0; margin-left: 0; }
+.pub-entry { display: grid; grid-template-columns: 3.4em 1fr; column-gap: .6em; align-items: baseline; }
+.pub-label { font-weight: 700; color: var(--c-accent); font-variant-numeric: tabular-nums; white-space: nowrap; }

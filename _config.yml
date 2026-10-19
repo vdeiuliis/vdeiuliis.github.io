@@ -89,16 +89,22 @@ author:
 publication_category:
   journals:
     title: 'Journal Papers'
+    prefix: 'J'
   chapters:
     title: 'Book Chapters'
+    prefix: 'B'
   conferences:
     title: 'International Conferences'
+    prefix: 'C'
   workshops:
     title: 'International Workshops and Symposia'
+    prefix: 'W'
   national:
     title: 'National Conferences'
+    prefix: 'N'
   theses:
     title: 'Theses'
+    prefix: 'T'
 
 # Site Settings
 teaser                   :  # filename of teaser fallback teaser image placed in /images/ for social media previews

@@ -20,9 +20,12 @@ author_profile: true
   {% assign items = site.publications | where: "category", category[0] | reverse %}
   {% if items.size > 0 %}
     <h2 id="{{ category[0] }}">{{ category[1].title }}</h2><hr />
+    {% comment %} Numbered per type, oldest = 1 (e.g. J1 ... J15, newest first) {% endcomment %}
     <ol class="pub-list">
     {% for post in items %}
-      {% include publication-entry.html %}
+      {% assign num = items.size | minus: forloop.index0 %}
+      {% capture label %}{{ category[1].prefix }}{{ num }}{% endcapture %}
+      {% include publication-entry.html label=label %}
     {% endfor %}
     </ol>
   {% endif %}
