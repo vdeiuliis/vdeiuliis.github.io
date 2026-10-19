@@ -19,16 +19,16 @@
   --global-footer-bg-color: #f4f6f8;
 }
 html[data-theme="dark"] {
-  --c-accent: #5eead4;
-  --c-accent-soft: #12302d;
+  --c-accent: #7fb3ab;
+  --c-accent-soft: #1d2f2d;
   --c-page: #0f1419;
   --c-card: #182027;
   --c-line: #2a343d;
   --c-muted: #9ca3af;
-  --global-base-color: #5eead4;
-  --global-link-color: #5eead4;
-  --global-link-color-hover: #99f6e4;
-  --global-link-color-visited: #5eead4;
+  --global-base-color: #7fb3ab;
+  --global-link-color: #8dbdb5;
+  --global-link-color-hover: #b5d6d1;
+  --global-link-color-visited: #8dbdb5;
   --global-text-color: #e5e7eb;
   --global-bg-color: #0f1419;
   --global-footer-bg-color: #0f1419;
@@ -164,3 +164,15 @@ html[data-theme="dark"] .news-date { color: #0f1419; }
   .personal-grid { grid-template-columns: 1fr 1fr; }
   .personal-grid--1-2 { grid-template-columns: 1fr 2fr; }
 }
+
+/* Sidebar links: wrap long lines (e.g. the employer) with a hanging indent */
+.author__urls li {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  padding-left: 1.7em;
+  text-indent: -1.7em;
+  line-height: 1.35;
+  margin-bottom: .45em;
+}
+.author__urls li a { text-indent: -1.7em; margin-bottom: 0; }
+.sidebar { overflow-x: hidden; }

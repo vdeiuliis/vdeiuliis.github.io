@@ -235,7 +235,7 @@ collections:
     output: true
     permalink: /:collection/:path/
   publications:
-    output: true
+    output: false   # no individual page per paper: the list links straight to the publisher
     permalink: /:collection/:path/
   portfolio:
     output: true
