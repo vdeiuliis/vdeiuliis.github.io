@@ -11,6 +11,8 @@ I am an **Associate Professor** at [San Raffaele University of Rome](https://www
 
 My research lies in **systems and control theory**, with a focus on time-delay systems, positive systems, switched and Markov jump systems, system identification, and the use of machine learning in control.
 
+{% include news-latest.html limit=5 %}
+
 Research interests
 ------
 - Systems and control theory
@@ -18,6 +20,7 @@ Research interests
 - Time-delay systems
 - Positive systems
 - Machine learning for control
+{: .chips}
 
 Positions
 ------
@@ -25,11 +28,13 @@ Positions
 - **Adjunct Professor**, University of L'Aquila
 - **Post-doctoral researcher (junior and senior) and Assistant Professor**, University of L'Aquila — since February 2018
 - **Visiting researcher**, ICTEAM Institute, Université catholique de Louvain (UCLouvain), Belgium, in the team of Prof. R. M. Jungers — February–July 2021
+{: .timeline}
 
 Education
 ------
 - **Ph.D. in Information and Communication Technology**, University of L'Aquila — May 2018
 - **M.Sc. in Computer and Systems Engineering**, University of L'Aquila — July 2014
+{: .timeline}
 
 Qualifications
 ------

@@ -11,7 +11,9 @@ Sito accademico di Vittorio De Iuliis, basato sul template [Academic Pages](http
 | Home / About | `_pages/about.md` |
 | Teaching | `_pages/teaching.md` |
 | Activities (editorial, reviewing, progetti) | `_pages/activities.md` |
-| Personal page | `_pages/personal.md` |
+| Personal page | `_pages/personal.md` (foto in `images/personal/`) |
+| Colori, font, stile delle card | `_sass/_custom-modern.scss` (es. cambia `--c-accent` per il colore principale) |
+| News (un file per notizia) | `_posts/*.md` |
 | Pubblicazioni (un file per lavoro) | `_publications/*.md` |
 | Foto profilo | `images/profile.jpg` (sostituiscila con la tua foto, stesso nome, oppure cambia `avatar` in `_config.yml`) |
 | PDF e altri file scaricabili | cartella `files/` → visibili su `https://vdeiuliis.github.io/files/nome.pdf` |
@@ -35,6 +37,19 @@ paperurl: 'https://doi.org/...'       # facoltativo
 citation: 'A. Rossi, V. De Iuliis, &quot;Titolo&quot;, <i>Rivista</i>, AAAA.'
 ---
 ```
+
+### Aggiungere una news
+Crea un file in `_posts/` chiamato `AAAA-MM-GG-titolo-breve.md` (la data è quella mostrata nel badge). Basta il titolo:
+
+```yaml
+---
+title: "Paper accepted at **IEEE CDC 2026**, Honolulu."
+link: "https://doi.org/..."   # facoltativo: aggiunge "Link →"
+---
+```
+
+Se sotto le righe `---` scrivi anche un testo, la news avrà una sua pagina e comparirà "Read more →".
+Le ultime 5 news appaiono in homepage; tutte sono nella pagina **News**.
 
 ## Pubblicazione su GitHub (prima volta)
 

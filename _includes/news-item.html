@@ -1,0 +1,11 @@
+{% comment %} One news entry. Expects `post`. {% endcomment %}
+{% include base_path %}
+{% assign has_body = post.content | strip_html | strip | size %}
+<li class="news-item">
+  <time class="news-date" datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%b %Y" }}</time>
+  <span class="news-text">
+    {{ post.title | markdownify | remove: '<p>' | remove: '</p>' | strip }}
+    {% if post.link %}<a class="news-more" href="{{ post.link }}">Link&nbsp;→</a>{% endif %}
+    {% if has_body > 0 %}<a class="news-more" href="{{ base_path }}{{ post.url }}">Read more&nbsp;→</a>{% endif %}
+  </span>
+</li>

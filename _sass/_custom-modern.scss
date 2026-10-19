@@ -1,0 +1,166 @@
+
+/* ==========================================================================
+   CUSTOM "MODERN" LOOK — Inter font, light grey page, white cards, teal accent
+   Colours are defined once here; change --c-accent to restyle the whole site.
+   ========================================================================== */
+:root {
+  --c-accent: #0f766e;
+  --c-accent-soft: #e6f4f2;
+  --c-page: #f4f6f8;
+  --c-card: #ffffff;
+  --c-line: #e5e7eb;
+  --c-muted: #6b7280;
+  --global-base-color: #0f766e;
+  --global-link-color: #0f766e;
+  --global-link-color-hover: #115e59;
+  --global-link-color-visited: #0f766e;
+  --global-text-color: #1f2937;
+  --global-bg-color: #f4f6f8;
+  --global-footer-bg-color: #f4f6f8;
+}
+html[data-theme="dark"] {
+  --c-accent: #5eead4;
+  --c-accent-soft: #12302d;
+  --c-page: #0f1419;
+  --c-card: #182027;
+  --c-line: #2a343d;
+  --c-muted: #9ca3af;
+  --global-base-color: #5eead4;
+  --global-link-color: #5eead4;
+  --global-link-color-hover: #99f6e4;
+  --global-link-color-visited: #5eead4;
+  --global-text-color: #e5e7eb;
+  --global-bg-color: #0f1419;
+  --global-footer-bg-color: #0f1419;
+}
+
+body {
+  font-family: "Inter", -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--c-page);
+}
+
+/* Top bar */
+.masthead,
+.masthead__inner-wrap,
+.greedy-nav,
+.greedy-nav .visible-links,
+.greedy-nav .hidden-links {
+  background: var(--c-card);
+}
+.masthead { border-bottom: none; box-shadow: 0 1px 0 var(--c-line); }
+.greedy-nav a { font-weight: 500; }
+.greedy-nav a.site-title { font-weight: 700; color: var(--c-accent); }
+
+/* Sidebar */
+.author__avatar img { border: none; box-shadow: 0 6px 20px rgba(0, 0, 0, .12); }
+.author__name { font-weight: 700; }
+
+/* Content cards */
+.page__inner-wrap,
+.archive {
+  background: var(--c-card);
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+  padding: 1.6em 1.4em;
+  margin-bottom: 2em;
+}
+@media (min-width: 768px) {
+  .page__inner-wrap,
+  .archive { padding: 2em 2.4em; }
+}
+.page__title { font-weight: 800; letter-spacing: -.02em; }
+.page__content h2,
+.archive h2 {
+  font-weight: 700;
+  font-size: 1.25em;
+  border-bottom: none;
+  letter-spacing: -.01em;
+  margin-top: 1.8em;
+}
+.page__content h2::before,
+.archive h2::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--c-accent);
+  margin-right: .55em;
+  vertical-align: middle;
+}
+.archive hr { display: none; }
+.page__content a,
+.archive a { text-decoration: none; font-weight: 500; }
+.page__content a:hover,
+.archive a:hover { text-decoration: underline; }
+.page__content table { font-size: .9em; }
+
+/* Footer */
+.page__footer { background: transparent; border-top: 1px solid var(--c-line); }
+
+/* Research interests as chips — add {: .chips} after a list */
+ul.chips { list-style: none; margin: .8em 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: .5em; }
+ul.chips li {
+  margin: 0;
+  padding: .4em .95em;
+  background: var(--c-accent-soft);
+  color: var(--c-accent);
+  border-radius: 8px;
+  font-size: .9em;
+  font-weight: 600;
+}
+
+/* Positions / education as small cards — add {: .timeline} after a list */
+ul.timeline { list-style: none; margin: 1em 0 0; padding: 0; display: grid; gap: .6em; }
+ul.timeline li {
+  margin: 0;
+  padding: .75em 1em;
+  border: 1px solid var(--c-line);
+  border-radius: 10px;
+  background: var(--c-card);
+}
+
+/* News */
+.home-news { margin: 1.6em 0; }
+.news-list { list-style: none; margin: .8em 0 .6em; padding: 0; display: grid; gap: .55em; }
+.news-item {
+  display: flex;
+  gap: .9em;
+  align-items: flex-start;
+  margin: 0;
+  padding: .7em .9em;
+  border-radius: 10px;
+  background: var(--c-page);
+}
+.news-date {
+  flex: 0 0 auto;
+  min-width: 5.6em;
+  text-align: center;
+  font-size: .78em;
+  font-weight: 700;
+  color: #fff;
+  background: var(--c-accent);
+  padding: .25em .6em;
+  border-radius: 6px;
+  margin-top: .15em;
+}
+html[data-theme="dark"] .news-date { color: #0f1419; }
+.news-text { line-height: 1.5; }
+.news-more { font-size: .85em; margin-left: .3em; white-space: nowrap; }
+.news-all { font-size: .9em; font-weight: 600; }
+.news-year { margin-top: 1.4em; }
+
+/* Publications: badges in accent colour */
+.pub-note { color: var(--c-accent); border-color: var(--c-accent); opacity: 1; }
+
+/* Personal page */
+.personal-hero { margin: 0 0 1.5em; }
+.personal-hero img,
+.personal-grid img { width: 100%; border-radius: 10px; display: block; }
+.personal-grid { display: grid; grid-template-columns: 1fr; gap: 1em; margin: 1.5em 0; }
+.personal-col { display: grid; gap: 1em; align-content: start; }
+.personal-grid .video-embed { margin: 0; }
+@media (min-width: 768px) {
+  .personal-grid { grid-template-columns: 1fr 1fr; }
+  .personal-grid--1-2 { grid-template-columns: 1fr 2fr; }
+}

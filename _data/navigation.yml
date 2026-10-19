@@ -1,5 +1,8 @@
 # Top navigation menu. Reorder, add or remove entries to change the header links.
 main:
+  - title: "News"
+    url: /news/
+
   - title: "Publications"
     url: /publications/
 

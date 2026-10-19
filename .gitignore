@@ -29,3 +29,6 @@ package-lock.json
 # Setup archive (can be deleted)
 _site-setup.tar.gz
 .DS_Store
+
+# Files saved by the Claude app (not part of the site)
+Claude outputs/

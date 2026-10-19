@@ -1,0 +1,23 @@
+---
+layout: archive
+title: "News"
+permalink: /news/
+author_profile: true
+---
+
+{% include base_path %}
+
+{% comment %}
+  Each news item is a Markdown file in the _posts folder, named YYYY-MM-DD-short-title.md.
+  See README.md for instructions.
+{% endcomment %}
+
+{% assign years = site.posts | group_by_exp: "p", "p.date | date: '%Y'" %}
+{% for year in years %}
+  <h2 id="y{{ year.name }}" class="news-year">{{ year.name }}</h2>
+  <ul class="news-list">
+    {% for post in year.items %}
+      {% include news-item.html %}
+    {% endfor %}
+  </ul>
+{% endfor %}

@@ -1,0 +1,12 @@
+{% comment %} Latest news box for the homepage: {% include news-latest.html limit=5 %} {% endcomment %}
+{% include base_path %}
+{% assign n = include.limit | default: 5 %}
+<section class="home-news">
+  <h2 id="news">Latest news</h2>
+  <ul class="news-list">
+    {% for post in site.posts limit: n %}
+      {% include news-item.html %}
+    {% endfor %}
+  </ul>
+  {% if site.posts.size > n %}<a class="news-all" href="{{ base_path }}/news/">All news →</a>{% endif %}
+</section>
