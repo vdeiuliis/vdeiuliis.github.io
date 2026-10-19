@@ -180,9 +180,9 @@ html[data-theme="dark"] .news-date { color: #0f1419; }
 .author__logo {
   flex: 0 0 auto;
   width: 1.25em;
-  height: 1.15em;
+  height: 1.05em;
   margin-right: 1em;
   align-self: flex-start;
-  margin-top: .05em;
+  margin-top: .2em;   /* aligns the logo with the capitals of the first line */
 }
 .sidebar { overflow-x: hidden; }

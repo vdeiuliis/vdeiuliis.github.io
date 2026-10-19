@@ -1,5 +1,8 @@
 # Top navigation menu. Reorder, add or remove entries to change the header links.
 main:
+  - title: "Home"
+    url: /
+
   - title: "News"
     url: /news/
 
@@ -9,7 +12,7 @@ main:
   - title: "Teaching"
     url: /teaching/
 
-  - title: "Activities"
+  - title: "Other activities"
     url: /activities/
 
   - title: "Personal"
