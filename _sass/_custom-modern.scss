@@ -57,7 +57,7 @@ body {
 
 /* Content cards */
 .page__inner-wrap,
-.archive {
+.archive__inner-wrap {
   background: var(--c-card);
   border-radius: 14px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
@@ -66,7 +66,7 @@ body {
 }
 @media (min-width: 768px) {
   .page__inner-wrap,
-  .archive { padding: 2em 2.4em; }
+  .archive__inner-wrap { padding: 2em 2.4em; }
 }
 .page__title { font-weight: 800; letter-spacing: -.02em; }
 .page__content h2,
@@ -165,14 +165,24 @@ html[data-theme="dark"] .news-date { color: #0f1419; }
   .personal-grid--1-2 { grid-template-columns: 1fr 2fr; }
 }
 
-/* Sidebar links: wrap long lines (e.g. the employer) with a hanging indent */
-.author__urls li {
-  white-space: normal;
-  overflow-wrap: anywhere;
-  padding-left: 1.7em;
-  text-indent: -1.7em;
+/* Sidebar links: icon + text side by side; long lines wrap under the text, not the icon */
+.author__urls li { white-space: normal; }
+.author__urls a,
+.author__item {
+  display: flex;
+  align-items: baseline;
   line-height: 1.35;
-  margin-bottom: .45em;
 }
-.author__urls li a { text-indent: -1.7em; margin-bottom: 0; }
+.author__urls a > i,
+.author__item > i { flex: 0 0 auto; }
+.author__item > span { min-width: 0; overflow-wrap: anywhere; }
+.author__urls a { overflow-wrap: anywhere; }
+.author__logo {
+  flex: 0 0 auto;
+  width: 1.25em;
+  height: 1.15em;
+  margin-right: 1em;
+  align-self: flex-start;
+  margin-top: .05em;
+}
 .sidebar { overflow-x: hidden; }
