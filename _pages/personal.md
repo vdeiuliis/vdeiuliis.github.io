@@ -33,13 +33,6 @@ Before getting into teaching and Research, I've had many passions which I though
 
 Nevertheless, I still am a professional timewaster.
 
-<div class="personal-grid personal-grid--1-2">
-  <div class="personal-col">
-    <img src="/images/personal/ch.jpg" alt="Photo" loading="lazy">
-  </div>
-  <div class="personal-col">
-    <div class="video-embed">
-      <iframe src="https://www.youtube-nocookie.com/embed/TdYcD7lsVF0" title="YouTube video" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
-    </div>
-  </div>
-</div>
+<figure class="personal-single">
+  <img src="/images/personal/ch.jpg" alt="Photo" loading="lazy">
+</figure>

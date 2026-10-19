@@ -155,7 +155,9 @@ html[data-theme="dark"] .news-date { color: #0f1419; }
 
 /* Personal page */
 .personal-hero { margin: 0 0 1.5em; }
+.personal-single { max-width: 360px; margin: 1.5em auto; }
 .personal-hero img,
+.personal-single img,
 .personal-grid img { width: 100%; border-radius: 10px; display: block; }
 .personal-grid { display: grid; grid-template-columns: 1fr; gap: 1em; margin: 1.5em 0; }
 .personal-col { display: grid; gap: 1em; align-content: start; }
@@ -181,8 +183,46 @@ html[data-theme="dark"] .news-date { color: #0f1419; }
   flex: 0 0 auto;
   width: 1.25em;
   height: 1.05em;
-  margin-right: 1em;
+  margin-right: .53em;   /* text lines up with the other sidebar links */
   align-self: flex-start;
   margin-top: .2em;   /* aligns the logo with the capitals of the first line */
 }
 .sidebar { overflow-x: hidden; }
+
+/* Top menu: plain white, no tinted boxes behind the items */
+.greedy-nav .visible-links li,
+.greedy-nav .hidden-links li { background: transparent; }
+
+/* Wide screens: start the menu ("Home") exactly where the page text starts.
+   The page column begins at 21.19% of the container + 2.4em card padding;
+   the container is 889px wide (1024-1279px screens) or 1244px (>=1280px). */
+@media (min-width: 1024px) {
+  .greedy-nav .visible-links .masthead__menu-item--lg { width: 213.6px; min-width: 213.6px; }
+}
+@media (min-width: 1280px) {
+  .greedy-nav .visible-links .masthead__menu-item--lg { width: 288.8px; min-width: 288.8px; }
+}
+
+/* Copyright: at the bottom of the left column on wide screens,
+   as a plain line at the end of the page on phones/tablets */
+.sidebar__copyright { display: none; }
+@media (min-width: 1024px) {
+  .page__footer { display: none; }
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 2em);
+    padding-bottom: 1.2em;
+  }
+  .sidebar__copyright {
+    display: block;
+    margin-top: auto;
+    padding-top: 2em;
+    font-size: .7em;
+    line-height: 1.5;
+    color: var(--c-muted);
+  }
+}
+@media (max-width: 1023.98px) {
+  .page__footer { position: static; background: transparent; border-top: none; }
+}
