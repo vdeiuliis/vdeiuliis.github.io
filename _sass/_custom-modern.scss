@@ -259,3 +259,10 @@ html[data-theme="dark"] .news-date { color: #0f1419; }
   .sidebar .author__urls li.author__desktop { display: block; flex-basis: 100%; margin-bottom: .3em; }
   .author__dept { font-size: .85em; }
 }
+
+/* Phones/tablets: remove the extra gap between the top bar and the profile
+   (the theme's script adds a top padding to the sidebar meant for wide screens) */
+@media (max-width: 1023.98px) {
+  #main { margin-top: 1em; }
+  .sidebar { margin-top: 0 !important; padding-top: 0 !important; }
+}
