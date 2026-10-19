@@ -2,7 +2,7 @@
 {% include base_path %}
 {% assign has_body = post.content | strip_html | strip | size %}
 <li class="news-item">
-  <time class="news-date" datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%b %Y" }}</time>
+  <time class="news-date" datetime="{{ post.date | date_to_xmlschema }}">{% if post.month_only %}{{ post.date | date: "%b %Y" }}{% else %}{{ post.date | date: "%-d %b %Y" }}{% endif %}</time>
   <span class="news-text">
     {{ post.title | markdownify | remove: '<p>' | remove: '</p>' | strip }}
     {% if post.link %}<a class="news-more" href="{{ post.link }}">Link&nbsp;→</a>{% endif %}

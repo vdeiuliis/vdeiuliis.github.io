@@ -48,6 +48,7 @@ link: "https://doi.org/..."   # facoltativo: aggiunge "Link →"
 ---
 ```
 
+Il badge mostra giorno, mese e anno; se il giorno non è noto aggiungi `month_only: true` per mostrare solo mese e anno.
 Se sotto le righe `---` scrivi anche un testo, la news avrà una sua pagina e comparirà "Read more →".
 Le ultime 5 news appaiono in homepage; tutte sono nella pagina **News**.
 
