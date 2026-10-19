@@ -25,7 +25,7 @@ Copia un file esistente in `_publications/`, rinominalo `AAAA-MM-GG-titolo-breve
 ---
 title: 'Titolo del lavoro'
 collection: publications
-category: journals        # journals | chapters | conferences | workshops | national | theses
+category: journals        # preprints | journals | chapters | conferences | workshops | national | theses
 permalink: /publication/AAAA-MM-GG-titolo-breve
 date: AAAA-MM-GG          # determina l'ordine (più recente in alto)
 year: AAAA

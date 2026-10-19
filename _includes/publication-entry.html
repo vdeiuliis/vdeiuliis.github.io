@@ -7,5 +7,6 @@
   <i>{{ post.venue }}</i>{% if post.details %}, {{ post.details }}{% endif %}, {% if post.year %}{{ post.year }}{% else %}{{ post.date | date: "%Y" }}{% endif %}.
   {% if post.note %}<span class="pub-note">{{ post.note }}</span>{% endif %}
   {% if post.paperurl %}<a class="pub-link" href="{{ post.paperurl }}"><i class="fas fa-fw fa-file-lines" aria-hidden="true"></i>Paper</a>{% endif %}
+  {% if post.arxivurl %}<a class="pub-link" href="{{ post.arxivurl }}"><i class="ai ai-fw ai-arxiv" aria-hidden="true"></i>arXiv</a>{% endif %}
   </span>
 </li>
