@@ -28,7 +28,7 @@
         <li class="author__desktop"><span class="author__item"><i class="fas fa-fw fa-location-dot icon-pad-right" aria-hidden="true"></i><span>{{ author.location }}</span></span></li>
       {% endif %}
       {% if author.employer %}
-        <li class="author__desktop">{% if author.employer_url %}<a class="author__item" href="{{ author.employer_url }}">{% else %}<span class="author__item">{% endif %}{% if author.employer_logo %}{% include {{ author.employer_logo }} %}{% else %}<i class="fas fa-fw fa-building-columns icon-pad-right" aria-hidden="true"></i>{% endif %}<span>{{ author.employer }}</span>{% if author.employer_url %}</a>{% else %}</span>{% endif %}</li>
+        <li class="author__desktop">{% if author.employer_url %}<a class="author__item" href="{{ author.employer_url }}">{% else %}<span class="author__item">{% endif %}{% if author.employer_logo %}{% include {{ author.employer_logo }} %}{% else %}<i class="fas fa-fw fa-building-columns icon-pad-right" aria-hidden="true"></i>{% endif %}<span>{{ author.employer }}{% if author.department %}<small class="author__dept">{{ author.department }}</small>{% endif %}</span>{% if author.employer_url %}</a>{% else %}</span>{% endif %}</li>
       {% endif %}
       {% if author.uri %}
         <li><a href="{{ author.uri }}"><i class="fas fa-fw fa-link icon-pad-right" aria-hidden="true"></i>{{ site.data.ui-text[site.locale].website_label | default: "Website" }}</a></li>

@@ -226,3 +226,12 @@ html[data-theme="dark"] .news-date { color: #0f1419; }
 @media (max-width: 1023.98px) {
   .page__footer { position: static; background: transparent; border-top: none; }
 }
+
+/* Department under the university name in the sidebar */
+.author__dept {
+  display: block;
+  margin-top: .2em;
+  font-size: .88em;
+  line-height: 1.35;
+  color: var(--c-muted);
+}

@@ -29,10 +29,11 @@ author:
   bio              : "Associate Professor · Systems and Control"
   location         : # e.g. "Rome, Italy"
   employer         : "San Raffaele University of Rome"
+  department       : "Department for the Promotion of Human Science and Quality of Life"
   employer_url     : "https://www.uniroma5.it/"
   employer_logo    : "icons/uniroma5.svg"   # SVG in _includes/icons/
   uri              : # URL
-  email            : # e.g. "name@uniroma5.it" (left blank to avoid spam; the address is shown obfuscated on the About page)
+  email            : "vittorio.deiuliis@uniroma5.it"
 
   # Academic websites
   academia         : # URL
