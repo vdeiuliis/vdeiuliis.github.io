@@ -163,6 +163,10 @@ social:
 
 
 # Analytics
+# GoatCounter (cookieless, no GDPR banner needed): put here the code chosen when signing up
+# at https://www.goatcounter.com (e.g. "vdeiuliis" -> https://vdeiuliis.goatcounter.com).
+# Leave empty to disable.
+goatcounter              : "vdeiuliis"
 analytics:
   provider               :  "false" # false (default), "google", "google-universal", "google-analytics-4", "custom"
   google:

@@ -24,4 +24,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 
+<!-- GoatCounter visit statistics (only on the published site) -->
+{% if site.goatcounter and site.goatcounter != "" and jekyll.environment == "production" %}
+<script data-goatcounter="https://{{ site.goatcounter }}.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+{% endif %}
+
 <!-- end custom head snippets -->

@@ -51,6 +51,9 @@ link: "https://doi.org/..."   # facoltativo: aggiunge "Link →"
 Se sotto le righe `---` scrivi anche un testo, la news avrà una sua pagina e comparirà "Read more →".
 Le ultime 5 news appaiono in homepage; tutte sono nella pagina **News**.
 
+### Statistiche visite (GoatCounter)
+Le visite sono registrate con [GoatCounter](https://www.goatcounter.com) (senza cookie). Il codice del sito è in `_config.yml` (`goatcounter: "vdeiuliis"`); la dashboard privata è su https://vdeiuliis.goatcounter.com. Per non contare le proprie visite, aprire una volta `https://vdeiuliis.github.io/#toggle-goatcounter` in ogni browser che si usa.
+
 ## Pubblicazione su GitHub (prima volta)
 
 1. Su GitHub crea un repository **pubblico** chiamato esattamente `vdeiuliis.github.io` (senza README).
