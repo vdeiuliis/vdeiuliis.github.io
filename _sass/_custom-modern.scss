@@ -257,7 +257,7 @@ html[data-theme="dark"] .news-date { color: #0f1419; }
   .author__urls li { margin: 0; }
   .author__urls a { margin: 0; font-size: .8rem; }
   .sidebar .author__urls li.author__desktop { display: block; flex-basis: 100%; margin-bottom: .3em; }
-  .author__dept { font-size: .85em; }
+  .author__dept { display: none; }   /* department shown only on wide screens */
 }
 
 /* Phones/tablets: remove the extra gap between the top bar and the profile
