@@ -339,3 +339,16 @@ table.conf-table th:nth-child(2), table.conf-table td:nth-child(2) { width: 32%;
   overflow: hidden; clip: rect(0, 0, 0, 0);
   white-space: nowrap; border: 0;
 }
+
+.conf-city { display: block; font-size: .82em; color: var(--c-muted); line-height: 1.3; margin-top: .1em; }
+
+/* Personal page (desktop/tablet): the tall Grand Canyon photo matches the height
+   of the video + photo column on its left */
+@media (min-width: 768px) {
+  .personal-grid:not(.personal-grid--1-2) > .personal-col:last-child { position: relative; }
+  .personal-grid:not(.personal-grid--1-2) > .personal-col:last-child img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: center 70%;
+  }
+}
