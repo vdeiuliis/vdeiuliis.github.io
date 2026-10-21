@@ -193,16 +193,6 @@ html[data-theme="dark"] .news-date { color: #0f1419; }
 .greedy-nav .visible-links li,
 .greedy-nav .hidden-links li { background: transparent; }
 
-/* Wide screens: start the menu ("Home") exactly where the page text starts.
-   The page column begins at 21.19% of the container + 2.4em card padding;
-   the container is 889px wide (1024-1279px screens) or 990px (>=1280px, see below). */
-@media (min-width: 1024px) {
-  .greedy-nav .visible-links .masthead__menu-item--lg { width: 213.6px; min-width: 213.6px; }
-}
-@media (min-width: 1280px) {
-  .greedy-nav .visible-links .masthead__menu-item--lg { width: 235px; min-width: 235px; }
-}
-
 /* Copyright: at the bottom of the left column on wide screens,
    as a plain line at the end of the page on phones/tablets */
 .sidebar__copyright { display: none; }
@@ -272,18 +262,37 @@ ol.pub-list { list-style: none; padding-left: 0; margin-left: 0; }
 .pub-entry { display: grid; grid-template-columns: 3.4em 1fr; column-gap: .6em; align-items: baseline; }
 .pub-label { font-weight: 700; color: var(--c-accent); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
-/* Content width: on wide screens every page's white card is capped so that running
-   text has about 80 characters per line (readability guideline). */
+/* ==========================================================================
+   DESKTOP LAYOUT (>= 1024px): fixed-width left column + content card,
+   centred in the window. Replaces the theme's percentage grid, whose left
+   column grew with the window and could overlap the content.
+   - 1024-1279px: container 889px = column 190 + gap 36 + card 663
+   - >= 1280px:   container 1140px = column 250 + gap 50 + card 840
+     (card side padding 73px -> ~694px of text = about 80 characters per line)
+   The menu starts exactly where the page text starts ("Home" above the text).
+   ========================================================================== */
 @media (min-width: 1024px) {
-  .page { padding-right: 0; }
+  .sidebar { width: 190px !important; max-width: 190px !important; }
+  .page,
+  .archive {
+    float: right !important;
+    width: calc(100% - 226px) !important;
+    margin: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
   .page__inner-wrap,
-  .archive__inner-wrap { max-width: 780px; }
+  .archive__inner-wrap { max-width: none; }
+  /* Home link text = 226px + 43.2px card padding; links have an 18px left margin */
+  .greedy-nav .visible-links .masthead__menu-item--lg { width: 251px; min-width: 251px; }
 }
-
-/* Balanced layout on large screens: the whole block (left column + 780px card)
-   is centred in the window, with equal empty margins on both sides.
-   990px container = 21.19% for the left column + 780px card (+ 2 x 18px padding). */
 @media (min-width: 1280px) {
   .masthead__inner-wrap,
-  #main { max-width: 1026px; }
+  #main { max-width: 1176px; }   /* 1140px + 2 x 18px padding */
+  .sidebar { width: 250px !important; max-width: 250px !important; }
+  .page,
+  .archive { width: calc(100% - 300px) !important; }
+  .page__inner-wrap,
+  .archive__inner-wrap { padding-left: 73px; padding-right: 73px; }
+  .greedy-nav .visible-links .masthead__menu-item--lg { width: 355px; min-width: 355px; }
 }
