@@ -323,13 +323,11 @@ ol.pub-list { list-style: none; padding-left: 0; margin-left: 0; }
   .author__urls a { font-size: 14px; }
 }
 
-/* Other activities: conference roles table — wider conference column */
-table.conf-table { width: 100%; table-layout: fixed; }
-table.conf-table th:nth-child(1), table.conf-table td:nth-child(1) { width: 4.2em; }
-table.conf-table th:nth-child(2), table.conf-table td:nth-child(2) { width: 32%; }
-@media (max-width: 600px) {
-  table.conf-table th:nth-child(2), table.conf-table td:nth-child(2) { width: 38%; }
-}
+/* Other activities: conference roles table — year and conference columns
+   exactly as wide as their longest entry, the role column takes the rest */
+table.conf-table { width: 100%; table-layout: auto; }
+table.conf-table th:nth-child(1), table.conf-table td:nth-child(1),
+table.conf-table th:nth-child(2), table.conf-table td:nth-child(2) { width: 1%; white-space: nowrap; }
 
 /* Visually hidden but read by screen readers / search engines (e.g. homepage title) */
 .sr-only {

@@ -34,7 +34,7 @@ Positions
 ------
 - **Associate Professor**, San Raffaele University of Rome — since November 2025
 - **Adjunct Professor**, University of L'Aquila — 2024–2026
-- **Post-doctoral researcher (junior and senior) and Assistant Professor**, University of L'Aquila — February 2018 – October 2025
+- **Post-doctoral researcher (junior and senior) and Assistant Professor**, University of L'Aquila — February 2018 – November 2025
 - **Visiting researcher**, ICTEAM Institute, Université catholique de Louvain (UCLouvain), Belgium, in the team of Prof. R. M. Jungers — February–July 2021
 {: .timeline}
 

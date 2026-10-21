@@ -52,6 +52,7 @@ Research projects
 - **PON Ricerca & Innovazione 2014–2020** (AIM1877124 – Attività 1) — Researcher, August 2019 – July 2022
 - **[SAFECOP](http://www.safecop.eu/)** — Safe Cooperating Cyber-Physical Systems using Wireless Communication — Post-doctoral researcher, February – July 2019
 - **[INCIPICT](http://incipict.univaq.it/)** — Innovating City Planning through Information & Communications Technology — Post-doctoral researcher, February 2018 – January 2019
+- **[AQUAS](https://aquas-project.eu/)** — Aggregated Quality Assurance for Systems — Post-doctoral researcher
 
 Outreach
 ------
