@@ -328,6 +328,10 @@ ol.pub-list { list-style: none; padding-left: 0; margin-left: 0; }
 table.conf-table { width: 100%; table-layout: auto; }
 table.conf-table th:nth-child(1), table.conf-table td:nth-child(1),
 table.conf-table th:nth-child(2), table.conf-table td:nth-child(2) { width: 1%; white-space: nowrap; }
+@media (min-width: 600px) {
+  table.conf-table th:nth-child(1), table.conf-table td:nth-child(1),
+  table.conf-table th:nth-child(2), table.conf-table td:nth-child(2) { padding-right: 1.6em; }
+}
 
 /* Visually hidden but read by screen readers / search engines (e.g. homepage title) */
 .sr-only {
