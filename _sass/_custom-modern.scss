@@ -271,3 +271,9 @@ html[data-theme="dark"] .news-date { color: #0f1419; }
 ol.pub-list { list-style: none; padding-left: 0; margin-left: 0; }
 .pub-entry { display: grid; grid-template-columns: 3.4em 1fr; column-gap: .6em; align-items: baseline; }
 .pub-label { font-weight: 700; color: var(--c-accent); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Same content width on every page: text pages (Home, Teaching, ...) drop the empty
+   right-hand column the theme reserves, matching the list pages (News, Publications) */
+@media (min-width: 1024px) {
+  .page { padding-right: 0; }
+}
