@@ -272,8 +272,12 @@ ol.pub-list { list-style: none; padding-left: 0; margin-left: 0; }
 .pub-entry { display: grid; grid-template-columns: 3.4em 1fr; column-gap: .6em; align-items: baseline; }
 .pub-label { font-weight: 700; color: var(--c-accent); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
-/* Same content width on every page: text pages (Home, Teaching, ...) drop the empty
-   right-hand column the theme reserves, matching the list pages (News, Publications) */
+/* Content width: on wide screens every page's white card is capped so that running
+   text has about 80 characters per line (readability guideline); only the
+   Publications list (front matter "wide: true") uses the full width. */
 @media (min-width: 1024px) {
   .page { padding-right: 0; }
+  .page__inner-wrap,
+  .archive__inner-wrap { max-width: 780px; }
+  .archive__inner-wrap--wide { max-width: none; }
 }

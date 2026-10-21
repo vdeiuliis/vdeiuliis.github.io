@@ -16,7 +16,7 @@ layout: default
   {% include sidebar.html %}
 
   <div class="archive">
-    <div class="archive__inner-wrap">
+    <div class="archive__inner-wrap{% if page.wide %} archive__inner-wrap--wide{% endif %}">
     {% unless page.header.overlay_color or page.header.overlay_image %}
       <h1 class="page__title">{{ page.title }}</h1>
     {% endunless %}
