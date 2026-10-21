@@ -1,6 +1,8 @@
 ---
 permalink: /
-title: "Vittorio De Iuliis, PhD"
+title: "Vittorio De Iuliis"
+seo_title: "Vittorio De Iuliis – Associate Professor of Systems and Control"   # browser tab, search results, link previews
+hide_title: true   # no title at the top of the homepage
 author_profile: true
 redirect_from:
   - /about/
@@ -45,3 +47,7 @@ Education
 Qualifications
 ------
 - Italian National Scientific Qualification (*Abilitazione Scientifica Nazionale*) as **Associate Professor**, call 2023/2025, sector 09/G1 — *Systems and Control Engineering*
+
+Contact
+------
+**Email:** vittorio [dot] deiuliis [at] uniroma5 [dot] it

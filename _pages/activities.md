@@ -20,23 +20,24 @@ Editorial activity
 
 | Year | Conference | Role |
 |------|------------|------|
-| 2027 | 9th IFAC ADHS | Local Arrangement Chair, Program Committee member, Associate Editor |
-| 2027 | ACC 2027 | Associate Editor |
-| 2027 | 25th ECC | Associate Editor |
-| 2026 | 65th IEEE CDC | Associate Editor |
-| 2026 | ACC 2026 | Associate Editor |
-| 2026 | 24th ECC | Associate Editor |
-| 2025 | ACC 2025 | Associate Editor |
-| 2025 | 23rd ECC | Associate Editor |
-| 2025 | 33rd MED | Associate Editor |
-| 2024 | 22nd ECC | Associate Editor |
-| 2023 | 62nd IEEE CDC | Co-chair of session "Linear systems III" |
-| 2023 | 9th CoDIT | Chair of session "Linear Systems" |
-| 2022 | 61st IEEE CDC | Co-organizer and chair of the invited session on stability and stabilization of time-delay systems; co-chair of session "Switched Systems II" |
-| 2022 | 30th MED | Associate Editor |
-| 2021 | 7th IFAC ADHS | Program Committee member (Repeatability Evaluation); co-organizer and co-chair of the invited session "Data-driven methods for hybrid systems" |
-| 2021 | 29th MED | Associate Editor; co-chair of session "Data Mining and Control Tools Applications for Complex Systems" |
-| 2019 | 58th IEEE CDC | Co-chair of session "Delay Systems I" |
+| 2027 | [9th IFAC ADHS](https://adhs2027.disim.univaq.it/) | Local Arrangement Chair, Program Committee member, Associate Editor |
+| 2027 | [ACC 2027](https://acc2027.a2c2.org/) | Associate Editor |
+| 2027 | [25th ECC](https://ecc27.euca-ecc.org/) | Associate Editor |
+| 2026 | [65th IEEE CDC](https://cdc2026.ieeecss.org/) | Associate Editor |
+| 2026 | [ACC 2026](https://acc2026.a2c2.org/) | Associate Editor |
+| 2026 | [24th ECC](https://ecc26.euca-ecc.org/) | Associate Editor |
+| 2025 | [ACC 2025](https://acc2025.a2c2.org/) | Associate Editor |
+| 2025 | [23rd ECC](https://ecc25.euca-ecc.org/) | Associate Editor |
+| 2025 | [33rd MED](https://ieeecss.org/event/33th-mediterranean-conference-control-and-automation) | Associate Editor |
+| 2024 | [22nd ECC](https://ecc24.euca-ecc.org/) | Associate Editor |
+| 2023 | [62nd IEEE CDC](https://cdc2023.ieeecss.org/) | Co-chair of session "Linear systems III" |
+| 2023 | [9th CoDIT](https://ieeecss.org/event/9th-2023-international-conference-control-decision-and-information-technologies) | Chair of session "Linear Systems" |
+| 2022 | [61st IEEE CDC](https://cdc2022.ieeecss.org/) | Co-organizer and chair of the invited session on stability and stabilization of time-delay systems; co-chair of session "Switched Systems II" |
+| 2022 | [30th MED](https://www.med-control.org/med2022/) | Associate Editor |
+| 2021 | [7th IFAC ADHS](https://sites.uclouvain.be/adhs21/) | Program Committee member (Repeatability Evaluation); co-organizer and co-chair of the invited session "Data-driven methods for hybrid systems" |
+| 2021 | [29th MED](https://ieeecss.org/event/29th-mediterranean-conference-control-and-automation) | Associate Editor; co-chair of session "Data Mining and Control Tools Applications for Complex Systems" |
+| 2019 | [58th IEEE CDC](https://cdc2019.ieeecss.org/) | Co-chair of session "Delay Systems I" |
+{: .conf-table}
 
 Reviewing activity
 ------
