@@ -195,12 +195,12 @@ html[data-theme="dark"] .news-date { color: #0f1419; }
 
 /* Wide screens: start the menu ("Home") exactly where the page text starts.
    The page column begins at 21.19% of the container + 2.4em card padding;
-   the container is 889px wide (1024-1279px screens) or 1244px (>=1280px). */
+   the container is 889px wide (1024-1279px screens) or 990px (>=1280px, see below). */
 @media (min-width: 1024px) {
   .greedy-nav .visible-links .masthead__menu-item--lg { width: 213.6px; min-width: 213.6px; }
 }
 @media (min-width: 1280px) {
-  .greedy-nav .visible-links .masthead__menu-item--lg { width: 288.8px; min-width: 288.8px; }
+  .greedy-nav .visible-links .masthead__menu-item--lg { width: 235px; min-width: 235px; }
 }
 
 /* Copyright: at the bottom of the left column on wide screens,
@@ -273,11 +273,17 @@ ol.pub-list { list-style: none; padding-left: 0; margin-left: 0; }
 .pub-label { font-weight: 700; color: var(--c-accent); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 /* Content width: on wide screens every page's white card is capped so that running
-   text has about 80 characters per line (readability guideline); only the
-   Publications list (front matter "wide: true") uses the full width. */
+   text has about 80 characters per line (readability guideline). */
 @media (min-width: 1024px) {
   .page { padding-right: 0; }
   .page__inner-wrap,
   .archive__inner-wrap { max-width: 780px; }
-  .archive__inner-wrap--wide { max-width: none; }
+}
+
+/* Balanced layout on large screens: the whole block (left column + 780px card)
+   is centred in the window, with equal empty margins on both sides.
+   990px container = 21.19% for the left column + 780px card (+ 2 x 18px padding). */
+@media (min-width: 1280px) {
+  .masthead__inner-wrap,
+  #main { max-width: 1026px; }
 }
