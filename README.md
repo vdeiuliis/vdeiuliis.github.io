@@ -16,6 +16,7 @@ Sito accademico di Vittorio De Iuliis, basato sul template [Academic Pages](http
 | News (un file per notizia) | `_posts/*.md` |
 | Pubblicazioni (un file per lavoro) | `_publications/*.md` |
 | Foto profilo | `images/profile.jpg` (sostituiscila con la tua foto, stesso nome, oppure cambia `avatar` in `_config.yml`) |
+| CV (PDF) | `files/CV_Vittorio_De_Iuliis.pdf` (sostituisci il file con lo stesso nome per aggiornarlo) |
 | PDF e altri file scaricabili | cartella `files/` → visibili su `https://vdeiuliis.github.io/files/nome.pdf` |
 
 ### Aggiungere una pubblicazione

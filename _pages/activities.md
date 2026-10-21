@@ -46,8 +46,8 @@ Reviewing activity
 
 Research projects
 ------
-- **Constrained direct data-driven control: theory and applications** — University of L'Aquila, *Progetti di Ateneo per la Ricerca di base e Avvio alla Ricerca* — Principal Investigator, April 2025 – present
-- **[EMERGE](http://exemerge.disim.univaq.it/)** (Ex-Emerge Centre of Excellence, University of L'Aquila) — Researcher, August 2022 – present
+- **Constrained direct data-driven control: theory and applications** — University of L'Aquila, *Progetti di Ateneo per la Ricerca di base e Avvio alla Ricerca* — Principal Investigator, April 2025 – September 2025
+- **[EMERGE](http://exemerge.disim.univaq.it/)** (Ex-Emerge Centre of Excellence, University of L'Aquila) — Researcher and post-doctoral fellow, August 2022 – November 2025
 - **PON Ricerca & Innovazione 2014–2020** (AIM1877124 – Attività 1) — Researcher, August 2019 – July 2022
 - **[SAFECOP](http://www.safecop.eu/)** — Safe Cooperating Cyber-Physical Systems using Wireless Communication — Post-doctoral researcher, February – July 2019
 - **[INCIPICT](http://incipict.univaq.it/)** — Innovating City Planning through Information & Communications Technology — Post-doctoral researcher, February 2018 – January 2019

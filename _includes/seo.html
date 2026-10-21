@@ -7,7 +7,11 @@
 {% assign seo_url = seo_url | default: site.github.url %}
 
 {% if page.title %}
-  {% assign seo_title = page.title | append: " " | append: site.title_separator | append: " " | append: site.title %}
+  {% if page.url == "/" %}
+    {% assign seo_title = page.title %}
+  {% else %}
+    {% assign seo_title = page.title | append: " " | append: site.title_separator | append: " " | append: site.title %}
+  {% endif %}
 {% endif %}
 
 {% if seo_title %}
@@ -119,11 +123,7 @@
 {% if page.date %}
   <meta property="og:type" content="article">
 {% endif %}
-{% if page.excerpt %}
-  <meta property="og:description" name="description" content="{{ seo_description }}">
-{% elsif site.og_description %}
-  <meta property="og:description" name="description" content="{{ site.og_description }}">
-{% endif %}
+<meta property="og:description" content="{{ site.og_description | default: seo_description }}">
 {% if seo_url %}
   <meta property="og:url" content="{{ page.url | prepend: seo_url | replace: "/index.html", "/" }}">
 {% endif %}
@@ -139,6 +139,11 @@
   </script>
 {% endif %}
 
+{% if site.og_image and page.header.image == nil and page.header.overlay_image == nil %}
+  <meta property="og:image" content="{{ site.og_image | prepend: "/images/" | prepend: site.baseurl | prepend: site.url }}">
+  <meta property="og:image:alt" content="{{ site.author.name }}">
+  <meta name="twitter:card" content="summary">
+{% endif %}
 {% if page.header.image %}
   <meta property="og:image" content="{% if page.header.image contains "://" %}{{ page.header.image }}{% else %}{{ page.header.image | prepend: "/images/" | prepend: base_path }}{% endif %}">
 {% elsif page.header.overlay_image %}

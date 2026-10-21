@@ -45,9 +45,3 @@ Education
 Qualifications
 ------
 - Italian National Scientific Qualification (*Abilitazione Scientifica Nazionale*) as **Associate Professor**, call 2023/2025, sector 09/G1 — *Systems and Control Engineering*
-
-Contact
-------
-Department for the Promotion of Human Science and Quality of Life  
-San Raffaele University of Rome, Italy  
-**Email:** vittorio [dot] deiuliis [at] uniroma5 [dot] it

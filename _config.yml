@@ -31,6 +31,7 @@ author:
   employer         : "San Raffaele University of Rome"
   department       : "Department for the Promotion of Human Science and Quality of Life"
   employer_url     : "https://www.uniroma5.it/"
+  cv               : "/files/CV_Vittorio_De_Iuliis.pdf"   # CV link in the left column
   employer_logo    : "icons/uniroma5.svg"   # SVG in _includes/icons/
   uri              : # URL
   email            : "vittorio.deiuliis@uniroma5.it"
@@ -41,7 +42,7 @@ author:
   googlescholar    : "https://scholar.google.com/citations?user=6t-XmzsAAAAJ"
   inspire-hep      : # URL
   impactstory      : # URL
-  orcid            : # "https://orcid.org/0000-0000-0000-0000"
+  orcid            : "https://orcid.org/0000-0002-3221-9600"
   semantic         : # URL
   ssrn             : # URL
   pubmed           : # URL
@@ -161,8 +162,8 @@ facebook:
   username               :
   app_id                 :
   publisher              :
-og_image                 :  # Social media default site image
-og_description           :  # Social media default site image description
+og_image                 : "profile.jpg"  # photo shown in link previews (WhatsApp, LinkedIn, email...)
+og_description           : "Associate Professor of Systems and Control at San Raffaele University of Rome. Time-delay and positive systems, system identification, machine learning for control."
 # For specifying social profiles
 # - https://developers.google.com/structured-data/customize/social-profiles
 social:
