@@ -141,7 +141,15 @@
   </script>
 {% endif %}
 
-{% if site.og_image and page.header.image == nil and page.header.overlay_image == nil %}
+{% if page.og_image %}
+  {% comment %} Per-page preview card (e.g. Thoughts posts): og_image is a path under /images/ {% endcomment %}
+  <meta property="og:image" content="{{ page.og_image | prepend: "/images/" | prepend: site.baseurl | prepend: site.url }}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="{{ page.title | markdownify | strip_html | strip_newlines | escape_once }}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="{{ page.og_image | prepend: "/images/" | prepend: site.baseurl | prepend: site.url }}">
+{% elsif site.og_image and page.header.image == nil and page.header.overlay_image == nil %}
   <meta property="og:image" content="{{ site.og_image | prepend: "/images/" | prepend: site.baseurl | prepend: site.url }}">
   <meta property="og:image:alt" content="{{ site.author.name }}">
   <meta name="twitter:card" content="summary">

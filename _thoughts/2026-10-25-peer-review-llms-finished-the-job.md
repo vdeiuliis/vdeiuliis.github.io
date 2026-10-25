@@ -1,6 +1,7 @@
 ---
 title: "Peer review was already broken; LLMs just finished the job"
 date: 2026-10-25
+og_image: "thoughts/peer-review-llms-finished-the-job.png"
 ---
 
 Peer review has been broken for a long time, even though we have not yet found a better way to evaluate research output. Over the years, *publish or perish* has produced an obvious paradox: most authors (sadly, including the youngest ones) end up writing more papers than they read. Most researchers feed lines of research destined to have little or no global impact, not for lack of talent, but because following that path is the fastest and least risky way to build a career. Trying to open a new path, or to explore a less-travelled one, does not pay off: neither in terms of the number of papers one can produce in a given amount of time, nor in terms of the immediate resonance those papers can have among their (few) readers, since very few people read anything outside their own narrow area of interest and expertise. Let me be clear: I am not moralizing here. I am writing about this because I, too, have felt that this was the sensible thing to do, given how things work. I am certainly not innocent!

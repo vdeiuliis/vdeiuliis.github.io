@@ -68,6 +68,8 @@ Testo in Markdown, paragrafi separati da una riga vuota.
 
 La pagina Thoughts mostra i post dal più recente, con l'inizio del primo paragrafo come anteprima.
 
+Anteprima per i social (facoltativa): aggiungere nel front matter `og_image: "thoughts/nome.png"` con un'immagine 1200×630 in `images/thoughts/`. Senza questa riga si usa la foto profilo.
+
 ### Statistiche visite (GoatCounter)
 Le visite sono registrate con [GoatCounter](https://www.goatcounter.com) (senza cookie). Il codice del sito è in `_config.yml` (`goatcounter: "vdeiuliis"`); la dashboard privata è su https://vdeiuliis.goatcounter.com. Per non contare le proprie visite, aprire una volta `https://vdeiuliis.github.io/#toggle-goatcounter` in ogni browser che si usa.
 
