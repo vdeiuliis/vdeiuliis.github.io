@@ -141,14 +141,17 @@
   </script>
 {% endif %}
 
-{% if page.og_image %}
-  {% comment %} Per-page preview card (e.g. Thoughts posts): og_image is a path under /images/ {% endcomment %}
-  <meta property="og:image" content="{{ page.og_image | prepend: "/images/" | prepend: site.baseurl | prepend: site.url }}">
+{% comment %} Per-page preview image: og_image (path under /images/); Thoughts posts default to the card
+   generated at build time by .github/scripts/make_cards.py {% endcomment %}
+{% assign page_og = page.og_image %}
+{% if page_og == nil and page.collection == "thoughts" %}{% capture page_og %}thoughts/{{ page.slug }}.png{% endcapture %}{% endif %}
+{% if page_og %}
+  <meta property="og:image" content="{{ page_og | prepend: "/images/" | prepend: site.baseurl | prepend: site.url }}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="{{ page.title | markdownify | strip_html | strip_newlines | escape_once }}">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="{{ page.og_image | prepend: "/images/" | prepend: site.baseurl | prepend: site.url }}">
+  <meta name="twitter:image" content="{{ page_og | prepend: "/images/" | prepend: site.baseurl | prepend: site.url }}">
 {% elsif site.og_image and page.header.image == nil and page.header.overlay_image == nil %}
   <meta property="og:image" content="{{ site.og_image | prepend: "/images/" | prepend: site.baseurl | prepend: site.url }}">
   <meta property="og:image:alt" content="{{ site.author.name }}">
