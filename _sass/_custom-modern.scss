@@ -371,6 +371,6 @@ table.conf-table th:nth-child(2), table.conf-table td:nth-child(2) { width: 1%; 
 .thoughts-more { font-size: .9em; font-weight: 600; }
 
 /* Thoughts: comments (giscus) */
-.thoughts-comments { margin-top: 2.4em; padding-top: 1.4em; border-top: 1px solid var(--c-line); }
+.thoughts-comments { clear: both; margin-top: 2.4em; padding-top: 1.4em; border-top: 1px solid var(--c-line); }
 .thoughts-comments__title { margin-top: 0 !important; }
 .thoughts-comments__note { font-size: .85em; color: var(--c-muted); }

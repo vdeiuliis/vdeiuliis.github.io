@@ -1,5 +1,5 @@
 ---
-title: "Peer review was already broken; LLMs just finished the job"
+title: "Peer review was already broken, and LLMs just finished the job"
 date: 2026-10-25
 ---
 
