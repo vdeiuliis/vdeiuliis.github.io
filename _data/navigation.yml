@@ -3,9 +3,6 @@ main:
   - title: "Home"
     url: /
 
-  - title: "News"
-    url: /news/
-
   - title: "Publications"
     url: /publications/
 
@@ -14,6 +11,9 @@ main:
 
   - title: "Other activities"
     url: /activities/
+
+  - title: "Thoughts"
+    url: /thoughts/
 
   - title: "Personal"
     url: /personal/

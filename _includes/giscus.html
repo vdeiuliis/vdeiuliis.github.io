@@ -1,0 +1,41 @@
+{% comment %}
+  Comments via giscus (GitHub Discussions). Shown only on Thoughts posts,
+  and only once repo_id and category_id are set in _config.yml.
+{% endcomment %}
+{% assign giscus_cid = site.giscus.category_id | strip %}
+{% if giscus_cid != "" %}
+<section class="thoughts-comments">
+  <h2 class="thoughts-comments__title">Comments</h2>
+  <p class="thoughts-comments__note">Comments are powered by GitHub Discussions: you need a GitHub account to post.</p>
+  <div id="giscus-container"></div>
+</section>
+<script>
+(function () {
+  function theme() {
+    return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  }
+  var s = document.createElement('script');
+  s.src = 'https://giscus.app/client.js';
+  s.setAttribute('data-repo', '{{ site.giscus.repo }}');
+  s.setAttribute('data-repo-id', '{{ site.giscus.repo_id }}');
+  s.setAttribute('data-category', '{{ site.giscus.category }}');
+  s.setAttribute('data-category-id', '{{ site.giscus.category_id }}');
+  s.setAttribute('data-mapping', 'pathname');
+  s.setAttribute('data-strict', '1');
+  s.setAttribute('data-reactions-enabled', '1');
+  s.setAttribute('data-emit-metadata', '0');
+  s.setAttribute('data-input-position', 'bottom');
+  s.setAttribute('data-theme', theme());
+  s.setAttribute('data-lang', 'en');
+  s.setAttribute('data-loading', 'lazy');
+  s.crossOrigin = 'anonymous';
+  s.async = true;
+  document.getElementById('giscus-container').appendChild(s);
+  // follow the site's light/dark switch
+  new MutationObserver(function () {
+    var f = document.querySelector('iframe.giscus-frame');
+    if (f) f.contentWindow.postMessage({ giscus: { setConfig: { theme: theme() } } }, 'https://giscus.app');
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+})();
+</script>
+{% endif %}

@@ -1,0 +1,27 @@
+---
+layout: archive
+title: "Thoughts"
+permalink: /thoughts/
+author_profile: true
+---
+
+{% include base_path %}
+
+{% comment %}
+  Each post is a Markdown file in the _thoughts folder, named YYYY-MM-DD-short-title.md.
+  See README.md for instructions.
+{% endcomment %}
+
+<p class="thoughts-intro">Occasional reflections on academia, research and related matters. Personal opinions only.</p>
+
+{% assign thoughts = site.thoughts | sort: "date" | reverse %}
+<ul class="thoughts-list">
+  {% for post in thoughts %}
+    <li>
+      <time class="thoughts-date" datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%-d %B %Y" }}</time>
+      <h2><a href="{{ base_path }}{{ post.url }}">{{ post.title }}</a></h2>
+      <p class="thoughts-excerpt">{{ post.excerpt | strip_html | strip | truncatewords: 45 }}</p>
+      <a class="thoughts-more" href="{{ base_path }}{{ post.url }}">Read more&nbsp;→</a>
+    </li>
+  {% endfor %}
+</ul>

@@ -189,6 +189,7 @@ include:
   - _pages
   - files
 exclude:
+  - "Claude outputs"
   - "*.sublime-project"
   - "*.sublime-workspace"
   - .asset-cache
@@ -260,6 +261,17 @@ collections:
   talks:
     output: true
     permalink: /:collection/:path/
+  thoughts:
+    output: true
+    permalink: /thoughts/:title/
+
+
+# Comments on Thoughts posts (giscus, https://giscus.app). Leave category_id empty to hide them.
+giscus:
+  repo: "vdeiuliis/vdeiuliis.github.io"
+  repo_id: "R_kgDOVMlFiA"
+  category: "Announcements"
+  category_id: "DIC_kwDOVMlFiM4DJkcD"   # from giscus.app; set to "" to hide comments
 
 
 # These settings control how pages and collections are included in the site
@@ -310,6 +322,17 @@ defaults:
       author_profile: true
       share: true
       comment: true
+  # _thoughts
+  - scope:
+      path: ""
+      type: thoughts
+    values:
+      layout: single
+      author_profile: true
+      read_time: false
+      comments: false
+      share: false
+      related: false
   # _talks
   - scope:
       path: ""

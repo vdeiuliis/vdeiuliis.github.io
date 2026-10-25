@@ -11,6 +11,7 @@ Sito accademico di Vittorio De Iuliis, basato sul template [Academic Pages](http
 | Home / About | `_pages/about.md` |
 | Teaching | `_pages/teaching.md` |
 | Activities (editorial, reviewing, progetti) | `_pages/activities.md` |
+| Thoughts (riflessioni) | `_thoughts/` (un file per post) |
 | Personal page | `_pages/personal.md` (foto in `images/personal/`) |
 | Colori, font, stile delle card | `_sass/_custom-modern.scss` (es. cambia `--c-accent` per il colore principale) |
 | News (un file per notizia) | `_posts/*.md` |
@@ -53,6 +54,20 @@ Il badge mostra giorno, mese e anno; se il giorno non è noto aggiungi `month_on
 Se sotto le righe `---` scrivi anche un testo, la news avrà una sua pagina e comparirà "Read more →".
 Le ultime 5 news appaiono in homepage; tutte sono nella pagina **News**.
 
+### Aggiungere un post in "Thoughts"
+Creare un file in `_thoughts/` chiamato `AAAA-MM-GG-titolo-breve.md`:
+
+```
+---
+title: "Titolo del post"
+date: 2026-10-25
+---
+
+Testo in Markdown, paragrafi separati da una riga vuota.
+```
+
+La pagina Thoughts mostra i post dal più recente, con l'inizio del primo paragrafo come anteprima.
+
 ### Statistiche visite (GoatCounter)
 Le visite sono registrate con [GoatCounter](https://www.goatcounter.com) (senza cookie). Il codice del sito è in `_config.yml` (`goatcounter: "vdeiuliis"`); la dashboard privata è su https://vdeiuliis.goatcounter.com. Per non contare le proprie visite, aprire una volta `https://vdeiuliis.github.io/#toggle-goatcounter` in ogni browser che si usa.
 
@@ -79,6 +94,6 @@ Ogni successivo `git push` aggiorna automaticamente il sito.
 brew install ruby        # se serve
 gem install bundler
 bundle install
-bundle exec jekyll serve -l -H localhost
+bundle exec jekyll serve -l --force_polling
 ```
 Poi apri http://localhost:4000.
