@@ -31,7 +31,7 @@
   s.crossOrigin = 'anonymous';
   s.async = true;
   document.getElementById('giscus-container').appendChild(s);
-  // follow the site's light/dark switch
+  /* follow the site's light/dark switch */
   new MutationObserver(function () {
     var f = document.querySelector('iframe.giscus-frame');
     if (f) f.contentWindow.postMessage({ giscus: { setConfig: { theme: theme() } } }, 'https://giscus.app');
