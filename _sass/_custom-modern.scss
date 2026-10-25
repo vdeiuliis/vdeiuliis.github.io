@@ -285,14 +285,17 @@ ol.pub-list { list-style: none; padding-left: 0; margin-left: 0; }
   }
   .page__inner-wrap,
   .archive__inner-wrap { max-width: none; }
-  .greedy-nav .visible-links a { margin-left: 10px; margin-right: 10px; }
+  .greedy-nav .visible-links a { margin-left: 13px; margin-right: 13px; }
   .greedy-nav .visible-links .masthead__menu-item--lg a { margin-left: 0; }
+  /* let the menu measure 40px wider than the content column, so the greedy-nav
+     script never pushes the last item into the overflow menu (items stay inside the column) */
+  #site-nav.greedy-nav { margin-right: -40px; }
 }
 @media (min-width: 1024px) and (max-width: 1279.98px) {
-  .greedy-nav .visible-links a { font-size: .86em; margin-left: 8px; margin-right: 8px; }
+  .greedy-nav .visible-links a { font-size: .86em; margin-left: 11px; margin-right: 11px; }
   .greedy-nav .visible-links .masthead__menu-item--lg a { margin-left: 0; }
-  /* Home text at 189px + 43.2px card padding, minus the 8px link margin */
-  .greedy-nav .visible-links .masthead__menu-item--lg { width: 224px; min-width: 224px; }
+  /* Home text at 189px + 43.2px card padding, minus the 11px link margin */
+  .greedy-nav .visible-links .masthead__menu-item--lg { width: 221px; min-width: 221px; }
 }
 @media (min-width: 1280px) {
   .masthead__inner-wrap,
@@ -300,8 +303,8 @@ ol.pub-list { list-style: none; padding-left: 0; margin-left: 0; }
   .sidebar { width: 200px !important; max-width: 200px !important; }
   .page,
   .archive { width: calc(100% - 224px) !important; }
-  /* Home text at 224px + 43.2px card padding, minus the 10px link margin */
-  .greedy-nav .visible-links .masthead__menu-item--lg { width: 257px; min-width: 257px; }
+  /* Home text at 224px + 43.2px card padding, minus the 13px link margin */
+  .greedy-nav .visible-links .masthead__menu-item--lg { width: 254px; min-width: 254px; }
 }
 
 /* ==========================================================================
