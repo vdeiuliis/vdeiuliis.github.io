@@ -1,7 +1,7 @@
 ---
 permalink: /
 title: "Vittorio De Iuliis"
-seo_title: "Vittorio De Iuliis – Associate Professor of Systems and Control"   # browser tab, search results, link previews
+seo_title: "Vittorio De Iuliis – Associate Professor of Systems and Control Engineering"   # browser tab, search results, link previews
 hide_title: true   # no title at the top of the homepage
 author_profile: true
 redirect_from:
@@ -9,7 +9,7 @@ redirect_from:
   - /about.html
 ---
 
-I am an **Associate Professor** at [San Raffaele University of Rome](https://www.uniroma5.it/), in the Department for the Promotion of Human Science and Quality of Life.
+I am an **Associate Professor of Systems and Control Engineering** at [San Raffaele University of Rome](https://www.uniroma5.it/), in the Department for the Promotion of Human Science and Quality of Life.
 
 My research lies in **systems and control theory**, with a focus on time-delay systems, positive systems, switched and Markov jump systems, system identification, and the use of machine learning in control.
 

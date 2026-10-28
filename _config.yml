@@ -26,7 +26,7 @@ author:
   avatar           : "profile.jpg"
   name             : "Vittorio De Iuliis"
   pronouns         : # example: "she/her"  
-  bio              : "Associate Professor · Systems and Control"
+  bio              : "Associate Professor · Systems and Control Engineering"
   location         : # e.g. "Rome, Italy"
   employer         : "San Raffaele University of Rome"
   department       : "Department for the Promotion of Human Science and Quality of Life"
@@ -163,7 +163,7 @@ facebook:
   app_id                 :
   publisher              :
 og_image                 : "profile.jpg"  # photo shown in link previews (WhatsApp, LinkedIn, email...)
-og_description           : "Associate Professor of Systems and Control at San Raffaele University of Rome. Time-delay and positive systems, system identification, machine learning for control."
+og_description           : "Associate Professor of Systems and Control Engineering at San Raffaele University of Rome. Time-delay and positive systems, system identification, machine learning for control."
 # For specifying social profiles
 # - https://developers.google.com/structured-data/customize/social-profiles
 social:
