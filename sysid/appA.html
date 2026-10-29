@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Appendix A: Discrete-time LTI systems in state space · System Identification</title>
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem('sid-theme');if(t)document.documentElement.setAttribute('data-theme',t);var f=localStorage.getItem('sid-font');if(f)document.documentElement.style.setProperty('--fs',f+'px');}catch(e){}</script>
+
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']],
+    processEscapes: false, processEnvironments: true,
+    packages: ['base','ams','newcommand','noundefined','configmacros','textmacros','boldsymbol','mathtools','html','color','cancel','unicode'],
+    macros: {
+      R: '\\mathbb{R}', C: '\\mathbb{C}', N: '\\mathbb{N}', E: '\\mathbb{E}',
+      Im: '\\operatorname{Im}', Ker: '\\operatorname{Ker}', rank: '\\operatorname{rank}',
+      spn: '\\operatorname{span}', col: '\\operatorname{col}', row: '\\operatorname{row}',
+      tr: '\\operatorname{tr}', diag: '\\operatorname{diag}', vect: '\\operatorname{vec}',
+      argmin: '\\operatorname*{arg\\,min}', argmax: '\\operatorname*{arg\\,max}',
+      T: '^{\\mathsf{T}}', pinvsym: '^{\\dagger}',
+      norm: ['\\left\\lVert #1\\right\\rVert', 1], abs: ['\\left\\lvert #1\\right\\rvert', 1],
+      ip: ['\\langle #1,#2\\rangle', 2],
+      Obs: '\\mathcal{O}', Rch: '\\mathcal{R}', Toe: '\\mathcal{T}', Hk: '\\mathcal{H}', Z: '\\mathcal{Z}',
+      Pip: '\\Pi^{\\perp}', bmat: ['\\begin{bmatrix}#1\\end{bmatrix}', 1], pmat: ['\\begin{pmatrix}#1\\end{pmatrix}', 1],
+      up: '\\uparrow', dn: '\\downarrow', hatth: '\\hat{\\theta}', sm: '\\scriptstyle'
+    }
+  },
+  svg: { fontCache: 'global', scale: 1.0 },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code','select','option'],
+             ignoreHtmlClass: 'no-mathjax' },
+  startup: { ready() { MathJax.startup.defaultReady(); MathJax.startup.promise.then(() => document.dispatchEvent(new Event('mathjax-ready'))); } }
+};
+</script>
+<script src="vendor/tex-svg-full.js" defer></script>
+
+<script src="assets/refs.js" defer></script>
+<script src="assets/la.js" defer></script>
+<script src="assets/plot.js" defer></script>
+<script src="assets/widgets.js" defer></script>
+<script src="assets/app.js" defer></script>
+</head>
+<body data-page="appA">
+<header class="topbar">
+  <button class="iconbtn" id="navtoggle" aria-label="Contents"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html">System Identification <span>&amp; Data Analysis</span></a>
+  <div class="topsp"></div>
+  <a class="iconbtn labsbtn" href="index.html#labs" title="List of the interactive laboratories">Labs</a>
+  <button class="iconbtn" id="searchbtn" aria-label="Search" title="Search (/)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></button>
+  <button class="iconbtn" id="fontminus" title="Smaller text">A&minus;</button>
+  <button class="iconbtn" id="fontplus" title="Larger text">A+</button>
+  <button class="iconbtn" id="themebtn" title="Light / dark theme"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button>
+</header>
+<nav class="sidebar" id="sidebar"><div class="navhead"><a href="index.html">Contents</a></div><ol class="navlist"><li><a href="notation.html"><span class="navnum"></span>Notation</a></li><li><a href="ch1.html"><span class="navnum">1</span>Introduction</a></li><li><a href="ch2.html"><span class="navnum">2</span>Fundamentals of linear algebra</a></li><li><a href="ch3.html"><span class="navnum">3</span>The singular value decomposition</a></li><li><a href="ch4.html"><span class="navnum">4</span>Least squares</a></li><li><a href="ch5.html"><span class="navnum">5</span>Introduction to system identification</a></li><li><a href="ch6.html"><span class="navnum">6</span>Prediction-error methods for polynomial models</a></li><li><a href="ch7.html"><span class="navnum">7</span>Towards subspace identification: the Ho–Kalman realization</a></li><li><a href="ch8.html"><span class="navnum">8</span>Subspace identification: the MOESP method</a></li><li class="cur"><a href="appA.html"><span class="navnum">A</span>Discrete-time LTI systems in state space</a><ol class="navsec"><li><a href="#sec-app-ss" data-sec="sec-app-ss"><span class="navnum">A.1</span>State-space equations and their solution</a></li><li><a href="#sec-app-z" data-sec="sec-app-z"><span class="navnum">A.2</span>The \(\Z\)-transform</a></li><li><a href="#sec-app-stab" data-sec="sec-app-stab"><span class="navnum">A.3</span>Natural modes and stability</a></li><li><a href="#sec-app-modes" data-sec="sec-app-modes"><span class="navnum">A.4</span>Excitability and observability of natural modes</a></li><li><a href="#sec-app-struct" data-sec="sec-app-struct"><span class="navnum">A.5</span>Reachability, controllability, observability and related properties</a></li><li><a href="#sec-app-cancel" data-sec="sec-app-cancel"><span class="navnum">A.6</span>Zero&ndash;pole cancellations</a></li><li><a href="#s-A-7" data-sec="s-A-7"><span class="navnum">A.7</span>Exercises</a></li></ol></li><li><a href="appB.html"><span class="navnum">B</span>Polynomial input–output models</a></li><li><a href="references.html"><span class="navnum"></span>Bibliography</a></li></ol></nav>
+<div class="scrim" id="scrim"></div>
+<main class="content" id="content">
+<article class="chapter">
+<h1 class="chap" id="top"><span class="chapnum">Appendix A</span><span class="chaptitle">Discrete-time LTI systems in state space</span></h1>
+<p>This appendix recalls the notions of systems theory used throughout the notes. Notation is
+fixed once and for all: \(n\) is the number of state variables, \(p\) the number of inputs and
+\(q\) the number of outputs. Standard references are, in English,
+[<a class="cite" href="references.html#bib-Antsaklis" data-cite="Antsaklis">18</a>, <a class="cite" href="references.html#bib-Kailath" data-cite="Kailath">19</a>, <a class="cite" href="references.html#bib-FranklinPowellWorkman" data-cite="FranklinPowellWorkman">20</a>] and, in Italian,
+[<a class="cite" href="references.html#bib-RubertiIsidori" data-cite="RubertiIsidori">21</a>, <a class="cite" href="references.html#bib-GrasselliMeniniGaleani" data-cite="GrasselliMeniniGaleani">22</a>, <a class="cite" href="references.html#bib-MonacoCalifano" data-cite="MonacoCalifano">23</a>].</p>
+<h2 id="sec-app-ss" class="sec"><span class="secnum">A.1</span> State-space equations and their solution</h2>
+<p>A discrete-time, linear, time-invariant (LTI) system in state-space form is</p>
+<div class="eq" id="eq-app-ss">\[\left\{\begin{aligned}
+  x(k+1)&amp;=Ax(k)+Bu(k),\\ y(k)&amp;=Cx(k)+Du(k),
+\end{aligned}\right.\qquad k\in\N_0,\quad x(0)=x_0, \tag{A.1}\]</div>
+<p>with \(x(k)\in\R^n\), \(u(k)\in\R^p\), \(y(k)\in\R^q\) and</p>
+<div class="eq">\[
+  A\in\R^{n\times n},\quad B\in\R^{n\times p},\quad C\in\R^{q\times n},\quad D\in\R^{q\times p}.
+\]</div>
+<p>The system is SISO if \(p=q=1\) and MIMO otherwise; it is <em>strictly proper</em> if \(D=0\)
+(the output at time \(k\) does not depend on \(u(k)\)). Figure&nbsp;<a class="xref" href="#fig-app-block" data-ref="fig:app-block">A.1</a> shows the
+corresponding block diagram, where \(z^{-1}\) denotes a one-step delay.</p>
+<figure class="fig" id="fig-app-block"><div class="fig-img"><img src="figures/fig-app-block.svg" alt="Figure A.1" loading="lazy" style="width:646px"></div><figcaption><span class="fig-name">Figure A.1:</span> Block diagram of the discrete-time LTI system <a class="xref" href="#eq-app-ss" data-ref="eq:app-ss">(A.1)</a>. Following the usual
+convention of block diagrams, the block \(z^{-1}\) denotes a one-step delay, in the \(\mathcal{Z}\)-transform sense. Since it acts on
+time signals, it is more properly described by the backward shift operator \(q^{-1}\),
+\(q^{-1}x(k+1)=x(k)\), introduced in Section&nbsp;<a class="xref" href="appB.html#sec-app-shift" data-ref="sec:app-shift">B.1</a>.</figcaption></figure>
+<p><strong class="runin">Solution.</strong>  Iterating the state equation,</p>
+<div class="eq">\[
+  x(1)=Ax_0+Bu(0),\quad x(2)=A^2x_0+ABu(0)+Bu(1),\quad\dots
+\]</div>
+<p>and by induction</p>
+<div class="eq" id="eq-app-sol">\[x(k)=\underbrace{A^kx_0}_{\text{free state response}}+\underbrace{\sum_{\tau=0}^{k-1}A^{k-\tau-1}Bu(\tau)}_{\text{forced state response}},
+  \qquad
+  y(k)=CA^kx_0+\sum_{\tau=0}^{k-1}CA^{k-\tau-1}Bu(\tau)+Du(k). \tag{A.2}\]</div>
+<p>The matrix \(A^k\) is the <em>state transition matrix</em>. The response is the sum of the
+free response (due to \(x_0\), with \(u\equiv0\)) and of the forced response (due to \(u\), with
+\(x_0=0\)): this is the superposition principle.</p>
+<p><strong class="runin">Impulse response.</strong>  For a SISO system with \(x_0=0\) and \(u(k)=\delta(k)\) (the
+discrete impulse, \(\delta(0)=1\), \(\delta(k)=0\) for \(k\neq0\)), <a class="xref" href="#eq-app-sol" data-ref="eq:app-sol">(A.2)</a> gives the
+<em>impulse response</em></p>
+<div class="eq">\[
+  w(k)=\begin{cases}D,&amp;k=0,\\ CA^{k-1}B,&amp;k\ge1,\end{cases}
+\]</div>
+<p>and, by linearity and time invariance, the forced output is the discrete convolution
+\(y(k)=\sum_{\tau=0}^kw(k-\tau)u(\tau)\). For a MIMO system the <em>impulse response matrix</em>
+is</p>
+<div class="eq">\[
+  W(k)=\begin{cases}D,&amp;k=0,\\ CA^{k-1}B,&amp;k\ge1,\end{cases}\qquad W(k)\in\R^{q\times p},
+\]</div>
+<p>whose entry \(w_{ij}(k)\) is the response of output \(i\) to an impulse applied at input \(j\)
+(all other inputs being zero), and \(y(k)=\sum_{\tau=0}^kW(k-\tau)u(\tau)\). The matrices
+\(W(k)\), \(k\ge1\), are called <em>Markov parameters</em>.</p>
+<p><strong class="runin">Changes of coordinates.</strong>  With \(x=T\tilde x\), \(T\) nonsingular, the system becomes
+\(\{\tilde A,\tilde B,\tilde C,\tilde D\}=\{T^{-1}AT,T^{-1}B,CT,D\}\); since
+\(\tilde C\tilde A^{k-1}\tilde B=CA^{k-1}B\), the impulse response matrix (and the transfer
+matrix below) are invariant with respect to change of coordinates on the state variable. Two such systems are called <em>algebraically equivalent</em>.</p>
+<h2 id="sec-app-z" class="sec"><span class="secnum">A.2</span> The \(\Z\)-transform</h2>
+<p>For a sequence \(f(k)\), \(k\ge0\) (vector- or matrix-valued sequences are transformed entry by
+entry), the (unilateral) \(\Z\)-transform is</p>
+<div class="eq">\[
+  F(z)=\Z\{f(k)\}=\sum_{k=0}^\infty f(k)z^{-k},\qquad z\in\C,
+\]</div>
+<p>defined for \(|z|\) larger than a radius of convergence. Useful transforms and properties:</p>
+<div class="center"><div class="tablewrap"><table class="tbl"><thead><tr><th class="al">\(f(k)\)</th><th class="al">\(F(z)\)</th><th class="al">property</th><th class="al"></th></tr></thead><tbody><tr><td class="al">\(\delta(k)\)</td><td class="al">\(1\)</td><td class="al">linearity</td><td class="al">\(\Z\{\alpha f+\beta g\}=\alpha F+\beta G\)</td></tr><tr><td class="al">\(1\) (step)</td><td class="al">\(\dfrac{z}{z-1}\)</td><td class="al">delay (\(f(k)=0\), \(k&lt;0\))</td><td class="al">\(\Z\{f(k-\tau)\}=z^{-\tau}F(z)\)</td></tr><tr><td class="al">\(a^k\)</td><td class="al">\(\dfrac{z}{z-a}\)</td><td class="al">advance</td><td class="al">\(\Z\{f(k+1)\}=zF(z)-zf(0)\)</td></tr><tr><td class="al">\(k\,a^{k}\)</td><td class="al">\(\dfrac{az}{(z-a)^2}\)</td><td class="al">convolution</td><td class="al">\(\Z\{\textstyle\sum_{\tau=0}^kg(k-\tau)f(\tau)\}=G(z)F(z)\)</td></tr><tr><td class="al">\(A^k\)</td><td class="al">\(z(zI-A)^{-1}\)</td><td class="al">final value</td><td class="al">\(\lim_{k\to\infty}f(k)=\lim_{z\to1}(z-1)F(z)\) (if it exists)</td></tr></tbody></table></div></div>
+<p><strong class="runin">State-space equations in the \(\Z\) domain.</strong>  Transforming <a class="xref" href="#eq-app-ss" data-ref="eq:app-ss">(A.1)</a> with the
+advance property, \(zX(z)-zx_0=AX(z)+BU(z)\), hence</p>
+<div class="eq" id="eq-app-Xz"><span class="anchor" id="eq-app-Yz"></span>\begin{align*}
+  X(z)&amp;=z(zI-A)^{-1}x_0+(zI-A)^{-1}BU(z), \tag{A.3} \\
+
+  Y(z)&amp;=\underbrace{zC(zI-A)^{-1}x_0}_{\text{free response}}+\underbrace{\bigl[C(zI-A)^{-1}B+D\bigr]U(z)}_{\text{forced response}} . \tag{A.4}\end{align*}</div>
+<p>These are the \(\Z\)-transforms of <a class="xref" href="#eq-app-sol" data-ref="eq:app-sol">(A.2)</a> (compare with \(\Z\{A^k\}=z(zI-A)^{-1}\)).</p>
+<p><strong class="runin">Transfer function and transfer matrix.</strong>  The <em>transfer matrix</em> is</p>
+<div class="eq" id="eq-app-W">\[W(z)=C(zI-A)^{-1}B+D=\Z\{W(k)\}\in\C^{q\times p},\qquad Y_f(z)=W(z)U(z), \tag{A.5}\]</div>
+<p>the \(\Z\)-transform of the impulse response matrix; its entry \(W_{ij}(z)\) is the transfer
+function from input \(j\) to output \(i\). Since \((zI-A)^{-1}=\operatorname{adj}(zI-A)/\det(zI-A)\),
+for a SISO system</p>
+<div class="eq">\[
+  W(z)=\frac{C\operatorname{adj}(zI-A)B+D\det(zI-A)}{\det(zI-A)}=\frac{N(z)}{D(z)}
+      =\frac{\beta_mz^m+\cdots+\beta_1z+\beta_0}{z^n+\alpha_{n-1}z^{n-1}+\cdots+\alpha_0},
+\]</div>
+<p>a <em>proper</em> rational function: \(m\le n\) (before cancellations), the relative degree is
+\(n-m\), and \(D\neq0\) iff \(m=n\) (biproper); \(W\) is strictly proper iff \(D=0\). The roots of
+the denominator <em>after</em> cancelling common factors are the <em>poles</em> of \(W(z)\); they
+are a subset of the eigenvalues of \(A\) (Section&nbsp;<a class="xref" href="#sec-app-cancel" data-ref="sec:app-cancel">A.6</a>). Dividing numerator and
+denominator by \(z^n\) one obtains the form in powers of \(z^{-1}\) used in
+Chapter&nbsp;<a class="xref" href="ch6.html" data-ref="ch:pem">6</a> and Appendix&nbsp;<a class="xref" href="appB.html" data-ref="app:polynomial">B</a>:</p>
+<div class="eq">\[
+  W(z)=\frac{\beta_mz^{m-n}+\cdots+\beta_0z^{-n}}{1+\alpha_{n-1}z^{-1}+\cdots+\alpha_0z^{-n}}
+      =z^{-(n-m)}\frac{\beta_m+\beta_{m-1}z^{-1}+\cdots+\beta_0z^{-m}}{1-a_1z^{-1}-\cdots-a_nz^{-n}},\qquad a_i=-\alpha_{n-i},
+\]</div>
+<p>which displays the input&ndash;output delay \(n-m\) (the relative degree). Conversely, every proper
+rational \(W(z)\) admits state-space <em>realizations</em> \(\{A,B,C,D\}\) (e.g. the canonical
+forms of Appendix&nbsp;<a class="xref" href="appB.html" data-ref="app:polynomial">B</a>); the realizations of minimal dimension are characterized in
+Section&nbsp;<a class="xref" href="#sec-app-cancel" data-ref="sec:app-cancel">A.6</a>.</p>
+<div class="box example" id="ex-app-tf"><div class="box-title">Example A.1: transfer function of a second-order system</div><div class="box-body"><p>For \(A=\bmat{0&amp;1\\-0.4&amp;1.3}\), \(B=\bmat{0\\1}\), \(C=\bmat{-0.8&amp;1}\), \(D=0\):
+\(\det(zI-A)=z^2-1.3z+0.4=(z-0.5)(z-0.8)\),
+\((zI-A)^{-1}B=\frac1{(z-0.5)(z-0.8)}\bmat{1\\z}\), so</p>
+<div class="eq">\[
+  W(z)=\frac{z-0.8}{(z-0.5)(z-0.8)}=\frac1{z-0.5}.
+\]</div>
+<p>The eigenvalue \(0.8\) does not appear as a pole: there is a zero&ndash;pole cancellation, whose
+meaning is explained in Example&nbsp;<a class="xref" href="#ex-app-cancel" data-ref="ex:app-cancel">A.2</a>.</p></div></div>
+<h2 id="sec-app-stab" class="sec"><span class="secnum">A.3</span> Natural modes and stability</h2>
+<p><strong class="runin">Natural modes.</strong>  If \(A\) is diagonalizable, \(A=R\Lambda L=\sum_{i=1}^n\lambda_ir_il_i\T\)
+(Theorem&nbsp;<a class="xref" href="ch2.html#thm-modal" data-ref="thm:modal">2.8</a>), then</p>
+<div class="eq">\[
+  A^k=R\Lambda^kL=\sum_{i=1}^n\lambda_i^k\,r_il_i\T,\qquad
+  x_{\mathrm{free}}(k)=A^kx_0=\sum_{i=1}^n\lambda_i^k\,r_i\,(l_i\T x_0):
+\]</div>
+<p>the free state response is a combination of the <em>natural modes</em> \(\lambda_i^k\) along the
+eigenvector directions \(r_i\), with weights \(l_i\T x_0\).</p>
+<p>For a real matrix, complex eigenvalues come in conjugate pairs \(\lambda=\rho e^{\pm j\vartheta}\),
+and the pair generates the real modes \(\rho^k\cos(\vartheta k)\), \(\rho^k\sin(\vartheta k)\)
+(damped or growing oscillations). A negative real eigenvalue generates an alternating mode.
+If \(A\) is not diagonalizable, a Jordan block of size \(\nu\) associated with \(\lambda\) generates
+the modes \(\lambda^k,k\lambda^{k-1},\dots,\binom{k}{\nu-1}\lambda^{k-\nu+1}\) (Chapter&nbsp;<a class="xref" href="ch2.html" data-ref="ch:linalg">2</a>,
+advanced topic). The behaviour of each mode is determined by \(|\lambda|\)
+(Figure&nbsp;<a class="xref" href="#fig-app-modes" data-ref="fig:app-modes">A.2</a>):</p>
+<ul><li><p>\(|\lambda|&lt;1\): <em>asymptotically stable</em> (convergent) mode;</p></li><li><p>\(|\lambda|=1\): <em>simply stable</em> (bounded) mode if \(\lambda\) is simple (or in Jordan blocks of size one only),
+      <em>unstable</em> (polynomially divergent) if it belongs to a Jordan block of size \(\ge2\);</p></li><li><p>\(|\lambda|&gt;1\): <em>unstable</em> (divergent) mode.</p></li></ul>
+<figure class="fig" id="fig-app-modes"><div class="fig-img"><img src="figures/fig-app-modes.svg" alt="Figure A.2" loading="lazy" style="width:529px"></div><figcaption><span class="fig-name">Figure A.2:</span> Natural modes of discrete-time systems: (a) the stability region is the open unit
+disc; the four lower panels show the modes \(\lambda^k\) (or \(\mathrm{Re}\,\lambda^k\) for the complex
+pair) for the eigenvalues marked a&ndash;d in (a).</figcaption></figure>
+<div class="widget" id="w-modes" data-widget="modes"></div>
+<p><strong class="runin">Equilibrium points.</strong>  For a constant input \(u(k)=\bar u\), a state \(\bar x\) is an
+<em>equilibrium</em> if \(\bar x=A\bar x+B\bar u\), i.e. \((I-A)\bar x=B\bar u\). With \(\bar u=0\) the
+origin is always an equilibrium; it is the <em>unique</em> equilibrium iff \(I-A\) is nonsingular,
+i.e. \(\rank(I-A)=n\), i.e. \(\lambda=1\) is not an eigenvalue of \(A\).</p>
+<p><strong class="runin">Stability of equilibria.</strong>  An equilibrium \(\bar x\) (for \(u\equiv\bar u\)) is
+<em>stable</em> (in the sense of Lyapunov) if for every \(\epsilon&gt;0\) there is \(\delta&gt;0\) such
+that \(\norm{x_0-\bar x}&lt;\delta\) implies \(\norm{x(k)-\bar x}&lt;\epsilon\) for all \(k\ge0\); it is
+<em>asymptotically stable</em> if, in addition, \(x(k)\to\bar x\) for \(x_0\) close to \(\bar x\);
+<em>unstable</em> if it is not stable. Since the deviation \(\tilde x(k)=x(k)-\bar x\) obeys
+\(\tilde x(k+1)=A\tilde x(k)\) for every equilibrium, all the equilibria of an LTI system have the
+same stability properties, which are therefore properties <em>of the system</em> (of \(A\)):</p>
+<div class="box keybox"><ul><li><p><em>asymptotically stable</em> \(\iff\) all the eigenvalues satisfy \(|\lambda_i|&lt;1\), i.e.       the spectral radius \(\rho(A)=\max_i|\lambda_i|&lt;1\) (all modes convergent); in this case
+      stability is also global and exponential;</p></li><li><p><em>(simply) stable</em> \(\iff\) \(|\lambda_i|\le1\) for all \(i\), and every eigenvalue with
+      \(|\lambda_i|=1\) has \(m_{\mathrm{geo}}(\lambda_i)=m_{\mathrm{alg}}(\lambda_i)\) (all modes bounded);</p></li><li><p><em>unstable</em> otherwise: some \(|\lambda_i|&gt;1\), or some eigenvalue on the unit circle
+      with \(m_{\mathrm{geo}}&lt;m_{\mathrm{alg}}\).</p></li></ul>
+<p>Equivalently, \(A\) is asymptotically stable iff for some (and then for every) \(Q\succ0\) the
+discrete Lyapunov equation \(A\T PA-P=-Q\) has a solution \(P\succ0\).</p></div>
+<p><strong class="runin">BIBO stability.</strong>  The system is bounded-input bounded-output (BIBO) stable if
+every bounded input produces a bounded forced output; this holds iff
+\(\sum_k\norm{W(k)}&lt;\infty\), iff all the poles of \(W(z)\) lie in the open unit disc. Asymptotic
+stability implies BIBO stability; the converse holds for minimal systems, but not in
+general, because unstable modes may be cancelled in \(W(z)\) (Section&nbsp;<a class="xref" href="#sec-app-cancel" data-ref="sec:app-cancel">A.6</a>).</p>
+<h2 id="sec-app-modes" class="sec"><span class="secnum">A.4</span> Excitability and observability of natural modes</h2>
+<p>Let \(A\) be diagonalizable. From <a class="xref" href="#eq-app-sol" data-ref="eq:app-sol">(A.2)</a> with \(x_0=0\) and an impulse on input \(j\),
+\(u(k)=e_j\delta(k)\), the state response for \(k\ge1\) is</p>
+<div class="eq">\[
+  x(k)=A^{k-1}Be_j=\sum_{i=1}^n\lambda_i^{k-1}r_i\,(l_i\T b_j),\qquad b_j=Be_j .
+\]</div>
+<div class="thm thm-definition" id="definition-A-1"><p><span class="thm-head"><span class="thm-name">Definition A.1</span>.</span> The natural mode \(\lambda_i^k\) is <em>excitable</em> (by impulsive inputs) if \(l_i\T B\neq0\)
+(a row vector with \(p\) entries): it appears in the state response to an impulse applied to
+some input. It is <em>observable</em> if \(Cr_i\neq0\) (a column vector with \(q\) entries): it
+appears in the free output response \(y(k)=CA^kx_0=\sum_i\lambda_i^k(Cr_i)(l_i\T x_0)\) for some \(x_0\).</p></div>
+<p>Combining the two, the impulse response matrix and the transfer matrix are</p>
+<div class="eq" id="eq-app-W-modal">\[W(k)=\sum_{i=1}^n\lambda_i^{k-1}\,(Cr_i)(l_i\T B),\ k\ge1,\qquad
+  W(z)=D+\sum_{i=1}^n\frac{(Cr_i)(l_i\T B)}{z-\lambda_i}: \tag{A.6}\]</div>
+<p><em>only the modes that are both excitable and observable appear in the impulse response
+and in the transfer matrix</em>; the others are invisible from input&ndash;output data.</p>
+<h2 id="sec-app-struct" class="sec"><span class="secnum">A.5</span> Reachability, controllability, observability and related properties</h2>
+<div class="thm thm-definition" id="definition-A-2"><p><span class="thm-head"><span class="thm-name">Definition A.2</span>.</span> The system <a class="xref" href="#eq-app-ss" data-ref="eq:app-ss">(A.1)</a> (or the pair \((A,B)\)) is</p>
+<ul><li><p><em>reachable</em> if every state \(\bar x\) can be reached from \(x_0=0\) in a finite number of
+      steps with a suitable input sequence;</p></li><li><p><em>controllable</em> (to the origin) if every initial state can be driven to \(0\) in a
+      finite number of steps;</p></li><li><p><em>stabilizable</em> if there is a state feedback \(u=Fx\) such that \(A+BF\) is
+      asymptotically stable (equivalently, the non-reachable part is asymptotically stable).</p></li></ul>
+<p>The system (or the pair \((A,C)\)) is</p>
+<ul><li><p><em>observable</em> if the initial state \(x_0\) can be uniquely determined from the
+      knowledge of \(u(k)\) and \(y(k)\) on a finite interval \(k=0,\dots,K\);</p></li><li><p><em>reconstructable</em> if the <em>current</em> state can be determined from past inputs and
+      outputs;</p></li><li><p><em>detectable</em> if there is an output injection \(L\) such that \(A+LC\) is asymptotically
+      stable (equivalently, the non-observable part is asymptotically stable).</p></li></ul></div>
+<p><strong class="runin">Rank tests.</strong>  From <a class="xref" href="#eq-app-sol" data-ref="eq:app-sol">(A.2)</a> with \(x_0=0\),</p>
+<div class="eq">\[
+  x(k)=\bmat{B&amp;AB&amp;\cdots&amp;A^{k-1}B}\bmat{u(k-1)\\ u(k-2)\\ \vdots\\ u(0)},
+\]</div>
+<p>so the set of states reachable in \(k\) steps is \(\Im[B\;AB\;\cdots\;A^{k-1}B]\). By the
+Cayley&ndash;Hamilton theorem (Chapter&nbsp;<a class="xref" href="ch2.html" data-ref="ch:linalg">2</a>, advanced topic) this subspace stops growing at
+\(k=n\). Similarly, stacking the first \(n\) outputs, \([y(0);\dots;y(n-1)]=\Obs\,x_0+(\text{known
+terms depending on }u)\). This leads to the <em>reachability matrix</em> and the
+<em>observability matrix</em></p>
+<div class="eq">\[
+  \Rch=\bmat{B&amp;AB&amp;\cdots&amp;A^{n-1}B}\in\R^{n\times np},\qquad
+  \Obs=\bmat{C\\ CA\\ \vdots\\ CA^{n-1}}\in\R^{nq\times n},
+\]</div>
+<p>and to the Kalman rank tests:</p>
+<div class="box keybox"><div class="eq">\[
+  (A,B)\ \text{reachable}\iff\rank(\Rch)=n,\qquad (A,C)\ \text{observable}\iff\rank(\Obs)=n .
+\]</div>
+<p>Controllability is equivalent to \(\Im(A^n)\subseteq\Im(\Rch)\); it coincides with
+reachability when \(A\) is nonsingular (in discrete time a system with \(A\) nilpotent is
+controllable even with \(B=0\)). Similarly, reconstructability coincides with
+observability when \(A\) is nonsingular. Reachability and observability are <em>dual</em>:
+\((A,B)\) is reachable iff \((A\T,B\T)\) is observable.</p></div>
+<p>The extended matrices \(\Obs_s\) and \(\Rch_\ell\) of Chapters&nbsp;<a class="xref" href="ch7.html" data-ref="ch:hokalman">7</a> and <a class="xref" href="ch8.html" data-ref="ch:moesp">8</a> are the
+same matrices with \(s\) block rows and \(\ell\) block columns; for \(s,\ell\ge n\) their rank equals
+the rank of \(\Obs\) and \(\Rch\).</p>
+<p><strong class="runin">PBH (Popov&ndash;Belevitch&ndash;Hautus) tests.</strong></p>
+<div class="eq">\[
+  (A,B)\ \text{reachable}\iff\rank\bmat{\lambda I-A&amp;B}=n\ \ \forall\lambda\in\C,
+\]</div>
+<div class="eq">\[
+  (A,C)\ \text{observable}\iff\rank\bmat{\lambda I-A\\ C}=n\ \ \forall\lambda\in\C
+\]</div>
+<p>(it suffices to check the eigenvalues of \(A\)). Equivalently: \((A,B)\) is reachable iff no
+left eigenvector \(l\T\) of \(A\) satisfies \(l\T B=0\), and \((A,C)\) is observable iff no right
+eigenvector \(r\) satisfies \(Cr=0\). Restricting the test to the eigenvalues with \(|\lambda|\ge1\)
+gives stabilizability and detectability; restricting it to \(\lambda\neq0\) gives
+controllability.</p>
+<p><strong class="runin">Modes versus state properties.</strong>  Comparing the PBH tests with the definitions of
+Section&nbsp;<a class="xref" href="#sec-app-modes" data-ref="sec:app-modes">A.4</a>, for diagonalizable \(A\):</p>
+<ul><li><p>if the eigenvalues are distinct, \((A,B)\) is reachable <em>iff all the natural modes are
+      excitable</em>, and \((A,C)\) is observable <em>iff all the natural modes are observable</em>;</p></li><li><p>if an eigenvalue \(\lambda\) has \(m_{\mathrm{geo}}(\lambda)&gt;p\) (the number of input channels), the system cannot be reachable
+      (the \(m_{\mathrm{geo}}\) independent left eigenvectors of \(\lambda\) span a space in which
+      some combination \(l\T\) satisfies \(l\T B=0\)): e.g. a SISO system with a repeated
+      eigenvalue with two independent eigenvectors is never reachable. The dual statement
+      holds for observability with \(q\) (number of output channels);</p></li><li><p>stabilizable iff all the modes with \(|\lambda|\ge1\) are excitable; detectable iff all the
+      modes with \(|\lambda|\ge1\) are observable.</p></li></ul>
+<p><strong class="runin">Kalman decomposition.</strong>  There is always a change of coordinates that splits the state
+into four parts: reachable and observable, reachable and unobservable, unreachable and
+observable, unreachable and unobservable. The transfer matrix depends only on the
+reachable-and-observable part:</p>
+<div class="eq">\[
+  W(z)=C_{ro}(zI-A_{ro})^{-1}B_{ro}+D .
+\]</div>
+<p>Hence a realization is <em>minimal</em> (no realization of the same \(W(z)\) with fewer states
+exists) iff it is reachable and observable; all minimal realizations of the same \(W(z)\)
+are algebraically equivalent (related by a unique \(T\)). This is why identification methods
+can only recover the minimal part of a system (Section&nbsp;<a class="xref" href="ch5.html#sec-what-ident" data-ref="sec:what-ident">5.2</a>).</p>
+<h2 id="sec-app-cancel" class="sec"><span class="secnum">A.6</span> Zero&ndash;pole cancellations</h2>
+<p><strong class="runin">SISO systems.</strong>  By <a class="xref" href="#eq-app-W-modal" data-ref="eq:app-W-modal">(A.6)</a>, the eigenvalues \(\lambda_i\) of the modes
+that are not excitable or not observable do not appear as poles of \(W(z)\): in the ratio
+\(N(z)/D(z)\) with \(D(z)=\det(zI-A)\), the corresponding factor \((z-\lambda_i)\) cancels. For a SISO
+system:</p>
+<div class="box keybox"><p>\(W(z)=\dfrac{C\operatorname{adj}(zI-A)B+D\det(zI-A)}{\det(zI-A)}\) has <em>no zero&ndash;pole
+cancellations</em> (numerator and denominator coprime) \(\iff\) the realization is reachable and
+observable (minimal). The cancelled factors correspond to the modes that are not excitable
+and/or not observable, and the degree of the denominator after cancellations is the minimal
+order.</p></div>
+<div class="box example" id="ex-app-cancel"><div class="box-title">Example A.2: a cancellation</div><div class="box-body"><p>In Example&nbsp;<a class="xref" href="#ex-app-tf" data-ref="ex:app-tf">A.1</a>, \((A,B)\) is in controllable canonical form, so it is reachable:
+\(\Rch=\bmat{0&amp;1\\1&amp;1.3}\) has rank \(2\). The observability matrix
+\(\Obs=\bmat{C\\CA}=\bmat{-0.8&amp;1\\-0.4&amp;0.5}\) has \(\det\Obs=-0.4+0.4=0\): the system is not
+observable. Indeed the right eigenvector of \(\lambda=0.8\) is \(r=(1,0.8)\T\) and \(Cr=-0.8+0.8=0\):
+the mode \(0.8^k\) is unobservable, and it is exactly the cancelled pole. A minimal realization
+is \(\{0.5,1,1,0\}\) (first order). Note that an unobservable (or unexcitable) mode is
+<em>still there</em>: if \(|\lambda|\ge1\) it would make the system internally unstable even though
+\(W(z)\) is BIBO stable.</p></div></div>
+<p><strong class="runin">MIMO systems.</strong>  For transfer matrices the situation is subtler, because
+&ldquo;cancellations&rdquo; cannot be read off entry by entry:</p>
+<ul><li><p>\(W(z)=\bmat{\frac1{z-0.5}&amp;\frac1{z-0.5}}\) (\(q=1\), \(p=2\)) has a minimal realization of order
+      \(1\): \(A=0.5\), \(B=[1\;1]\), \(C=1\);</p></li><li><p>\(W(z)=\diag\bigl(\frac1{z-0.5},\frac1{z-0.5}\bigr)\) (\(q=p=2\)) needs order \(2\), although every
+      entry has the same first-order denominator: \(A=0.5I_2\), \(B=C=I_2\).</p></li></ul>
+<p>The poles of a transfer matrix and their multiplicities are defined through its
+Smith&ndash;McMillan form, and the minimal order of a realization equals the <em>McMillan
+degree</em> \(\delta(W)\) (the degree of the pole polynomial). The general statement is:</p>
+<div class="box keybox"><p>A realization \(\{A,B,C,D\}\) of \(W(z)\) is minimal \(\iff\) \((A,B)\) reachable and \((A,C)\)
+observable \(\iff\) \(n=\delta(W)\) \(\iff\) \(n=\rank H_{n,n}\), the rank of the block Hankel matrix
+of the Markov parameters (Chapter&nbsp;<a class="xref" href="ch7.html" data-ref="ch:hokalman">7</a>). In a minimal realization the poles of \(W(z)\)
+(with multiplicities) coincide with the eigenvalues of \(A\); otherwise the poles are a proper
+subset of the eigenvalues, the missing ones being the eigenvalues of the non-reachable
+and/or non-observable modes.</p></div>
+<h2 id="s-A-7" class="sec"><span class="secnum">A.7</span> Exercises</h2>
+<div class="exercise" id="exercise-A-1"><p><span class="thm-head"><span class="ex-name">Exercise A.1</span>.</span> Compute the reachability and observability matrices of
+\(A=\bmat{0.5&amp;1\\0&amp;0.5}\), \(B=\bmat{0\\1}\), \(C=\bmat{1&amp;0}\). Is the system minimal? Compute its
+natural modes and its transfer function.</p></div>
+<div class="exercise" id="exercise-A-2"><p><span class="thm-head"><span class="ex-name">Exercise A.2</span>.</span> Show that a system with \(A\) diagonal with distinct entries is reachable iff all the rows of
+\(B\) are non-zero, and observable iff all the columns of \(C\) are non-zero.</p></div>
+<div class="exercise" id="exercise-A-3"><p><span class="thm-head"><span class="ex-name">Exercise A.3</span>.</span> Prove that \(\Z\{A^k\}=z(zI-A)^{-1}\) and derive <a class="xref" href="#eq-app-Yz" data-ref="eq:app-Yz">(A.4)</a> directly from
+<a class="xref" href="#eq-app-sol" data-ref="eq:app-sol">(A.2)</a> using the convolution property.</p></div>
+<div class="exercise" id="exercise-A-4"><p><span class="thm-head"><span class="ex-name">Exercise A.4</span>.</span> Find a system that is BIBO stable but not asymptotically stable, and one that is
+stabilizable but not reachable.</p></div>
+<div class="exercise" id="exercise-A-5"><p><span class="thm-head"><span class="ex-name">Exercise A.5</span>.</span> For the MIMO system of the fourth exercise of Chapter&nbsp;<a class="xref" href="ch7.html" data-ref="ch:hokalman">7</a>, compute the rank of
+\(\Obs_s\) for \(s=1,2,3\) and of \(\Rch_\ell\) for \(\ell=1,2\) (observability and reachability
+indices).</p></div>
+</article>
+<nav class="pagenav"><a class="pn prev" href="ch8.html"><span>&larr; Previous</span><b>Subspace identification: the MOESP method</b></a><a class="pn next" href="appB.html"><span>Next &rarr;</span><b>Polynomial input–output models</b></a></nav>
+<footer class="foot">Lecture notes by Vittorio De Iuliis · University of L'Aquila · a.y. 2024–2025 · interactive web edition generated from the LaTeX sources</footer>
+</main>
+<div id="searchbox" class="searchbox" hidden>
+  <div class="searchpanel"><input id="searchinput" type="search" placeholder="Search the notes (e.g. Hankel, PSNR, Gauss–Markov)…" autocomplete="off">
+  <div id="searchres" class="searchres"></div></div>
+</div>
+</body>
+</html>

@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ch. 2: Fundamentals of linear algebra · System Identification</title>
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem('sid-theme');if(t)document.documentElement.setAttribute('data-theme',t);var f=localStorage.getItem('sid-font');if(f)document.documentElement.style.setProperty('--fs',f+'px');}catch(e){}</script>
+
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']],
+    processEscapes: false, processEnvironments: true,
+    packages: ['base','ams','newcommand','noundefined','configmacros','textmacros','boldsymbol','mathtools','html','color','cancel','unicode'],
+    macros: {
+      R: '\\mathbb{R}', C: '\\mathbb{C}', N: '\\mathbb{N}', E: '\\mathbb{E}',
+      Im: '\\operatorname{Im}', Ker: '\\operatorname{Ker}', rank: '\\operatorname{rank}',
+      spn: '\\operatorname{span}', col: '\\operatorname{col}', row: '\\operatorname{row}',
+      tr: '\\operatorname{tr}', diag: '\\operatorname{diag}', vect: '\\operatorname{vec}',
+      argmin: '\\operatorname*{arg\\,min}', argmax: '\\operatorname*{arg\\,max}',
+      T: '^{\\mathsf{T}}', pinvsym: '^{\\dagger}',
+      norm: ['\\left\\lVert #1\\right\\rVert', 1], abs: ['\\left\\lvert #1\\right\\rvert', 1],
+      ip: ['\\langle #1,#2\\rangle', 2],
+      Obs: '\\mathcal{O}', Rch: '\\mathcal{R}', Toe: '\\mathcal{T}', Hk: '\\mathcal{H}', Z: '\\mathcal{Z}',
+      Pip: '\\Pi^{\\perp}', bmat: ['\\begin{bmatrix}#1\\end{bmatrix}', 1], pmat: ['\\begin{pmatrix}#1\\end{pmatrix}', 1],
+      up: '\\uparrow', dn: '\\downarrow', hatth: '\\hat{\\theta}', sm: '\\scriptstyle'
+    }
+  },
+  svg: { fontCache: 'global', scale: 1.0 },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code','select','option'],
+             ignoreHtmlClass: 'no-mathjax' },
+  startup: { ready() { MathJax.startup.defaultReady(); MathJax.startup.promise.then(() => document.dispatchEvent(new Event('mathjax-ready'))); } }
+};
+</script>
+<script src="vendor/tex-svg-full.js" defer></script>
+
+<script src="assets/refs.js" defer></script>
+<script src="assets/la.js" defer></script>
+<script src="assets/plot.js" defer></script>
+<script src="assets/widgets.js" defer></script>
+<script src="assets/app.js" defer></script>
+</head>
+<body data-page="ch2">
+<header class="topbar">
+  <button class="iconbtn" id="navtoggle" aria-label="Contents"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html">System Identification <span>&amp; Data Analysis</span></a>
+  <div class="topsp"></div>
+  <a class="iconbtn labsbtn" href="index.html#labs" title="List of the interactive laboratories">Labs</a>
+  <button class="iconbtn" id="searchbtn" aria-label="Search" title="Search (/)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></button>
+  <button class="iconbtn" id="fontminus" title="Smaller text">A&minus;</button>
+  <button class="iconbtn" id="fontplus" title="Larger text">A+</button>
+  <button class="iconbtn" id="themebtn" title="Light / dark theme"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button>
+</header>
+<nav class="sidebar" id="sidebar"><div class="navhead"><a href="index.html">Contents</a></div><ol class="navlist"><li><a href="notation.html"><span class="navnum"></span>Notation</a></li><li><a href="ch1.html"><span class="navnum">1</span>Introduction</a></li><li class="cur"><a href="ch2.html"><span class="navnum">2</span>Fundamentals of linear algebra</a><ol class="navsec"><li><a href="#s-2-1" data-sec="s-2-1"><span class="navnum">2.1</span>Matrices as linear maps</a></li><li><a href="#s-2-2" data-sec="s-2-2"><span class="navnum">2.2</span>Image and kernel</a></li><li><a href="#s-2-3" data-sec="s-2-3"><span class="navnum">2.3</span>The four fundamental subspaces</a></li><li><a href="#s-2-4" data-sec="s-2-4"><span class="navnum">2.4</span>Inner product, norms and orthogonal matrices</a></li><li><a href="#sec-eig" data-sec="sec-eig"><span class="navnum">2.5</span>Eigenvalues and eigenvectors</a></li><li><a href="#sec-qr" data-sec="sec-qr"><span class="navnum">2.6</span>The QR decomposition</a></li><li><a href="#s-2-7" data-sec="s-2-7"><span class="navnum">2.7</span>Some rank results used later</a></li><li><a href="#s-2-8" data-sec="s-2-8"><span class="navnum">2.8</span>Exercises</a></li><li><a href="#s-2-9" data-sec="s-2-9"><span class="navnum">2.9</span>Implementation in MATLAB and Python</a></li></ol></li><li><a href="ch3.html"><span class="navnum">3</span>The singular value decomposition</a></li><li><a href="ch4.html"><span class="navnum">4</span>Least squares</a></li><li><a href="ch5.html"><span class="navnum">5</span>Introduction to system identification</a></li><li><a href="ch6.html"><span class="navnum">6</span>Prediction-error methods for polynomial models</a></li><li><a href="ch7.html"><span class="navnum">7</span>Towards subspace identification: the Ho–Kalman realization</a></li><li><a href="ch8.html"><span class="navnum">8</span>Subspace identification: the MOESP method</a></li><li><a href="appA.html"><span class="navnum">A</span>Discrete-time LTI systems in state space</a></li><li><a href="appB.html"><span class="navnum">B</span>Polynomial input–output models</a></li><li><a href="references.html"><span class="navnum"></span>Bibliography</a></li></ol></nav>
+<div class="scrim" id="scrim"></div>
+<main class="content" id="content">
+<article class="chapter">
+<h1 class="chap" id="top"><span class="chapnum">Chapter 2</span><span class="chaptitle">Fundamentals of linear algebra</span></h1>
+<p>The  goal of the course is to learn how to estimate linear models from data. All the methods of the course are built on a small number of tools of numerical linear algebra, reviewed in this chapter and in Chapter&nbsp;<a class="xref" href="ch3.html" data-ref="ch:svd">3</a>.</p>
+<h2 id="s-2-1" class="sec"><span class="secnum">2.1</span> Matrices as linear maps</h2>
+<p>A matrix \(A\in\R^{m\times n}\) has \(m\) rows and \(n\) columns; it is called <em>tall</em> if
+\(m&gt;n\), <em>fat</em> (or wide) if \(m&lt;n\), square if \(m=n\). Whenever we think about a matrix we are implicitly
+defining a linear map from a space to another:</p>
+<div class="eq">\[
+  y = A x,\qquad x\in\R^n,\quad y\in\R^m .
+\]</div>
+<p>Partitioning \(A\) by columns, \(A=[a_1\;a_2\;\cdots\;a_n]\) with \(a_i\in\R^m\), the product
+\(Ax\) is a <em>linear combination of the columns</em> of \(A\), with coefficients given by the
+entries of \(x\):</p>
+<div class="eq" id="eq-colcomb">\[Ax = \bmat{a_1 &amp; a_2 &amp; \cdots &amp; a_n}\bmat{x_1\\ x_2\\ \vdots\\ x_n}
+     = a_1x_1 + a_2x_2+\cdots+a_nx_n . \tag{2.1}\]</div>
+<p>This simple observation is the key to most of what follows.</p>
+<h2 id="s-2-2" class="sec"><span class="secnum">2.2</span> Image and kernel</h2>
+<div class="thm thm-definition" id="def-subspace"><p><span class="thm-head"><span class="thm-name">Definition 2.1</span> <span class="thm-title">(Vector subspace)</span>.</span> Let \((V,\mathbb{K})\) be a vector space over a field \(\mathbb{K}\). A subset \(W\subseteq V\) is a
+(vector) <em>subspace</em> of \(V\) if it is itself a vector space over \(\mathbb{K}\) with the
+operations of \(V\), i.e. if it is non-empty and closed under linear combinations:</p>
+<div class="eq">\[
+  w_1,w_2\in W,\ \ \alpha,\beta\in\mathbb{K}\ \implies\ \alpha w_1+\beta w_2\in W .
+\]</div></div>
+<p>In these notes the field is always that of real numbers, \(\mathbb{K}=\R\), and \(V=\R^n\) (complex
+numbers appear only as eigenvalues and eigenvectors, Section&nbsp;<a class="xref" href="#sec-eig" data-ref="sec:eig">2.5</a>). Taking \(\alpha=\beta=0\)
+shows that every subspace contains the zero vector: \(\{0\}\), \(\R^n\), and the lines and planes
+through the origin of \(\R^3\) are subspaces, while a line not passing through the origin is not.
+The set of all linear combinations of given vectors \(v_1,\dots,v_k\), their <em>span</em>
+\(\spn\{v_1,\dots,v_k\}\), is always a subspace, whose dimension is the maximum number of
+linearly independent vectors among \(v_1,\dots,v_k\).</p>
+<p>Two relevant subspaces are associated with a matrix \(A \in \mathbb{R}^{m \times n}\) (i.e. with its linear map).</p>
+<div class="thm thm-definition" id="definition-2-2"><p><span class="thm-head"><span class="thm-name">Definition 2.2</span> <span class="thm-title">(Image, rank)</span>.</span> The <em>image</em> (or <em>range</em>, or <em>column space</em>) of \(A\in\R^{m\times n}\) is</p>
+<div class="eq">\[
+  \Im(A) = \{\,y = Ax\in\R^m \;:\; x\in\R^n\,\}\subseteq\R^m .
+\]</div>
+<p>By <a class="xref" href="#eq-colcomb" data-ref="eq:colcomb">(2.1)</a>, \(\Im(A)=\col(A)=\spn\{a_1,\dots,a_n\}\). Its dimension is the
+<em>rank</em> of \(A\): \(\rank(A)=\dim\Im(A)\), i.e. the maximum number of linearly
+independent columns (which equals the maximum number of linearly independent rows).</p></div>
+<div class="thm thm-definition" id="definition-2-3"><p><span class="thm-head"><span class="thm-name">Definition 2.3</span> <span class="thm-title">(Kernel)</span>.</span> The <em>kernel</em> (or <em>null space</em>) of \(A\) is</p>
+<div class="eq">\[
+  \Ker(A)=\{\,x\in\R^n \;:\; Ax=0\,\}\subseteq\R^n .
+\]</div></div>
+<div class="box example" id="ex-A3"><div class="box-title">Example 2.1: image and kernel of a \(3\times3\) matrix</div><div class="box-body"><p>Let</p>
+<div class="eq">\[
+A=\bmat{1&amp;0&amp;1\\0&amp;1&amp;1\\1&amp;1&amp;2},\qquad a_1+a_2=a_3 .
+\]</div>
+<p>The third column is the sum of the first two, while \(a_1,a_2\) are independent, hence</p>
+<div class="eq">\[
+  \Im(A)=\spn\left\{\pmat{1\\0\\1},\pmat{0\\1\\1},\pmat{1\\1\\2}\right\}
+        =\spn\left\{\pmat{1\\0\\1},\pmat{0\\1\\1}\right\}\subseteq\R^3,
+\]</div>
+<p>and \(\dim\Im(A)=2=\rank(A)\).
+For the kernel we solve \(Ax=0\):</p>
+<div class="eq">\[
+\bmat{1&amp;0&amp;1\\0&amp;1&amp;1\\1&amp;1&amp;2}\bmat{x_1\\x_2\\x_3}=\bmat{0\\0\\0}
+\iff
+\left\{\begin{aligned} x_1+x_3&amp;=0\\ x_2+x_3&amp;=0\end{aligned}\right.
+\iff x_1=x_2=-x_3 ,
+\]</div>
+<p>(the third equation is the sum of the first two). All solutions are
+\(x=(-x_3,-x_3,x_3)\T\), and choosing \(x_3=1\),</p>
+<div class="eq">\[
+  \Ker(A)=\spn\left\{\pmat{-1\\-1\\1}\right\}.
+\]</div>
+<p>Indeed, by <a class="xref" href="#eq-colcomb" data-ref="eq:colcomb">(2.1)</a>, \(A\,(-\alpha,-\alpha,\alpha)\T=-\alpha a_1-\alpha a_2+\alpha a_3=0\)
+for every \(\alpha\in\R\): a vector of the kernel collects the coefficients of a vanishing
+linear combination of the columns.</p></div></div>
+<div class="thm thm-theorem" id="thm-ranknullity"><p><span class="thm-head"><span class="thm-name">Theorem 2.4</span> <span class="thm-title">(Rank&ndash;nullity, &ldquo;fundamental theorem&rdquo;)</span>.</span> For every \(A\in\R^{m\times n}\),</p>
+<div class="eq">\[
+  \dim\Im(A)+\dim\Ker(A)=n,\qquad\text{i.e.}\qquad \dim\Ker(A)=n-\rank(A).
+\]</div></div>
+<details class="proof" open><summary>Proof.</summary><div class="proof-body"><p>Let \(\{k_1,\dots,k_d\}\) be a basis of \(\Ker(A)\) and complete it to a basis
+\(\{k_1,\dots,k_d,w_1,\dots,w_{n-d}\}\) of \(\R^n\). Every \(y\in\Im(A)\) is
+\(y=A(\sum\alpha_ik_i+\sum\beta_jw_j)=\sum\beta_jAw_j\), so the vectors \(Aw_j\) span \(\Im(A)\).
+They are independent: if \(\sum\beta_jAw_j=0\) then \(\sum\beta_jw_j\in\Ker(A)\), which forces
+all \(\beta_j=0\) by construction. Hence \(\dim\Im(A)=n-d\).</p><span class="qed">&#8718;</span></div></details>
+<p>In Example&nbsp;<a class="xref" href="#ex-A3" data-ref="ex:A3">2.1</a>: \(\dim\Ker(A)=3-2=1\).</p>
+<h2 id="s-2-3" class="sec"><span class="secnum">2.3</span> The four fundamental subspaces</h2>
+<p>Two other significant subspaces are associated with \(A\in\R^{m\times n}\), namely the
+image and the kernel of \(A\T\):</p>
+<div class="eq">\begin{align*}
+  \Im(A\T)&amp;=\{\,A\T x\in\R^n : x\in\R^m\,\}=\row(A)\subseteq\R^n &amp;&amp;\text{(row space of $A$)},\\
+  \Ker(A\T)&amp;=\{\,x\in\R^m : A\T x=0\,\}=\{\,x\in\R^m: x\T A=0\,\}\subseteq\R^m &amp;&amp;\text{(left kernel of $A$)}.
+\end{align*}</div>
+<div class="box example" id="ex-A32"><div class="box-title">Example 2.2: a tall matrix</div><div class="box-body"><p>Let \(A=\bmat{1&amp;0\\0&amp;1\\0&amp;0}\in\R^{3\times2}\) (\(m=3\), \(n=2\)). Then</p>
+<div class="eq">\[
+  \Im(A)=\spn\left\{\pmat{1\\0\\0},\pmat{0\\1\\0}\right\}=\spn\{e_1,e_2\}\subseteq\R^3,
+\]</div>
+<p>and \(\dim\Ker(A)=n-\rank(A)=2-2=0\).
+For the left kernel, \(A\T x=0\) reads</p>
+<div class="eq">\[
+\bmat{1&amp;0&amp;0\\0&amp;1&amp;0}\bmat{x_1\\x_2\\x_3}=\bmat{0\\0}\iff x_1=x_2=0,
+\]</div>
+<p>so every \(v=(0,0,\alpha)\T\), \(\alpha\in\R\), belongs to the left kernel:
+\(\Ker(A\T)=\spn\{e_3\}\subseteq\R^3\), \(\dim\Ker(A\T)=1\). As shown in
+Figure&nbsp;<a class="xref" href="#fig-tall-example" data-ref="fig:tall-example">2.1</a>, \(\Im(A)\) and \(\Ker(A\T)\) are orthogonal and together they
+generate \(\R^3\).</p></div></div>
+<figure class="fig" id="fig-tall-example"><div class="fig-img"><img src="figures/fig-tall-example.svg" alt="Figure 2.1" loading="lazy" style="width:329px"></div><figcaption><span class="fig-name">Figure 2.1:</span> Example&nbsp;<a class="xref" href="#ex-A32" data-ref="ex:A32">2.2</a>: for \(A=[e_1\;e_2]\in\R^{3\times2}\) the image is the plane
+\(x_3=0\) and the left kernel is the \(x_3\) axis; \(\Im(A)\perp\Ker(A\T)\) and
+\(\Im(A)\oplus\Ker(A\T)=\R^3\).</figcaption></figure>
+<div class="thm thm-theorem" id="thm-foursub"><p><span class="thm-head"><span class="thm-name">Theorem 2.5</span> <span class="thm-title">(Orthogonality of the fundamental subspaces)</span>.</span> For every \(A\in\R^{m\times n}\) with \(r=\rank(A)\):</p>
+<div class="eq">\begin{align*}
+  \Im(A)\perp\Ker(A\T), &amp;\qquad \Im(A)\oplus\Ker(A\T)=\R^m,\qquad \dim\Ker(A\T)=m-r,\\
+  \Im(A\T)\perp\Ker(A), &amp;\qquad \Im(A\T)\oplus\Ker(A)=\R^n,\qquad \dim\Im(A\T)=r .
+\end{align*}</div></div>
+<details class="proof" open><summary>Proof.</summary><div class="proof-body"><p>If \(y=Ax\in\Im(A)\) and \(z\in\Ker(A\T)\), then \(z\T y=z\T Ax=(A\T z)\T x=0\). Conversely, a
+vector \(z\) orthogonal to all columns of \(A\) satisfies \(A\T z=0\); hence \(\Ker(A\T)\) is exactly
+the orthogonal complement of \(\Im(A)\) in \(\R^m\), and the dimensions add up to \(m\). The
+second line follows by applying the first one to \(A\T\) (recall \(\rank A\T=\rank A\)).</p><span class="qed">&#8718;</span></div></details>
+<p>These four subspaces are the <em>four fundamental subspaces</em> of a matrix, and
+Theorem&nbsp;<a class="xref" href="#thm-foursub" data-ref="thm:foursub">2.5</a> is often called the <em>fundamental theorem of linear algebra</em>
+(G.&nbsp;Strang [<a class="cite" href="references.html#bib-Strang" data-cite="Strang">3</a>]); it is summarised in Figure&nbsp;<a class="xref" href="#fig-four-subspaces" data-ref="fig:four-subspaces">2.2</a>. The map \(A\) sends
+the row space \(\Im(A\T)\) one-to-one onto the column space \(\Im(A)\) and annihilates the
+kernel. We shall see in Chapter&nbsp;<a class="xref" href="ch3.html" data-ref="ch:svd">3</a> that the SVD provides orthonormal bases of all four
+subspaces at once.</p>
+<figure class="fig" id="fig-four-subspaces"><div class="fig-img"><img src="figures/fig-four-subspaces.svg" alt="Figure 2.2" loading="lazy" style="width:563px"></div><figcaption><span class="fig-name">Figure 2.2:</span> The four fundamental subspaces of \(A\in\R^{m\times n}\) with \(r=\rank(A)\) (after
+G.&nbsp;Strang [<a class="cite" href="references.html#bib-Strang" data-cite="Strang">3</a>]). In \(\R^n\) the row space \(\Im(A\T)\) and the kernel \(\Ker(A)\) are
+orthogonal and intersect only at \(0\); the same holds in \(\R^m\) for the column space \(\Im(A)\)
+and the left kernel \(\Ker(A\T)\). Every \(x\in\R^n\) splits uniquely as \(x=x_r+x_n\) with
+\(x_r\in\Im(A\T)\) and \(x_n\in\Ker(A)\): the kernel component is mapped to the origin of
+\(\R^m\), hence \(Ax=Ax_r=y\).</figcaption></figure>
+<div class="widget" id="w-subspaces" data-widget="subspaces"></div>
+<h2 id="s-2-4" class="sec"><span class="secnum">2.4</span> Inner product, norms and orthogonal matrices</h2>
+<p>The Euclidean inner product of \(x,y\in\R^n\) is \(\ip{x}{y}=x\T y\) and the induced norm is
+\(\norm{x}_2=\sqrt{x\T x}\); \(x\) and \(y\) are orthogonal (\(x\perp y\)) when \(x\T y=0\). A set of
+vectors \(\{v_1,\dots,v_k\}\) is <em>orthonormal</em> if \(v_i\T v_j=\delta_{ij}\) (Kronecker delta, giving \(1\) if \(i=j\) and 0 otherwise).
+A square matrix \(Q\in\R^{n\times n}\) is <em>orthogonal</em> if \(Q\T Q=QQ\T=I_n\), i.e. \(Q^{-1}=Q\T\): its columns form an orthonormal basis of \(\R^n\). Orthogonal matrices preserve
+lengths and angles: \(\norm{Qx}_2=\norm{x}_2\). A rectangular \(Q\in\R^{m\times k}\) with
+orthonormal columns (\(Q\T Q=I_k\), \(k\le m\)) is not orthogonal unless \(k=m\), since
+\(QQ\T\neq I_m\) is then the orthogonal projector onto \(\Im(Q)\) (Section&nbsp;<a class="xref" href="ch4.html#sec-projectors" data-ref="sec:projectors">4.4</a>).</p>
+<p>Two matrix norms will be used repeatedly (see also Section&nbsp;<a class="xref" href="ch3.html#sec-norms-eym" data-ref="sec:norms-eym">3.5</a>):</p>
+<div class="eq">\[
+  \norm{A}_2=\max_{x\neq0}\frac{\norm{Ax}_2}{\norm{x}_2}=\sqrt{\lambda_{\max}(A\T A)},
+  \qquad
+  \norm{A}_F=\Bigl(\sum_{i=1}^m\sum_{j=1}^n a_{ij}^2\Bigr)^{1/2}=\sqrt{\tr(A\T A)} .
+\]</div>
+<p>where \(\lambda_{\max}\) is the largest eigenvalue among the real-valued eigenvalues of the symmetric matrix \(A\T A\).</p>
+<h2 id="sec-eig" class="sec"><span class="secnum">2.5</span> Eigenvalues and eigenvectors</h2>
+<p>Let \(A\in\R^{n\times n}\). A scalar \(\lambda_i\in\C\) is an <em>eigenvalue</em> of \(A\) if it is a
+root of the characteristic polynomial \(p(\lambda)=\det(\lambda I-A)\), and a vector
+\(r_i\neq0\) is an associated (right) <em>eigenvector</em> if</p>
+<div class="eq">\[
+  A r_i=\lambda_i r_i\qquad\iff\qquad (\lambda_iI-A)r_i=0\iff r_i\in\Ker(\lambda_iI-A).
+\]</div>
+<div class="thm thm-definition" id="definition-2-6"><p><span class="thm-head"><span class="thm-name">Definition 2.6</span> <span class="thm-title">(Algebraic and geometric multiplicity)</span>.</span> The <em>algebraic multiplicity</em> \(m_{\mathrm{alg}}(\lambda_i)\) is the number of times
+\(\lambda_i\) is a root of \(p(\lambda)\). The <em>geometric multiplicity</em> is the number of
+independent eigenvectors associated with \(\lambda_i\):</p>
+<div class="eq">\[
+  m_{\mathrm{geo}}(\lambda_i)=\dim\Ker(\lambda_iI-A)=n-\rank(\lambda_iI-A)
+  \quad(\le m_{\mathrm{alg}}(\lambda_i)).
+\]</div></div>
+<p>For instance, if \(p(\lambda)=(\lambda-2)(\lambda-1)^2\) then \(m_{\mathrm{alg}}(2)=1\) and
+\(m_{\mathrm{alg}}(1)=2\).</p>
+<p>A matrix \(A\in\R^{n\times n}\) is <em>diagonalizable</em> if there exists a nonsingular
+\(R\in\C^{n\times n}\) such that \(R^{-1}AR\) is diagonal. The following result characterizes
+diagonalizability in terms of the multiplicities of the eigenvalues.</p>
+<div class="thm thm-proposition" id="prop-diag"><p><span class="thm-head"><span class="thm-name">Proposition 2.7</span> <span class="thm-title">(Necessary and sufficient condition for diagonalizability)</span>.</span> Let \(\mu_1,\dots,\mu_q\) (\(q\le n\)) be the distinct eigenvalues of \(A\in\R^{n\times n}\). Then
+\(A\) is diagonalizable if and only if</p>
+<div class="eq">\[
+  m_{\mathrm{geo}}(\mu_j)=m_{\mathrm{alg}}(\mu_j)\qquad\text{for every } j=1,\dots,q .
+\]</div>
+<p>In particular, if the \(n\) eigenvalues of \(A\) are distinct (\(q=n\)), then \(A\) is
+diagonalizable. This condition is sufficient but not necessary.</p></div>
+<details class="proof" open><summary>Proof.</summary><div class="proof-body"><p>\(R^{-1}AR=\Lambda\) diagonal is equivalent to \(AR=R\Lambda\), i.e. \(Ar_i=\lambda_ir_i\) for
+every column \(r_i\) of \(R\): hence \(A\) is diagonalizable if and only if it has \(n\) linearly
+independent eigenvectors. Eigenvectors associated with distinct eigenvalues are linearly
+independent, so the union of bases of the eigenspaces \(\Ker(\mu_jI-A)\) is an independent
+set of \(\sum_j m_{\mathrm{geo}}(\mu_j)\) eigenvectors, and no independent set of
+eigenvectors can be larger. Therefore \(A\) is diagonalizable if and only if
+\(\sum_j m_{\mathrm{geo}}(\mu_j)=n\). Since \(m_{\mathrm{geo}}(\mu_j)\le m_{\mathrm{alg}}(\mu_j)\)
+and \(\sum_j m_{\mathrm{alg}}(\mu_j)=n\) (the degree of \(p(\lambda)\)), this happens if and only
+if every inequality holds with equality. Finally, if \(q=n\), then
+\(1\le m_{\mathrm{geo}}(\mu_j)\le m_{\mathrm{alg}}(\mu_j)=1\) for every \(j\).</p><span class="qed">&#8718;</span></div></details>
+<div class="thm thm-theorem" id="thm-modal"><p><span class="thm-head"><span class="thm-name">Theorem 2.8</span> <span class="thm-title">(Eigenvalue&ndash;eigenvector (modal) decomposition)</span>.</span> If \(A\) is diagonalizable, the algebraic multiplicity of every
+eigenvalue of \(A\) equals its geometric multiplicity, then there exist \(n\) independent
+eigenvectors and</p>
+<div class="eq" id="eq-modal">\[A=R\Lambda L=\sum_{i=1}^n\lambda_i\,r_il_i\T,\qquad
+  R=\bigl[r_1\;\cdots\;r_n\bigr],\quad \Lambda=\diag(\lambda_1,\dots,\lambda_n),\quad
+  L=R^{-1}=\bmat{l_1\T\\ \vdots\\ l_n\T}. \tag{2.2}\]</div>
+<p>The rows \(l_i\T\) of \(L\) are <em>left eigenvectors</em>, \(l_i\T A=\lambda_il_i\T\), and, since
+\(LR=I\), they satisfy the bi-orthogonality relation \(l_i\T r_j=\delta_{ij}\).</p></div>
+<p>A diagonalizable matrix is easy to &ldquo;manipulate&rdquo;: for every function \(f\) defined by a
+power series (polynomials, exponential,&hellip;),</p>
+<div class="eq" id="eq-matfun">\[f(A)=R\,f(\Lambda)\,L=\sum_{i=1}^n f(\lambda_i)\,r_il_i\T . \tag{2.3}\]</div>
+<p>Two cases are of primary interest in systems theory (Appendix&nbsp;<a class="xref" href="appA.html" data-ref="app:systems">A</a>):</p>
+<div class="eq">\begin{align*}
+  A^k&amp;=R\Lambda^kL=\sum_{i=1}^n\lambda_i^k\,r_il_i\T &amp;&amp; \bigl(\text{discrete time: }x(k+1)=Ax(k)+Bu(k)\bigr),\\
+  e^{At}&amp;=Re^{\Lambda t}L=\sum_{i=1}^ne^{\lambda_it}\,r_il_i\T &amp;&amp; \bigl(\text{continuous time: }\dot x=Ax+Bu\bigr).
+\end{align*}</div>
+<div class="box example" id="ex-modal"><div class="box-title">Example 2.3: a diagonalizable matrix with a repeated eigenvalue</div><div class="box-body"><p>Let \(M=\bmat{2&amp;1&amp;0\\0&amp;1&amp;0\\0&amp;0&amp;1}\), with \(p(\lambda)=(\lambda-2)(\lambda-1)^2\). For
+\(\lambda=1\), \(M-I=\bmat{1&amp;1&amp;0\\0&amp;0&amp;0\\0&amp;0&amp;0}\) has rank one, hence
+\(m_{\mathrm{geo}}(1)=3-1=2=m_{\mathrm{alg}}(1)\) and \(M\) is diagonalizable. Eigenvectors:
+\(r_1=(1,0,0)\T\) for \(\lambda_1=2\); \(r_2=(1,-1,0)\T\), \(r_3=(0,0,1)\T\) for \(\lambda_{2,3}=1\).
+Then</p>
+<div class="eq">\[
+R=\bmat{1&amp;1&amp;0\\0&amp;-1&amp;0\\0&amp;0&amp;1},\qquad L=R^{-1}=\bmat{1&amp;1&amp;0\\0&amp;-1&amp;0\\0&amp;0&amp;1},
+\]</div>
+<p>and one checks \(l_1\T M=(1,1,0)M=(2,2,0)=2\,l_1\T\) and \(M^k=2^k r_1l_1\T+r_2l_2\T+r_3l_3\T\).
+<br>
+By contrast, the matrix \(J=\bmat{1&amp;1\\0&amp;1}\) has \(m_{\mathrm{alg}}(1)=2\) but
+\(m_{\mathrm{geo}}(1)=2-\rank(I-J)=1\): it is not diagonalizable and <a class="xref" href="#eq-modal" data-ref="eq:modal">(2.2)</a> does not
+apply (see the advanced topic at the end of the chapter).</p></div></div>
+<div class="thm thm-remark" id="rem-distinct"><p><span class="thm-head"><span class="thm-name">Remark 2.9</span> <span class="thm-title">(Standing assumption: distinct eigenvalues)</span>.</span> By Proposition&nbsp;<a class="xref" href="#prop-diag" data-ref="prop:diag">2.7</a>, a matrix with distinct eigenvalues is always diagonalizable, and this is
+the generic situation: an arbitrarily small perturbation of the entries of a matrix with
+repeated eigenvalues makes them distinct. For simplicity, <em>from now on, whenever the
+eigenvalue&ndash;eigenvector decomposition is used (e.g. for the natural modes and the impulse
+response of a system), we assume that the eigenvalues are distinct</em>. The case of multiple
+eigenvalues, and that of non-diagonalizable matrices, can be addressed through the Jordan
+form (see the Further Study box at the end of this chapter): this only brings minor technical
+complications (for instance, the natural modes \(\lambda_i^k\) are complemented by the modes
+\(k^j\lambda_i^k\)), with no significant change in the theory of system identification.</p></div>
+<p><strong class="runin">Symmetric matrices.</strong>  The case of symmetric matrices is particularly nice and is
+the basis of the SVD.</p>
+<div class="thm thm-theorem" id="thm-spectral"><p><span class="thm-head"><span class="thm-name">Theorem 2.10</span> <span class="thm-title">(Spectral theorem)</span>.</span> If \(M=M\T\in\R^{n\times n}\), all its eigenvalues are real and there is an orthonormal basis
+of eigenvectors: \(M=R\Lambda R\T\) with \(R\T R=I\) (so \(L=R^{-1}=R\T\)). If moreover
+\(M\) is positive semidefinite (\(x\T Mx\ge0\) for all \(x\), written \(M\succeq0\)), all
+\(\lambda_i\ge0\); \(M\) is positive definite (\(M\succ0\)) iff all \(\lambda_i&gt;0\).</p></div>
+<p>For every \(A\in\R^{m\times n}\) the matrices \(A\T A\in\R^{n\times n}\) and \(AA\T\in\R^{m\times m}\)
+are symmetric and positive semidefinite, because \(x\T A\T Ax=\norm{Ax}_2^2\ge0\); moreover
+\(\Ker(A\T A)=\Ker(A)\), so that \(\rank(A\T A)=\rank(A)\) and \(A\T A\succ0\) if and only if \(A\)
+has independent columns.</p>
+<h2 id="sec-qr" class="sec"><span class="secnum">2.6</span> The QR decomposition</h2>
+<p>Besides the SVD, the most important factorization in numerical least squares is the QR
+decomposition, which orthonormalizes the columns of a matrix.</p>
+<div class="thm thm-theorem" id="thm-qr"><p><span class="thm-head"><span class="thm-name">Theorem 2.11</span> <span class="thm-title">(QR decomposition)</span>.</span> Every \(A\in\R^{m\times n}\) with \(m\ge n\) can be written as</p>
+<div class="eq">\[
+  A=QR=\bmat{Q_1 &amp; Q_2}\bmat{R_1\\0}=Q_1R_1,
+\]</div>
+<p>with \(Q\in\R^{m\times m}\) orthogonal, \(Q_1\in\R^{m\times n}\) with orthonormal columns and
+\(R_1\in\R^{n\times n}\) upper triangular (<em>economy-size</em> or <em>thin</em> QR). If \(A\) has
+independent columns, \(R_1\) is nonsingular and \(\Im(Q_1)=\Im(A)\), \(\Im(Q_2)=\Ker(A\T)\).</p></div>
+<p>Conceptually, \(Q_1\) is obtained by the Gram&ndash;Schmidt procedure applied to \(a_1,a_2,\dots\):</p>
+<div class="eq">\[
+  \tilde q_j=a_j-\sum_{i&lt;j}(q_i\T a_j)\,q_i,\qquad q_j=\tilde q_j/\norm{\tilde q_j},\qquad
+  r_{ij}=q_i\T a_j\ (i&lt;j),\quad r_{jj}=\norm{\tilde q_j}.
+\]</div>
+<p>Numerically, QR is computed with Householder reflections, which are backward stable
+[<a class="cite" href="references.html#bib-GolubVanLoan" data-cite="GolubVanLoan">4</a>]. Applied to \(A\T\) it gives the <em>LQ</em> (or RQ) factorization
+\(A=LQ\T\) with \(L\) lower triangular, used for an efficient implementation of subspace
+methods in Section&nbsp;<a class="xref" href="ch8.html#sec-moesp-lq" data-ref="sec:moesp-lq">8.7</a>.</p>
+<div class="box example" id="example-2-4"><div class="box-title">Example 2.4: thin QR</div><div class="box-body"><p>For \(X=\bmat{1&amp;1\\1&amp;2\\1&amp;3\\1&amp;4}\) the Gram&ndash;Schmidt procedure gives
+\(q_1=\tfrac12(1,1,1,1)\T\), \(r_{11}=2\), \(r_{12}=q_1\T x_2=5\),
+\(\tilde q_2=x_2-5q_1=(-\tfrac32,-\tfrac12,\tfrac12,\tfrac32)\T\), \(r_{22}=\sqrt5\), so
+\(X=Q_1R_1\) with \(R_1=\bmat{2&amp;5\\0&amp;\sqrt5}\) (MATLAB may return \(-Q_1,-R_1\): the factorization
+is unique only up to the signs of the columns of \(Q_1\)).</p></div></div>
+<h2 id="s-2-7" class="sec"><span class="secnum">2.7</span> Some rank results used later</h2>
+<div class="thm thm-lemma" id="lem-sylvester"><p><span class="thm-head"><span class="thm-name">Lemma 2.12</span> <span class="thm-title">(Sylvester&rsquo;s inequality)</span>.</span> If \(M\in\R^{r\times n}\) and \(N\in\R^{n\times h}\), then</p>
+<div class="eq">\[
+  \rank(M)+\rank(N)-n\;\le\;\rank(MN)\;\le\;\min\{\rank(M),\rank(N)\}.
+\]</div></div>
+<div class="thm thm-corollary" id="cor-sylv"><p><span class="thm-head"><span class="thm-name">Corollary 2.13</span>.</span> If \(\rank(M)=\rank(N)=n\) (i.e. \(M\) has independent columns and \(N\) independent rows),
+then \(\rank(MN)=n\) and \(\Im(MN)=\Im(M)\).</p></div>
+<details class="proof" open><summary>Proof.</summary><div class="proof-body"><p>The rank follows from Lemma&nbsp;<a class="xref" href="#lem-sylvester" data-ref="lem:sylvester">2.12</a> (\(n+n-n\le\rank(MN)\le n\)). Moreover
+\(\Im(MN)\subseteq\Im(M)\) always holds, and two nested subspaces with the same dimension
+coincide.</p><span class="qed">&#8718;</span></div></details>
+<p>Corollary&nbsp;<a class="xref" href="#cor-sylv" data-ref="cor:sylv">2.13</a> is the cornerstone of the realization and subspace methods of
+Chapters&nbsp;<a class="xref" href="ch7.html" data-ref="ch:hokalman">7</a> and <a class="xref" href="ch8.html" data-ref="ch:moesp">8</a>: a data matrix that factorizes as &ldquo;(something of full column
+rank \(n\))\(\times\)(something of full row rank \(n\))&rdquo; reveals \(n\) through its rank and the
+column space of the first factor through its image.</p>
+<h2 id="s-2-8" class="sec"><span class="secnum">2.8</span> Exercises</h2>
+<div class="exercise" id="exercise-2-1"><p><span class="thm-head"><span class="ex-name">Exercise 2.1</span>.</span> Find bases of the four fundamental subspaces of \(A=\bmat{1&amp;2&amp;0&amp;1\\2&amp;4&amp;1&amp;4\\3&amp;6&amp;1&amp;5}\) and
+verify Theorems&nbsp;<a class="xref" href="#thm-ranknullity" data-ref="thm:ranknullity">2.4</a> and <a class="xref" href="#thm-foursub" data-ref="thm:foursub">2.5</a>.</p><div class="ex-links"><a class="ex-link" href="#w-subspaces:ex1">Check with the four-subspaces tool</a></div></div>
+<div class="exercise" id="exercise-2-2"><p><span class="thm-head"><span class="ex-name">Exercise 2.2</span>.</span> Show that \(\Ker(A\T A)=\Ker(A)\) and deduce that \(A\T A\) is invertible if and only if \(A\)
+has independent columns. Similarly, \(AA\T\) is invertible iff \(A\) has independent rows.</p></div>
+<div class="exercise" id="exercise-2-3"><p><span class="thm-head"><span class="ex-name">Exercise 2.3</span>.</span> Compute the eigenvalues, the algebraic and geometric multiplicities and, when possible,
+the modal decomposition of \(\bmat{0&amp;1\\-0.5&amp;1.5}\) and of \(\bmat{0.5&amp;1\\0&amp;0.5}\). For the
+first matrix compute \(A^{10}\) with <a class="xref" href="#eq-matfun" data-ref="eq:matfun">(2.3)</a>.</p></div>
+<div class="exercise" id="exercise-2-4"><p><span class="thm-head"><span class="ex-name">Exercise 2.4</span>.</span> Prove that the eigenvectors of a symmetric matrix associated with distinct eigenvalues are
+orthogonal. (<em>Hint</em>: compute \(r_i\T Mr_j\) in two ways.)</p></div>
+<div class="exercise" id="exercise-2-5"><p><span class="thm-head"><span class="ex-name">Exercise 2.5</span>.</span> Compute by hand the thin QR decomposition of \(\bmat{1&amp;0\\1&amp;1\\0&amp;1}\) and use it to find the
+orthogonal complement of its image.</p></div>
+<h2 id="s-2-9" class="sec"><span class="secnum">2.9</span> Implementation in MATLAB and Python</h2>
+<p>The relevant MATLAB functions are <code>rank</code>, <code>orth</code> (orthonormal basis of the
+image), <code>null</code> (orthonormal basis of the kernel), <code>eig</code>, <code>qr</code> (use
+<code>qr(A,0)</code> or <code>qr(A,"econ")</code> for the thin factorization). Note that
+<code>rank</code>, <code>orth</code> and <code>null</code> are computed through the SVD with a
+tolerance (Section&nbsp;<a class="xref" href="ch3.html#sec-numrank" data-ref="sec:numrank">3.4</a>). The following script reproduces the examples of this
+chapter.</p>
+<div class="code" data-lang="matlab"><div class="code-head"><span class="code-lang">MATLAB</span><span class="code-title">ch2_linear_algebra.m</span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button><a class="code-btn" href="code/matlab/ch2_linear_algebra.m" download>Download</a></span></div><pre><code class="hl"><span class="c">%% Chapter 2 - Fundamental subspaces, rank, eigendecomposition, QR</span>
+<span class="n">A</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="s">1</span><span class="w"> </span><span class="s">1</span><span class="p">;</span><span class="w"> </span><span class="n">1</span><span class="w"> </span><span class="s">1</span><span class="w"> </span><span class="s">2]</span><span class="p">;</span><span class="w">              </span><span class="c">% example of Section 1.2 (a3 = a1 + a2)</span>
+<span class="n">r</span><span class="w">      </span><span class="p">=</span><span class="w"> </span><span class="nb">rank</span><span class="p">(</span><span class="n">A</span><span class="p">)</span><span class="w">                        </span><span class="c">% dim Im(A) = 2</span>
+<span class="n">ImA</span><span class="w">    </span><span class="p">=</span><span class="w"> </span><span class="nb">orth</span><span class="p">(</span><span class="n">A</span><span class="p">)</span><span class="w">                        </span><span class="c">% orthonormal basis of Im(A)</span>
+<span class="n">KerA</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="nb">null</span><span class="p">(</span><span class="n">A</span><span class="p">)</span><span class="w">                        </span><span class="c">% orthonormal basis of Ker(A) ~ (-1,-1,1)/sqrt(3)</span>
+<span class="n">KerAT</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="nb">null</span><span class="p">(</span><span class="n">A</span><span class="o">'</span><span class="p">)</span><span class="w">                       </span><span class="c">% left kernel</span>
+<span class="n">check</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">ImA</span><span class="o">'</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">KerAT</span><span class="w">                   </span><span class="c">% = 0 : Im(A) is orthogonal to Ker(A^T)</span>
+
+<span class="n">A2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="s">1</span><span class="p">;</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="s">0]</span><span class="p">;</span><span class="w">                   </span><span class="c">% tall 3x2 example</span>
+<span class="nb">null</span><span class="p">(</span><span class="n">A2</span><span class="p">)</span><span class="w">                                </span><span class="c">% empty: Ker(A2) = {0}</span>
+<span class="nb">null</span><span class="p">(</span><span class="n">A2</span><span class="o">'</span><span class="p">)</span><span class="w">                               </span><span class="c">% e3: left kernel</span>
+
+<span class="c">%% Eigendecomposition A = R*Lambda*L, L = inv(R)</span>
+<span class="n">M</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">2</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="s">1</span><span class="w"> </span><span class="s">0</span><span class="p">;</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">1]</span><span class="p">;</span><span class="w">              </span><span class="c">% p(lambda) = (lambda-2)(lambda-1)^2</span>
+<span class="p">[</span><span class="n">R</span><span class="p">,</span><span class="w"> </span><span class="n">Lam</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">eig</span><span class="p">(</span><span class="n">M</span><span class="p">);</span>
+<span class="n">Lft</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">inv</span><span class="p">(</span><span class="n">R</span><span class="p">);</span><span class="w">                           </span><span class="c">% rows = left eigenvectors</span>
+<span class="nb">disp</span><span class="p">(</span><span class="nb">norm</span><span class="p">(</span><span class="n">R</span><span class="o">*</span><span class="n">Lam</span><span class="o">*</span><span class="n">Lft</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">M</span><span class="p">))</span><span class="w">               </span><span class="c">% ~ 0 (M is diagonalizable)</span>
+<span class="n">mgeo1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">rank</span><span class="p">(</span><span class="mi">1</span><span class="o">*</span><span class="nb">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">M</span><span class="p">)</span><span class="w">          </span><span class="c">% geometric multiplicity of lambda = 1 -&gt; 2</span>
+<span class="n">k</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w">  </span><span class="nb">disp</span><span class="p">(</span><span class="nb">norm</span><span class="p">(</span><span class="n">M</span><span class="o">^</span><span class="n">k</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">R</span><span class="o">*</span><span class="n">Lam</span><span class="o">^</span><span class="n">k</span><span class="o">*</span><span class="n">Lft</span><span class="p">))</span><span class="w">   </span><span class="c">% A^k via the modal decomposition</span>
+<span class="n">J</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="s">1]</span><span class="p">;</span><span class="w">                         </span><span class="c">% Jordan block: m_alg = 2 &gt; m_geo = 1</span>
+<span class="p">[</span><span class="n">RJ</span><span class="p">,</span><span class="w"> </span><span class="n">LJ</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">eig</span><span class="p">(</span><span class="n">J</span><span class="p">)</span><span class="w">                       </span><span class="c">% R is (numerically) singular</span>
+
+<span class="c">%% QR decomposition</span>
+<span class="n">X</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">1</span><span class="w"> </span><span class="s">2</span><span class="p">;</span><span class="w"> </span><span class="n">1</span><span class="w"> </span><span class="s">3</span><span class="p">;</span><span class="w"> </span><span class="n">1</span><span class="w"> </span><span class="s">4]</span><span class="p">;</span>
+<span class="p">[</span><span class="n">Q</span><span class="p">,</span><span class="w"> </span><span class="n">Rq</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">qr</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">                     </span><span class="c">% economy size: Q 4x2, Rq 2x2 upper triangular</span>
+<span class="nb">disp</span><span class="p">(</span><span class="nb">norm</span><span class="p">(</span><span class="n">Q</span><span class="o">'*</span><span class="n">Q</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">eye</span><span class="p">(</span><span class="mi">2</span><span class="p">)));</span><span class="w">  </span><span class="nb">disp</span><span class="p">(</span><span class="nb">norm</span><span class="p">(</span><span class="n">Q</span><span class="o">*</span><span class="n">Rq</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">X</span><span class="p">))</span>
+</code></pre><textarea class="code-src" hidden>%% Chapter 2 - Fundamental subspaces, rank, eigendecomposition, QR
+A = [1 0 1; 0 1 1; 1 1 2];              % example of Section 1.2 (a3 = a1 + a2)
+r      = rank(A)                        % dim Im(A) = 2
+ImA    = orth(A)                        % orthonormal basis of Im(A)
+KerA   = null(A)                        % orthonormal basis of Ker(A) ~ (-1,-1,1)/sqrt(3)
+KerAT  = null(A')                       % left kernel
+check  = ImA' * KerAT                   % = 0 : Im(A) is orthogonal to Ker(A^T)
+
+A2 = [1 0; 0 1; 0 0];                   % tall 3x2 example
+null(A2)                                % empty: Ker(A2) = {0}
+null(A2')                               % e3: left kernel
+
+%% Eigendecomposition A = R*Lambda*L, L = inv(R)
+M = [2 1 0; 0 1 0; 0 0 1];              % p(lambda) = (lambda-2)(lambda-1)^2
+[R, Lam] = eig(M);
+Lft = inv(R);                           % rows = left eigenvectors
+disp(norm(R*Lam*Lft - M))               % ~ 0 (M is diagonalizable)
+mgeo1 = 3 - rank(1*eye(3) - M)          % geometric multiplicity of lambda = 1 -&gt; 2
+k = 5;  disp(norm(M^k - R*Lam^k*Lft))   % A^k via the modal decomposition
+J = [1 1; 0 1];                         % Jordan block: m_alg = 2 &gt; m_geo = 1
+[RJ, LJ] = eig(J)                       % R is (numerically) singular
+
+%% QR decomposition
+X = [1 1; 1 2; 1 3; 1 4];
+[Q, Rq] = qr(X, 0);                     % economy size: Q 4x2, Rq 2x2 upper triangular
+disp(norm(Q'*Q - eye(2)));  disp(norm(Q*Rq - X))</textarea></div>
+<p>In Python (<code>numpy</code>/<code>scipy</code>) the same operations are:</p>
+<div class="code" data-lang="python"><div class="code-head"><span class="code-lang">Python</span><span class="code-title"></span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button></span></div><pre><code class="hl"><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.linalg</span><span class="w"> </span><span class="kn">import</span> <span class="n">orth</span><span class="p">,</span> <span class="n">null_space</span><span class="p">,</span> <span class="n">qr</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_rank</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>          <span class="c1"># 2</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">orth</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>                           <span class="c1"># basis of Im(A)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">null_space</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>                     <span class="c1"># ~ (-1,-1,1)/sqrt(3)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">null_space</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>                   <span class="c1"># left kernel</span>
+<span class="n">lam</span><span class="p">,</span> <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">2.</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]))</span>
+<span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">R</span><span class="p">)</span>                     <span class="c1"># rows = left eigenvectors</span>
+<span class="n">Q</span><span class="p">,</span> <span class="n">Rq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">qr</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">]]))</span>  <span class="c1"># thin QR</span>
+</code></pre><textarea class="code-src" hidden>import numpy as np
+from scipy.linalg import orth, null_space, qr
+A = np.array([[1., 0, 1], [0, 1, 1], [1, 1, 2]])
+print(np.linalg.matrix_rank(A))          # 2
+print(orth(A))                           # basis of Im(A)
+print(null_space(A))                     # ~ (-1,-1,1)/sqrt(3)
+print(null_space(A.T))                   # left kernel
+lam, R = np.linalg.eig(np.array([[2., 1, 0], [0, 1, 0], [0, 0, 1]]))
+L = np.linalg.inv(R)                     # rows = left eigenvectors
+Q, Rq = np.linalg.qr(np.array([[1., 1], [1, 2], [1, 3], [1, 4]]))  # thin QR</textarea></div>
+<details class="box advanced"><summary><span class="adv-label">Further Study:</span> Jordan form and the Cayley&ndash;Hamilton theorem</summary><div class="box-body"><p><em>Jordan form.</em> When \(A\) is not diagonalizable, there is a nonsingular \(T\) such that
+\(A=TJT^{-1}\), \(J=\diag(J_1,\dots,J_s)\), with Jordan blocks
+\(J_i=\lambda_iI+N_i\) (\(N_i\) nilpotent with ones on the superdiagonal). The number of blocks
+associated with \(\lambda_i\) equals \(m_{\mathrm{geo}}(\lambda_i)\) and their total size equals
+\(m_{\mathrm{alg}}(\lambda_i)\). Powers are computed with the binomial formula: for a block
+of size \(\nu\),</p>
+<div class="eq">\[
+  J_i^k=\sum_{j=0}^{\nu-1}\binom{k}{j}\lambda_i^{k-j}N_i^j ,
+\]</div>
+<p>which shows that non-diagonalizable eigenvalues generate the natural modes \(k^j\lambda_i^k\)
+(Appendix&nbsp;<a class="xref" href="appA.html" data-ref="app:systems">A</a>). The Jordan form is numerically unstable (an arbitrarily small
+perturbation makes a matrix diagonalizable); in numerical work one uses the Schur form
+\(A=QTQ\T\) (\(Q\) orthogonal, \(T\) quasi-triangular) instead.</p>
+<p><em>Cayley&ndash;Hamilton.</em> Every square matrix satisfies its own characteristic polynomial,
+\(p(A)=0\). Consequently \(A^n\), and hence every \(A^k\) with \(k\ge n\), is a linear combination of
+\(I,A,\dots,A^{n-1}\). This is why the reachability and observability matrices of
+Appendix&nbsp;<a class="xref" href="appA.html" data-ref="app:systems">A</a> stop at the power \(n-1\), and why the rank of the extended matrices
+\(\Obs_s\), \(\Rch_\ell\) of Chapter&nbsp;<a class="xref" href="ch7.html" data-ref="ch:hokalman">7</a> does not grow for \(s,\ell&gt;n\).</p></div></details>
+</article>
+<nav class="pagenav"><a class="pn prev" href="ch1.html"><span>&larr; Previous</span><b>Introduction</b></a><a class="pn next" href="ch3.html"><span>Next &rarr;</span><b>The singular value decomposition</b></a></nav>
+<footer class="foot">Lecture notes by Vittorio De Iuliis · University of L'Aquila · a.y. 2024–2025 · interactive web edition generated from the LaTeX sources</footer>
+</main>
+<div id="searchbox" class="searchbox" hidden>
+  <div class="searchpanel"><input id="searchinput" type="search" placeholder="Search the notes (e.g. Hankel, PSNR, Gauss–Markov)…" autocomplete="off">
+  <div id="searchres" class="searchres"></div></div>
+</div>
+</body>
+</html>

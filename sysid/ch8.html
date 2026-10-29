@@ -1,0 +1,683 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ch. 8: Subspace identification: the MOESP method · System Identification</title>
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem('sid-theme');if(t)document.documentElement.setAttribute('data-theme',t);var f=localStorage.getItem('sid-font');if(f)document.documentElement.style.setProperty('--fs',f+'px');}catch(e){}</script>
+
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']],
+    processEscapes: false, processEnvironments: true,
+    packages: ['base','ams','newcommand','noundefined','configmacros','textmacros','boldsymbol','mathtools','html','color','cancel','unicode'],
+    macros: {
+      R: '\\mathbb{R}', C: '\\mathbb{C}', N: '\\mathbb{N}', E: '\\mathbb{E}',
+      Im: '\\operatorname{Im}', Ker: '\\operatorname{Ker}', rank: '\\operatorname{rank}',
+      spn: '\\operatorname{span}', col: '\\operatorname{col}', row: '\\operatorname{row}',
+      tr: '\\operatorname{tr}', diag: '\\operatorname{diag}', vect: '\\operatorname{vec}',
+      argmin: '\\operatorname*{arg\\,min}', argmax: '\\operatorname*{arg\\,max}',
+      T: '^{\\mathsf{T}}', pinvsym: '^{\\dagger}',
+      norm: ['\\left\\lVert #1\\right\\rVert', 1], abs: ['\\left\\lvert #1\\right\\rvert', 1],
+      ip: ['\\langle #1,#2\\rangle', 2],
+      Obs: '\\mathcal{O}', Rch: '\\mathcal{R}', Toe: '\\mathcal{T}', Hk: '\\mathcal{H}', Z: '\\mathcal{Z}',
+      Pip: '\\Pi^{\\perp}', bmat: ['\\begin{bmatrix}#1\\end{bmatrix}', 1], pmat: ['\\begin{pmatrix}#1\\end{pmatrix}', 1],
+      up: '\\uparrow', dn: '\\downarrow', hatth: '\\hat{\\theta}', sm: '\\scriptstyle'
+    }
+  },
+  svg: { fontCache: 'global', scale: 1.0 },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code','select','option'],
+             ignoreHtmlClass: 'no-mathjax' },
+  startup: { ready() { MathJax.startup.defaultReady(); MathJax.startup.promise.then(() => document.dispatchEvent(new Event('mathjax-ready'))); } }
+};
+</script>
+<script src="vendor/tex-svg-full.js" defer></script>
+
+<script src="assets/refs.js" defer></script>
+<script src="assets/la.js" defer></script>
+<script src="assets/plot.js" defer></script>
+<script src="assets/widgets.js" defer></script>
+<script src="assets/app.js" defer></script>
+</head>
+<body data-page="ch8">
+<header class="topbar">
+  <button class="iconbtn" id="navtoggle" aria-label="Contents"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html">System Identification <span>&amp; Data Analysis</span></a>
+  <div class="topsp"></div>
+  <a class="iconbtn labsbtn" href="index.html#labs" title="List of the interactive laboratories">Labs</a>
+  <button class="iconbtn" id="searchbtn" aria-label="Search" title="Search (/)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></button>
+  <button class="iconbtn" id="fontminus" title="Smaller text">A&minus;</button>
+  <button class="iconbtn" id="fontplus" title="Larger text">A+</button>
+  <button class="iconbtn" id="themebtn" title="Light / dark theme"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button>
+</header>
+<nav class="sidebar" id="sidebar"><div class="navhead"><a href="index.html">Contents</a></div><ol class="navlist"><li><a href="notation.html"><span class="navnum"></span>Notation</a></li><li><a href="ch1.html"><span class="navnum">1</span>Introduction</a></li><li><a href="ch2.html"><span class="navnum">2</span>Fundamentals of linear algebra</a></li><li><a href="ch3.html"><span class="navnum">3</span>The singular value decomposition</a></li><li><a href="ch4.html"><span class="navnum">4</span>Least squares</a></li><li><a href="ch5.html"><span class="navnum">5</span>Introduction to system identification</a></li><li><a href="ch6.html"><span class="navnum">6</span>Prediction-error methods for polynomial models</a></li><li><a href="ch7.html"><span class="navnum">7</span>Towards subspace identification: the Ho–Kalman realization</a></li><li class="cur"><a href="ch8.html"><span class="navnum">8</span>Subspace identification: the MOESP method</a><ol class="navsec"><li><a href="#s-8-1" data-sec="s-8-1"><span class="navnum">8.1</span>Motivation</a></li><li><a href="#s-8-2" data-sec="s-8-2"><span class="navnum">8.2</span>Problem setting and the data equation</a></li><li><a href="#sec-moesp-auto" data-sec="sec-moesp-auto"><span class="navnum">8.3</span>Special case 1: the autonomous system</a></li><li><a href="#sec-moesp-imp" data-sec="sec-moesp-imp"><span class="navnum">8.4</span>Special case 2: the impulse response</a></li><li><a href="#sec-moesp-det" data-sec="sec-moesp-det"><span class="navnum">8.5</span>The general deterministic case</a></li><li><a href="#sec-moesp-BD" data-sec="sec-moesp-BD"><span class="navnum">8.6</span>Estimating \(B\), \(D\) and \(x(0)\) by least squares</a></li><li><a href="#sec-moesp-lq" data-sec="sec-moesp-lq"><span class="navnum">8.7</span>An efficient implementation: the LQ factorization</a></li><li><a href="#sec-moesp-noise" data-sec="sec-moesp-noise"><span class="navnum">8.8</span>The case of white output noise</a></li><li><a href="#s-8-9" data-sec="s-8-9"><span class="navnum">8.9</span>Summary and limitations</a></li><li><a href="#s-8-10" data-sec="s-8-10"><span class="navnum">8.10</span>Exercises</a></li><li><a href="#s-8-11" data-sec="s-8-11"><span class="navnum">8.11</span>Implementation in MATLAB and Python</a></li></ol></li><li><a href="appA.html"><span class="navnum">A</span>Discrete-time LTI systems in state space</a></li><li><a href="appB.html"><span class="navnum">B</span>Polynomial input–output models</a></li><li><a href="references.html"><span class="navnum"></span>Bibliography</a></li></ol></nav>
+<div class="scrim" id="scrim"></div>
+<main class="content" id="content">
+<article class="chapter">
+<h1 class="chap" id="top"><span class="chapnum">Chapter 8</span><span class="chaptitle">Subspace identification: the MOESP method</span></h1>
+<h2 id="s-8-1" class="sec"><span class="secnum">8.1</span> Motivation</h2>
+<p>Prediction-error methods (Chapter&nbsp;<a class="xref" href="ch6.html" data-ref="ch:pem">6</a>) are statistically optimal, but for all model
+structures except ARX they require nonlinear, possibly multimodal, optimization; they need
+the choice of several orders and delays; MIMO polynomial models are hard to parametrize; and
+they are not built to estimate state-space models directly. The Ho&ndash;Kalman method
+(Chapter&nbsp;<a class="xref" href="ch7.html" data-ref="ch:hokalman">7</a>) estimates state-space models with SVDs only, but it needs the impulse
+response (or an estimate of it) and does not account for noise. <em>Subspace
+identification</em> methods combine the best of both worlds: they work with general inputs,
+estimate MIMO state-space models directly, the order is chosen by inspecting singular
+values, and only numerically robust tools are used (QR/LQ, SVD, linear least squares).</p>
+<p>We study the <em>MOESP</em> family (Multivariable Output-Error State sPace, Verhaegen and
+Dewilde, 1992 [<a class="cite" href="references.html#bib-VerhaegenDewilde" data-cite="VerhaegenDewilde">11</a>]), following Chapter&nbsp;9 of Verhaegen and Verdult
+[<a class="cite" href="references.html#bib-VerhaegenVerdult" data-cite="VerhaegenVerdult">1</a>]. As for Ho&ndash;Kalman, the derivation is presented step by step:
+first two special cases (input-free system and impulse response) that show the key idea,
+then the general deterministic case, and finally the case of white output noise.</p>
+<h2 id="s-8-2" class="sec"><span class="secnum">8.2</span> Problem setting and the data equation</h2>
+<p>Consider the LTI system with output measurement noise</p>
+<div class="eq" id="eq-moesp-model">\[\left\{\begin{aligned}
+  x(k+1)&amp;=Ax(k)+Bu(k),\\ y(k)&amp;=Cx(k)+Du(k)+v(k),
+\end{aligned}\right.\qquad x(k)\in\R^n,\ u(k)\in\R^p,\ y(k)\in\R^q, \tag{8.1}\]</div>
+<p>where \(v(k)\) is a zero-mean white noise, \(\E\bigl(v(k)v\T(j)\bigr)=\sigma^2I_q\,\delta_{kj}\),
+independent of \(u\); \((A,C)\) observable and \((A,B)\) reachable (Appendix&nbsp;<a class="xref" href="appA.html" data-ref="app:systems">A</a>). The
+problem is:</p>
+<div class="eq">\[
+  \{u(k),y(k)\}_{k=0}^{N-1}\longmapsto\{\hat A,\hat B,\hat C,\hat D,\hat x(0)\}
+  \quad\text{(up to a change of coordinates)}.
+\]</div>
+<p>Until Section&nbsp;<a class="xref" href="#sec-moesp-noise" data-ref="sec:moesp-noise">8.8</a> we assume \(v\equiv0\) (deterministic case).</p>
+<p><strong class="runin">Stacking the equations.</strong>  From <a class="xref" href="ch5.html#eq-output-response" data-ref="eq:output-response">(5.3)</a>, with \(v\equiv0\),</p>
+<div class="eq">\[
+\begin{aligned}
+  y(k)&amp;=Cx(k)+Du(k),\\
+  y(k+1)&amp;=CAx(k)+CBu(k)+Du(k+1),\\
+  y(k+2)&amp;=CA^2x(k)+CABu(k)+CBu(k+1)+Du(k+2),\\
+  &amp;\;\;\vdots\\
+  y(k+s-1)&amp;=CA^{s-1}x(k)+CA^{s-2}Bu(k)+\cdots+CBu(k+s-2)+Du(k+s-1),
+\end{aligned}
+\]</div>
+<p>that is, in compact form,</p>
+<div class="eq" id="eq-stacked">\[\underbrace{\bmat{y(k)\\ y(k+1)\\ \vdots\\ y(k+s-1)}}_{\in\R^{sq}}
+  =\underbrace{\bmat{C\\ CA\\ \vdots\\ CA^{s-1}}}_{\Obs_s\in\R^{sq\times n}}x(k)
+  +\underbrace{\bmat{D&amp;0&amp;\cdots&amp;0\\ CB&amp;D&amp;\cdots&amp;0\\ \vdots&amp;\ddots&amp;\ddots&amp;\vdots\\ CA^{s-2}B&amp;\cdots&amp;CB&amp;D}}_{\Toe_s\in\R^{sq\times sp}}
+   \underbrace{\bmat{u(k)\\ u(k+1)\\ \vdots\\ u(k+s-1)}}_{\in\R^{sp}}, \tag{8.2}\]</div>
+<p>where \(\Obs_s\) is the extended observability matrix and \(\Toe_s\) is a lower-triangular block
+Toeplitz matrix containing the Markov parameters \(D,CB,CAB,\dots\). Writing
+<a class="xref" href="#eq-stacked" data-ref="eq:stacked">(8.2)</a> for \(k=0,1,\dots,\ell-1\) and placing the results side by side we obtain
+the <strong>data equation</strong></p>
+<div class="eq" id="eq-data-eq">\[\boxed{Y_{0,s,\ell}=\Obs_s\,X_{0,\ell}+\Toe_s\,U_{0,s,\ell}} \tag{8.3}\]</div>
+<div class="widget" id="w-dataeq" data-widget="dataeq"></div>
+<p>with the block Hankel matrices of Definition&nbsp;<a class="xref" href="ch5.html#def-pe" data-ref="def:pe">5.1</a> and the state sequence</p>
+<div class="eq">\[
+  Y_{0,s,\ell}=\bmat{y(0)&amp;y(1)&amp;\cdots&amp;y(\ell-1)\\ y(1)&amp;y(2)&amp;\cdots&amp;y(\ell)\\ \vdots&amp;\vdots&amp;&amp;\vdots\\ y(s-1)&amp;y(s)&amp;\cdots&amp;y(s+\ell-2)}\in\R^{sq\times\ell},
+\]</div>
+<div class="eq">\[
+  X_{0,\ell}=\bmat{x(0)&amp;x(1)&amp;\cdots&amp;x(\ell-1)}\in\R^{n\times\ell},
+\]</div>
+<p>and \(U_{0,s,\ell}\in\R^{sp\times\ell}\) defined analogously. The user-defined parameters are
+chosen so that</p>
+<div class="eq">\[
+  s&gt;n,\qquad \ell\gg s,\qquad s+\ell-1\le N
+\]</div>
+<p>(all the samples used exist; usually \(\ell=N-s+1\)). Each column of the data equation is a
+window of \(s\) consecutive samples; \(\ell\) windows, shifted by one sample, are collected.
+In the data equation, \(Y\) and \(U\) are known, while \(\Obs_s\), \(X_{0,\ell}\) and \(\Toe_s\) are
+unknown. The idea of subspace methods is to recover the <em>column space</em> of \(\Obs_s\),
+from which \(A\) and \(C\) follow exactly as in Ho&ndash;Kalman.</p>
+<h2 id="sec-moesp-auto" class="sec"><span class="secnum">8.3</span> Special case 1: the autonomous system</h2>
+<p>Let \(u(k)\equiv0\), so that the system is \(x(k+1)=Ax(k)\), \(y(k)=Cx(k)\), with
+\(x(k)=A^kx(0)\). The data equation becomes</p>
+<div class="eq">\[
+  Y_{0,s,\ell}=\Obs_sX_{0,\ell},\qquad X_{0,\ell}=\bmat{x(0)&amp;Ax(0)&amp;\cdots&amp;A^{\ell-1}x(0)} .
+\]</div>
+<p>\(X_{0,\ell}\) is the extended reachability matrix of the pair \((A,x(0))\), i.e. of a system
+whose &ldquo;input matrix&rdquo; is \(x(0)\): \(\rank(X_{0,\ell})=n\) if and only if the pair \((A,x(0))\) is
+reachable (\(\ell\ge n\)), which means that the initial state excites all the natural modes of the
+system. Under this assumption, and with \((A,C)\) observable and \(s\ge n\), Corollary&nbsp;<a class="xref" href="ch2.html#cor-sylv" data-ref="cor:sylv">2.13</a>
+gives</p>
+<div class="eq">\[
+  \rank(Y_{0,s,\ell})=n,\qquad \Im(Y_{0,s,\ell})=\Im(\Obs_s).
+\]</div>
+<p>Hence, computing the SVD \(Y_{0,s,\ell}=U_n\Sigma_nV_n\T\), the factors
+\(L=U_n\Sigma_n^{1/2}\) and \(P=\Sigma_n^{1/2}V_n\T\) play the role of \(\Obs_s\) and \(X_{0,\ell}\) in
+some state basis, and</p>
+<div class="eq">\[
+\begin{aligned}
+  &amp;\text{SISO } (q=1): &amp;&amp; C=L(1,:), &amp;&amp; A=L(1\!:\!s-1,:)\pinvsym\,L(2\!:\!s,:), &amp;&amp; x(0)=P(:,1),\\
+  &amp;\text{MIMO}: &amp;&amp; C=L(1\!:\!q,:), &amp;&amp; A=L(1\!:\!(s-1)q,:)\pinvsym\,L(q+1\!:\!sq,:), &amp;&amp; x(0)=P(:,1).
+\end{aligned}
+\]</div>
+<h2 id="sec-moesp-imp" class="sec"><span class="secnum">8.4</span> Special case 2: the impulse response</h2>
+<p>Consider now the SISO case with \(x(0)=0\) and \(u(k)=\delta(k)\). Then
+\(U_{0,s,\ell}\) has a single non-zero entry, \(u(0)=1\) in its top-left corner. Dropping the
+first column, i.e. starting the windows at \(k=1\), we get \(U_{1,s,\ell-1}=0\) and</p>
+<div class="eq">\[
+  Y_{1,s,\ell-1}=\Obs_sX_{1,\ell-1},
+\]</div>
+<div class="eq">\[
+  X_{1,\ell-1}=\bmat{x(1)&amp;x(2)&amp;\cdots&amp;x(\ell-1)}=\bmat{B&amp;AB&amp;\cdots&amp;A^{\ell-2}B}=\Rch_{\ell-1},
+\]</div>
+<p>because \(x(1)=B\) and \(x(k)=A^{k-1}B\) afterwards. Thus</p>
+<div class="eq">\[
+  Y_{1,s,\ell-1}=\bmat{w(1)&amp;w(2)&amp;\cdots&amp;w(\ell-1)\\ w(2)&amp;w(3)&amp;\cdots&amp;w(\ell)\\ \vdots&amp;&amp;&amp;\vdots\\ w(s)&amp;w(s+1)&amp;\cdots&amp;w(s+\ell-2)}=\Obs_s\Rch_{\ell-1}=H_{s,\ell-1},
+\]</div>
+<p>the Hankel matrix of the Markov parameters: we have recovered exactly the Ho&ndash;Kalman setting
+of Section&nbsp;<a class="xref" href="ch7.html#sec-hk-siso" data-ref="sec:hk-siso">7.1</a>. (In the MIMO case the same happens with \(p\) separate impulse
+experiments, one per input channel, whose output matrices are placed side by side.)</p>
+<h2 id="sec-moesp-det" class="sec"><span class="secnum">8.5</span> The general deterministic case</h2>
+<p>For a general input the term \(\Toe_sU_{0,s,\ell}\) in <a class="xref" href="#eq-data-eq" data-ref="eq:data-eq">(8.3)</a> &ldquo;pollutes&rdquo; the
+column space of \(Y_{0,s,\ell}\). Since \(\Toe_s\) is unknown, we remove it by multiplying the
+data equation on the right by a matrix that annihilates \(U_{0,s,\ell}\): the orthogonal
+projector onto the kernel of \(U_{0,s,\ell}\),</p>
+<div class="eq" id="eq-proj">\[\Pip=\Pi_{\Ker(U_{0,s,\ell})}=I_\ell-U_{0,s,\ell}\T\bigl(U_{0,s,\ell}U_{0,s,\ell}\T\bigr)^{-1}U_{0,s,\ell}\in\R^{\ell\times\ell}, \tag{8.4}\]</div>
+<p>which exists if \(U_{0,s,\ell}\) has full row rank \(sp\) (Section&nbsp;<a class="xref" href="ch4.html#sec-leastnorm" data-ref="sec:leastnorm">4.8</a>). \(\Pip\) projects
+onto \(\Ker(U_{0,s,\ell})\), the orthogonal complement of the row space \(\Im(U_{0,s,\ell}\T)\).
+Since \(U_{0,s,\ell}\Pip=U-UU\T(UU\T)^{-1}U=0\),</p>
+<div class="eq" id="eq-YPi">\[Y_{0,s,\ell}\Pip=\Obs_sX_{0,\ell}\Pip+\Toe_s\underbrace{U_{0,s,\ell}\Pip}_{0}=\Obs_sX_{0,\ell}\Pip . \tag{8.5}\]</div>
+<p>The input has disappeared, and \(Y_{0,s,\ell}\Pip\) has the same structure as the autonomous
+case: \(\Obs_s\) times something. We only have to check that the &ldquo;something&rdquo;
+\(X_{0,\ell}\Pip\) still has full row rank \(n\), i.e. that the projection did not destroy
+information about the state (Figure&nbsp;<a class="xref" href="#fig-moesp-proj" data-ref="fig:moesp-proj">8.1</a>).</p>
+<figure class="fig" id="fig-moesp-proj"><div class="fig-img"><img src="figures/fig-moesp-proj.svg" alt="Figure 8.1" loading="lazy" style="width:374px"></div><figcaption><span class="fig-name">Figure 8.1:</span> Geometric view of <a class="xref" href="#eq-YPi" data-ref="eq:YPi">(8.5)</a> in \(\R^\ell\): each row of \(Y_{0,s,\ell}\) is split into
+a component in the row space of the input Hankel matrix and a component in its orthogonal
+complement \(\Ker(U_{0,s,\ell})\). The projection \(Y\Pip\) keeps only the latter, which carries
+no contribution of \(\Toe_sU\) and, under Lemma&nbsp;<a class="xref" href="#lem-moesp-rank" data-ref="lem:moesp-rank">8.1</a>, still spans the state
+information.</figcaption></figure>
+<div class="thm thm-lemma" id="lem-moesp-rank"><p><span class="thm-head"><span class="thm-name">Lemma 8.1</span> <span class="thm-title">(Rank condition, Verhaegen and Verdult, Lemma 9.2)</span>.</span> Let \((A,C)\) be observable, \(s\ge n\), and</p>
+<div class="eq" id="eq-rank-cond">\[\rank\bmat{X_{0,\ell}\\ U_{0,s,\ell}}=n+sp . \tag{8.6}\]</div>
+<p>Then</p>
+<div class="eq">\[
+  \rank\bigl(Y_{0,s,\ell}\Pip\bigr)=n\qquad\text{and}\qquad\Im\bigl(Y_{0,s,\ell}\Pip\bigr)=\Im(\Obs_s).
+\]</div></div>
+<details class="proof" open><summary>Proof.</summary><div class="proof-body"><p>Condition <a class="xref" href="#eq-rank-cond" data-ref="eq:rank-cond">(8.6)</a> implies that \(U_{0,s,\ell}\) has full row rank, so \(\Pip\) is
+well defined. Suppose that \(X_{0,\ell}\Pip\) had rank smaller than \(n\): then there would exist
+\(z\neq0\) with \(z\T X_{0,\ell}\Pip=0\), i.e. the row vector \(z\T X_{0,\ell}\) would have no
+component in \(\Ker(U_{0,s,\ell})\) and would therefore belong to the row space of
+\(U_{0,s,\ell}\): \(z\T X_{0,\ell}=w\T U_{0,s,\ell}\) for some \(w\). But then
+\(\bmat{z\T&amp;-w\T}\bmat{X_{0,\ell}\\ U_{0,s,\ell}}=0\) with \((z,-w)\neq0\), which contradicts
+<a class="xref" href="#eq-rank-cond" data-ref="eq:rank-cond">(8.6)</a>. Hence \(X_{0,\ell}\Pip\in\R^{n\times\ell}\) has full row rank \(n\), \(\Obs_s\)
+has full column rank \(n\) (observability and \(s\ge n\)), and Corollary&nbsp;<a class="xref" href="ch2.html#cor-sylv" data-ref="cor:sylv">2.13</a> applied to
+<a class="xref" href="#eq-YPi" data-ref="eq:YPi">(8.5)</a> gives the claim.</p><span class="qed">&#8718;</span></div></details>
+<div class="thm thm-remark" id="remark-8-2"><p><span class="thm-head"><span class="thm-name">Remark 8.2</span> <span class="thm-title">(When does the rank condition hold?)</span>.</span> <a class="xref" href="#eq-rank-cond" data-ref="eq:rank-cond">(8.6)</a> requires that the state sequence and the inputs be &ldquo;independent
+enough&rdquo;. By Willems&rsquo; lemma (Theorem&nbsp;<a class="xref" href="ch5.html#thm-willems" data-ref="thm:willems">5.2</a>) it holds when \((A,B)\) is reachable and
+the input is persistently exciting of order \(s+n\) (Verhaegen and Verdult, Lemma 9.3, under
+suitable conditions); in practice white-noise or PRBS inputs of sufficient length satisfy
+it. It fails, e.g., for \(u\equiv0\) (then \(U\) has no rows of full rank; this is the
+autonomous case, handled directly in Section&nbsp;<a class="xref" href="#sec-moesp-auto" data-ref="sec:moesp-auto">8.3</a>) or for inputs that are too
+&ldquo;poor&rdquo;, such as a single sinusoid with \(s&gt;1\).</p></div>
+<p><strong class="runin">Estimating \(A\) and \(C\).</strong>  Compute the SVD of the projected output,</p>
+<div class="eq">\[
+  Y_{0,s,\ell}\Pip=U_n\Sigma_nV_n\T\qquad(\text{inspect the singular values to choose }n).
+\]</div>
+<p>By Lemma&nbsp;<a class="xref" href="#lem-moesp-rank" data-ref="lem:moesp-rank">8.1</a>, \(\Im(U_n)=\Im(\Obs_s)\), so there is a nonsingular \(T\) such that</p>
+<div class="eq">\[
+  L:=U_n=\Obs_sT=\bmat{CT\\ CT\,(T^{-1}AT)\\ \vdots\\ CT\,(T^{-1}AT)^{s-1}},
+\]</div>
+<p>i.e. \(L\) is the extended observability matrix of the equivalent system with
+\(\hat A=T^{-1}AT\), \(\hat C=CT\). (Unlike Ho&ndash;Kalman, the factor \(\Sigma_n^{1/2}\) is not needed:
+only the column space of \(\Obs_s\) is used, and any basis of it defines a valid state basis.)
+We now proceed as in Chapter&nbsp;<a class="xref" href="ch7.html" data-ref="ch:hokalman">7</a>, first in the SISO case and then in the MIMO case.</p>
+<div class="box keybox"><p><strong>SISO case</strong> (\(p=q=1\), \(L\in\R^{s\times n}\)): each block row of \(\Obs_s\) is a single row, so</p>
+<div class="eq">\[
+  \hat C=L(1,:),\qquad L(1\!:\!s-1,:)\,\hat A=L(2\!:\!s,:)\ \implies\ \hat A=L(1\!:\!s-1,:)\pinvsym\,L(2\!:\!s,:).
+\]</div>
+<p><strong>MIMO case</strong> (\(L\in\R^{sq\times n}\)): each block row of \(\Obs_s\) has \(q\) rows, so</p>
+<div class="eq">\[
+  \hat C=L(1\!:\!q,:),\qquad
+  \underbrace{L(1\!:\!(s-1)q,:)}_{L^{\up}=\Obs_{s-1}T}\,\hat A=\underbrace{L(q+1\!:\!sq,:)}_{L^{\dn}=\Obs_{s-1}T\hat A}
+  \ \implies\ \hat A=(L^{\up})\pinvsym L^{\dn}.
+\]</div>
+<p>\(L^{\up}\) (\(L\) without its last block row) has full column rank because \(s-1\ge n\).
+The SISO formulas are the case \(q=1\) of the MIMO ones.</p></div>
+<h2 id="sec-moesp-BD" class="sec"><span class="secnum">8.6</span> Estimating \(B\), \(D\) and \(x(0)\) by least squares</h2>
+<p>Once \(\hat A\) and \(\hat C\) are available (in the basis defined by \(T\), which we drop from
+the notation), the output <a class="xref" href="ch5.html#eq-output-response" data-ref="eq:output-response">(5.3)</a></p>
+<div class="eq">\[
+  y(k)=CA^kx(0)+\sum_{\tau=0}^{k-1}CA^{k-\tau-1}Bu(\tau)+Du(k)
+\]</div>
+<p>is <em>linear</em> in the remaining unknowns \(x(0)\), \(B\) and \(D\). We only have to rewrite it in
+the regression form \(y(k)=\varphi\T(k)\theta\) of Chapter&nbsp;<a class="xref" href="ch4.html" data-ref="ch:ls">4</a>.</p>
+<p><strong class="runin">SISO case.</strong>  With \(p=q=1\), \(u(\tau)\) is a scalar, so it can be moved to the left
+of the row vector \(CA^{k-\tau-1}\): \(CA^{k-\tau-1}Bu(\tau)=u(\tau)\,CA^{k-\tau-1}B\). Hence</p>
+<div class="eq" id="eq-BD-siso">\[y(k)=\Bigl[\,\underbrace{CA^k}_{1\times n}\ \Big|\ \underbrace{\sum_{\tau=0}^{k-1}u(\tau)\,CA^{k-\tau-1}}_{1\times n}\ \Big|\ \underbrace{u(k)}_{1\times1}\,\Bigr]
+  \bmat{x(0)\\ B\\ D}=\varphi\T(k)\,\theta,\qquad \theta\in\R^{2n+1}, \tag{8.7}\]</div>
+<p>(the sum is empty, i.e. zero, for \(k=0\)). Stacking the equations for \(k=0,\dots,N-1\),</p>
+<div class="eq">\[
+  \underbrace{\bmat{y(0)\\ y(1)\\ \vdots\\ y(N-1)}}_{Y}=\underbrace{\bmat{\varphi\T(0)\\ \varphi\T(1)\\ \vdots\\ \varphi\T(N-1)}}_{\Phi\in\R^{N\times(2n+1)}}\theta
+  \qquad\implies\qquad \hat\theta=\Phi\pinvsym Y=\bmat{\hat x(0)\\ \hat B\\ \hat D}.
+\]</div>
+<p><strong class="runin">MIMO case.</strong>  Now \(u(\tau)\in\R^p\) is a vector and \(B\in\R^{n\times p}\), \(D\in\R^{q\times p}\)
+are matrices: the unknown \(B\) is &ldquo;sandwiched&rdquo; between \(CA^{k-\tau-1}\) and \(u(\tau)\), and
+cannot simply be collected on the right. The tool to do it is the Kronecker product.</p>
+<div class="thm thm-definition" id="definition-8-3"><p><span class="thm-head"><span class="thm-name">Definition 8.3</span> <span class="thm-title">(Kronecker product and vectorization)</span>.</span> For \(M\in\R^{a\times b}\) and \(N\in\R^{c\times d}\), the <em>Kronecker product</em> is the
+\(ac\times bd\) matrix</p>
+<div class="eq">\[
+  M\otimes N=\bmat{m_{11}N&amp;\cdots&amp;m_{1b}N\\ \vdots&amp;&amp;\vdots\\ m_{a1}N&amp;\cdots&amp;m_{ab}N}.
+\]</div>
+<p>For \(P\in\R^{b\times c}\), \(\vect(P)\in\R^{bc}\) stacks the columns of \(P\) one below the other.</p></div>
+<p>The two properties we need are</p>
+<div class="eq" id="eq-kron">\[\vect(NPM)=(M\T\otimes N)\,\vect(P),\qquad (M_1M_2)\otimes(N_1N_2)=(M_1\otimes N_1)(M_2\otimes N_2) \tag{8.8}\]</div>
+<p>(for conformable dimensions). For example, with \(P=\bmat{p_1&amp;p_2}\) and \(M=\bmat{m_1\\ m_2}\),
+\(NPM=m_1Np_1+m_2Np_2=\bmat{m_1N&amp;m_2N}\bmat{p_1\\ p_2}=(M\T\otimes N)\vect(P)\).</p>
+<p>Apply the first property to each term of the output, noting that a vector is equal to its
+own vectorization:</p>
+<div class="eq">\[
+  CA^{k-\tau-1}Bu(\tau)=\vect\bigl(\underbrace{CA^{k-\tau-1}}_{N}\,\underbrace{B}_{P}\,\underbrace{u(\tau)}_{M}\bigr)
+  =\bigl(u\T(\tau)\otimes CA^{k-\tau-1}\bigr)\vect(B),
+\]</div>
+<div class="eq">\[
+  Du(k)=\vect\bigl(I_qDu(k)\bigr)=\bigl(u\T(k)\otimes I_q\bigr)\vect(D).
+\]</div>
+<p>Therefore</p>
+<div class="eq" id="eq-BD-mimo">\[y(k)=\Bigl[\,\underbrace{CA^k}_{q\times n}\ \Big|\ \underbrace{\sum_{\tau=0}^{k-1}u\T(\tau)\otimes CA^{k-\tau-1}}_{q\times np}\ \Big|\ \underbrace{u\T(k)\otimes I_q}_{q\times pq}\,\Bigr]
+  \bmat{x(0)\\ \vect(B)\\ \vect(D)}=\varphi\T(k)\,\theta,\qquad \theta\in\R^{n+np+pq}, \tag{8.9}\]</div>
+<p>where now \(\varphi\T(k)\in\R^{q\times(n+np+pq)}\) is a block row. Stacking for \(k=0,\dots,N-1\)
+gives \(Y=\Phi\theta\) with \(Y=[y\T(0)\;\cdots\;y\T(N-1)]\T\in\R^{Nq}\) and \(\Phi\in\R^{Nq\times(n+np+pq)}\),
+so that \(\hat\theta=\Phi\pinvsym Y\); \(\hat B\) and \(\hat D\) are obtained by inverting the
+vectorization (MATLAB: <code>reshape</code>). For \(p=q=1\), \(u\T(\tau)\otimes CA^{k-\tau-1}=u(\tau)CA^{k-\tau-1}\)
+and \(u\T(k)\otimes I_1=u(k)\): <a class="xref" href="#eq-BD-mimo" data-ref="eq:BD-mimo">(8.9)</a> reduces to <a class="xref" href="#eq-BD-siso" data-ref="eq:BD-siso">(8.7)</a>.</p>
+<p><strong class="runin">Efficient computation of the regressor.</strong>  Define
+\(G(k)=\sum_{\tau=0}^{k-1}u\T(\tau)\otimes A^{k-\tau-1}\in\R^{n\times np}\). By the second property
+in <a class="xref" href="#eq-kron" data-ref="eq:kron">(8.8)</a>, \(C\,(u\T\otimes A^j)=(1\cdot u\T)\otimes(CA^j)\) and \(A\,(u\T\otimes A^j)=u\T\otimes A^{j+1}\),
+so the middle block of \(\varphi\T(k)\) is \(C\,G(k)\) and</p>
+<div class="eq">\[
+  G(0)=0,\qquad G(k+1)=A\,G(k)+u\T(k)\otimes I_n ,
+\]</div>
+<p>a recursion that costs \(O(n^2p)\) operations per sample.</p>
+<div class="thm thm-remark" id="remark-8-4"><p><span class="thm-head"><span class="thm-name">Remark 8.4</span>.</span> (i) \(\Phi\) has full column rank when \((A,C)\) is observable and the input is sufficiently
+exciting. (ii) If \(A\) is asymptotically stable, \(CA^kx(0)\to0\) and the initial state only
+affects the first samples: for long records \(x(0)\) can be set to zero and the first block
+column of \(\Phi\) dropped. (iii) The model obtained is in the (arbitrary) state basis defined
+by \(L\); \(\hat B,\hat D\) are consistent with it because they are estimated <em>after</em>
+\(\hat A,\hat C\).</p></div>
+<div class="box algobox" id="alg-moesp"><div class="box-title">Algorithm 8.1: MOESP, deterministic (and white output noise) case, MIMO</div><div class="box-body"><p><strong>Input:</strong> \(\{u(k),y(k)\}_{k=0}^{N-1}\), \(u(k)\in\R^p\), \(y(k)\in\R^q\); \(s&gt;n\) (an upper bound
+on the order), \(\ell=N-s+1\).</p>
+<ol><li><p>Build \(U_{0,s,\ell}\in\R^{sp\times\ell}\) and \(Y_{0,s,\ell}\in\R^{sq\times\ell}\).</p></li><li><p>Compute \(Y_{0,s,\ell}\Pip=Y-YU\T(UU\T)^{-1}U\) (or, better, the LQ factor \(L_{22}\) of
+      Section&nbsp;<a class="xref" href="#sec-moesp-lq" data-ref="sec:moesp-lq">8.7</a>).</p></li><li><p>SVD: \(Y_{0,s,\ell}\Pip=U\Sigma V\T\); choose \(n\) from the singular values; \(L=U(:,1\!:\!n)\).</p></li><li><p>\(\hat C=L(1\!:\!q,:)\), \(\;\hat A=L(1\!:\!(s-1)q,:)\pinvsym\,L(q+1\!:\!sq,:)\) &emsp;
+      (SISO: \(\hat C=L(1,:)\), \(\hat A=L(1\!:\!s-1,:)\pinvsym L(2\!:\!s,:)\)).</p></li><li><p>Build \(\Phi\) from <a class="xref" href="#eq-BD-mimo" data-ref="eq:BD-mimo">(8.9)</a> (SISO: <a class="xref" href="#eq-BD-siso" data-ref="eq:BD-siso">(8.7)</a>) with \(\hat A,\hat C\),
+      solve \(\hat\theta=\Phi\pinvsym Y\), and unpack \(\hat x(0)\), \(\hat B=\vect^{-1}(\cdot)\),
+      \(\hat D=\vect^{-1}(\cdot)\).</p></li></ol></div></div>
+<div class="box example" id="ex-moesp-det"><div class="box-title">Example 8.1: deterministic MOESP</div><div class="box-body"><p>For the fourth-order SISO system of Example&nbsp;<a class="xref" href="ch7.html#ex-hk-noisy" data-ref="ex:hk-noisy">7.2</a>, excited by \(N=1000\) samples of white
+noise (\(x(0)=0\), no noise, \(s=10\)), the singular values of \(Y\Pip/\sqrt N\) are
+\(4.636,\ 1.929,\ 0.891,\ 0.355\) followed by values of the order of \(10^{-15}\): the order is
+exactly revealed and the identified eigenvalues coincide with the true ones to machine
+precision. For the \(2\times2\) MIMO system of Chapter&nbsp;<a class="xref" href="ch7.html" data-ref="ch:hokalman">7</a> (fourth exercise, \(n=3\),
+\(D\neq0\)), excited by \(N=400\) samples of white noise from \(x(0)=(1,-1,0.5)\T\) and with \(s=8\),
+the singular values of \(Y\Pip\) are \(102.2,\ 60.3,\ 13.7\) followed by values below \(10^{-13}\);
+the estimated eigenvalues are exactly \(0.8\pm0.2j\), \(0.5\), the estimate of \(D\) (which is
+invariant) is \(\bmat{0&amp;0.5\\0&amp;0}\) up to \(10^{-14}\), and the output simulated with the estimated
+\(\hat x(0)\) matches the data with a relative error of \(4\cdot10^{-15}\) (script
+<code>test_hk_moesp.m</code>).</p></div></div>
+<h2 id="sec-moesp-lq" class="sec"><span class="secnum">8.7</span> An efficient implementation: the LQ factorization</h2>
+<p>The projector \(\Pip\) is an \(\ell\times\ell\) matrix, and \(\ell\approx N\) can be large: it should
+never be formed explicitly. An elegant and numerically robust alternative is the <em>LQ
+factorization</em> (the transpose of a QR factorization, Section&nbsp;<a class="xref" href="ch2.html#sec-qr" data-ref="sec:qr">2.6</a>) of the stacked data
+matrix:</p>
+<div class="eq" id="eq-lq">\[\bmat{U_{0,s,\ell}\\ Y_{0,s,\ell}}=\bmat{L_{11}&amp;0\\ L_{21}&amp;L_{22}}\bmat{Q_1\\ Q_2},\qquad
+  L_{11}\in\R^{sp\times sp},\ L_{22}\in\R^{sq\times sq}, \tag{8.10}\]</div>
+<p>where the \(L_{ij}\) are lower triangular (block) factors and \(\bmat{Q_1\\ Q_2}\) has orthonormal
+rows. Then \(U=L_{11}Q_1\) with \(L_{11}\) nonsingular (full row rank of \(U\)), so the rows of \(Q_1\)
+span the row space of \(U\) and \(\Pip=I-Q_1\T Q_1\). Since \(Q_2Q_1\T=0\) and \(Q_1Q_1\T=I\),</p>
+<div class="eq">\[
+  Y\Pip=(L_{21}Q_1+L_{22}Q_2)(I-Q_1\T Q_1)=L_{21}(Q_1-Q_1)+L_{22}Q_2=L_{22}Q_2 .
+\]</div>
+<p>Because \(Q_2\) has orthonormal rows, if \(L_{22}=U\Sigma V_L\T\) then \(Y\Pip=U\Sigma(Q_2\T V_L)\T\) is an
+SVD of \(Y\Pip\): <em>the left singular vectors and the singular values of \(Y\Pip\) are those
+of the small \(sq\times sq\) matrix \(L_{22}\)</em>, and \(Q\) never needs to be stored. In MATLAB:</p>
+<div class="code" data-lang="matlab"><div class="code-head"><span class="code-lang">MATLAB</span><span class="code-title"></span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button></span></div><pre><code class="hl"><span class="n">Lf</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="nb">triu</span><span class="p">(</span><span class="nb">qr</span><span class="p">([</span><span class="n">U</span><span class="p">;</span><span class="w"> </span><span class="n">Y</span><span class="p">]</span><span class="o">'</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span><span class="o">'</span><span class="p">;</span><span class="w">        </span><span class="c">% lower-triangular factor of [U; Y] = Lf*Q</span>
+<span class="n">L22</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">Lf</span><span class="p">(</span><span class="n">s</span><span class="o">*</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="k">end</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">*</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="k">end</span><span class="p">);</span><span class="w">     </span><span class="c">% Y*Pi_Ker(U) = L22*Q2</span>
+<span class="p">[</span><span class="n">Uy</span><span class="p">,</span><span class="w"> </span><span class="n">Sy</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">svd</span><span class="p">(</span><span class="n">L22</span><span class="p">);</span><span class="w">                </span><span class="c">% Im(Uy(:,1:n)) = Im(O_s)</span>
+</code></pre><textarea class="code-src" hidden>Lf  = triu(qr([U; Y]', 0))';        % lower-triangular factor of [U; Y] = Lf*Q
+L22 = Lf(s*p+1:end, s*p+1:end);     % Y*Pi_Ker(U) = L22*Q2
+[Uy, Sy] = svd(L22);                % Im(Uy(:,1:n)) = Im(O_s)</textarea></div>
+<p>(<code>qr(M,0)</code> returns the economy-size factorization; <code>triu</code> extracts the \(R\)
+factor also in GNU Octave, where the one-output call returns a matrix containing
+Householder vectors below the diagonal.) The same LQ factorization is the computational
+core of all subspace methods (PI/PO-MOESP, N4SID), where more block rows (past inputs and
+outputs used as instrumental variables) are stacked in <a class="xref" href="#eq-lq" data-ref="eq:lq">(8.10)</a>.</p>
+<h2 id="sec-moesp-noise" class="sec"><span class="secnum">8.8</span> The case of white output noise</h2>
+<p>Consider now <a class="xref" href="#eq-moesp-model" data-ref="eq:moesp-model">(8.1)</a> with \(v\neq0\). The data equation becomes</p>
+<div class="eq">\[
+  Y_{0,s,\ell}=\Obs_sX_{0,\ell}+\Toe_sU_{0,s,\ell}+V_{0,s,\ell},
+\]</div>
+<p>with \(V_{0,s,\ell}\) the block Hankel matrix of the noise, and after the projection</p>
+<div class="eq">\[
+  Y_{0,s,\ell}\Pip=\Obs_sX_{0,\ell}\Pip+V_{0,s,\ell}\Pip .
+\]</div>
+<p>Now \(\rank(Y\Pip)=\min(sq,\ell)\) in general: the column space of \(\Obs_s\) is no longer
+exactly revealed. However, it is revealed <em>asymptotically</em>, for \(\ell\to\infty\) (i.e. \(N\to\infty\)), under the following assumptions:</p>
+<ul><li><p>\(v(k)\) is zero-mean white noise with \(\E\bigl(v(k)v\T(k)\bigr)=\sigma^2I_q\);</p></li><li><p>\(v\) is uncorrelated with the input \(u\) (open-loop experiment) and hence with the
+      state sequence (the noise does not enter the state equation);</p></li><li><p>the signals are ergodic, so that sample averages converge to expectations:
+      \(\frac1\ell V_{0,s,\ell}V_{0,s,\ell}\T\to\sigma^2I_{sq}\),
+      \(\frac1\ell V_{0,s,\ell}U_{0,s,\ell}\T\to0\), \(\frac1\ell V_{0,s,\ell}X_{0,\ell}\T\to0\);</p></li><li><p>the rank condition <a class="xref" href="#eq-rank-cond" data-ref="eq:rank-cond">(8.6)</a> holds, uniformly: \(\lim\frac1\ell X\Pip X\T\succ0\).</p></li></ul>
+<div class="thm thm-theorem" id="thm-moesp-noise"><p><span class="thm-head"><span class="thm-name">Theorem 8.5</span> <span class="thm-title">(Verhaegen and Verdult, Theorem 9.2)</span>.</span> Under the above assumptions,</p>
+<div class="eq">\[
+  \lim_{\ell\to\infty}\frac1\ell\,Y_{0,s,\ell}\Pip\,Y_{0,s,\ell}\T
+  =\bmat{U_n&amp;\bar U_n}\bmat{\Sigma_n^2+\sigma^2I_n&amp;0\\0&amp;\sigma^2I_{sq-n}}\bmat{U_n\T\\ \bar U_n\T},
+\]</div>
+<p>where \(\Obs_s\bigl(\lim\frac1\ell X\Pip X\T\bigr)\Obs_s\T=U_n\Sigma_n^2U_n\T\) is the (rank \(n\))
+noise-free part. Consequently \(\Im(U_n)=\Im(\Obs_s)\): the \(n\) dominant left singular vectors of
+\(Y\Pip\) still span the column space of the extended observability matrix.</p></div>
+<details class="proof" open><summary>Sketch.</summary><div class="proof-body"><p>Since \(\Pip\) is symmetric and idempotent, \(Y\Pip Y\T=(Y\Pip)(Y\Pip)\T\). Expanding,</p>
+<div class="eq">\begin{multline*}
+  \tfrac1\ell Y\Pip Y\T=\Obs_s\bigl(\tfrac1\ell X\Pip X\T\bigr)\Obs_s\T\\
+  +\Obs_s\bigl(\tfrac1\ell X\Pip V\T\bigr)+\bigl(\tfrac1\ell V\Pip X\T\bigr)\Obs_s\T+\tfrac1\ell V\Pip V\T .
+\end{multline*}</div>
+<p>With \(\Pip=I-U\T(UU\T)^{-1}U\) and the ergodicity assumptions,</p>
+<div class="eq">\[
+  \tfrac1\ell XV\T\to0,\qquad \tfrac1\ell XU\T\bigl(\tfrac1\ell UU\T\bigr)^{-1}\tfrac1\ell UV\T\to0,
+\]</div>
+<p>so the cross terms vanish, while</p>
+<div class="eq">\[
+  \tfrac1\ell V\Pip V\T=\tfrac1\ell VV\T-\tfrac1\ell VU\T\bigl(\tfrac1\ell UU\T\bigr)^{-1}\tfrac1\ell UV\T\to\sigma^2I_{sq}.
+\]</div>
+<p>Writing the noise-free part as \(U_n\Sigma_n^2U_n\T\) and \(\sigma^2I=\sigma^2(U_nU_n\T+\bar U_n\bar U_n\T)\)
+gives the result.</p><span class="qed">&#8718;</span></div></details>
+<p><strong class="runin">Consequences.</strong></p>
+<ul><li><p>The <em>same algorithm</em> as in the deterministic case (Algorithm&nbsp;<a class="xref" href="#alg-moesp" data-ref="alg:moesp">8.1</a>) can be
+      used: the estimates of \(A\) and \(C\) are (asymptotically) unbiased and consistent, up to
+      a change of coordinates, and so are the least-squares estimates of \(B\), \(D\) (the
+      regressor in <a class="xref" href="#eq-BD-mimo" data-ref="eq:BD-mimo">(8.9)</a> only contains inputs, which are uncorrelated with \(v\)).</p></li><li><p><em>Order selection</em>: the singular values of \(Y\Pip/\sqrt\ell\) tend to
+      \(\sqrt{\sigma_i^2+\sigma^2}\) for \(i\le n\) and to \(\sigma\) for \(i&gt;n\). The order is
+      detectable as the number of singular values above the <em>noise floor</em> \(\sigma\); this
+      is easy when the smallest &ldquo;signal&rdquo; singular value \(\sigma_n\) is large compared with
+      \(\sigma\) (good signal-to-noise ratio).</p></li><li><p>The LQ implementation of Section&nbsp;<a class="xref" href="#sec-moesp-lq" data-ref="sec:moesp-lq">8.7</a> applies unchanged.</p></li></ul>
+<div class="box example" id="ex-moesp-noisy"><div class="box-title">Example 8.2: MOESP with noisy outputs</div><div class="box-body"><p>The system of Example&nbsp;<a class="xref" href="ch7.html#ex-hk-noisy" data-ref="ex:hk-noisy">7.2</a> is excited by white Gaussian noise of unit variance, \(N=1000\),
+and the output is corrupted by white noise with \(\sigma=0.3\) (the noise-free output has standard deviation \(3.3\), a signal-to-noise ratio of about
+\(21\)&thinsp;dB); \(s=10\). Figure&nbsp;<a class="xref" href="#fig-moesp" data-ref="fig:moesp">8.2</a>a shows the singular values of \(Y\Pip/\sqrt N\): the four
+dominant ones (\(4.63,1.95,0.94,0.46\)) are slightly increased with respect to the noise-free
+case, as predicted by Theorem&nbsp;<a class="xref" href="#thm-moesp-noise" data-ref="thm:moesp-noise">8.5</a> (e.g. \(\sqrt{0.355^2+0.3^2}=0.46\)), and the others
+form a floor at \(0.28\)&ndash;\(0.29\approx\sigma\). Choosing \(n=4\), in 50 Monte Carlo runs the
+estimated eigenvalues cluster around the true ones (Figure&nbsp;<a class="xref" href="#fig-moesp" data-ref="fig:moesp">8.2</a>b); the pole in \(-0.5\),
+which contributes least to the output, has the largest spread. On a fresh validation
+experiment the simulated output of the identified model has a fit of \(99.1\pm0.2\%\) with
+respect to the noise-free output, and of \(91.6\%\) (single run) with respect to the noisy
+measurements, whose noise obviously cannot be predicted (Figure&nbsp;<a class="xref" href="#fig-moesp" data-ref="fig:moesp">8.2</a>c).</p></div></div>
+<figure class="fig" id="fig-moesp"><div class="fig-img"><img src="figures/fig-moesp.svg" alt="Figure 8.2" loading="lazy" style="width:708px"></div><figcaption><span class="fig-name">Figure 8.2:</span> MOESP with white output noise (Example&nbsp;<a class="xref" href="#ex-moesp-noisy" data-ref="ex:moesp-noisy">8.2</a>). (a) Singular values of
+\(Y\Pip/\sqrt N\): without noise (circles) there are exactly four non-zero values, the others
+being \(\approx10^{-15}\) (far below the displayed range); with noise (squares, shifted
+horizontally for readability) the values \(i\ge5\) form a floor at the level \(\sigma\), above
+which the four &ldquo;system&rdquo; singular values stand out, slightly increased as predicted by
+Theorem&nbsp;<a class="xref" href="#thm-moesp-noise" data-ref="thm:moesp-noise">8.5</a>. (b) Estimated eigenvalues in 50 Monte Carlo runs (dots) and true eigenvalues (circles): the estimates of \(0.6\pm0.5j\) and \(0.9\) are tightly clustered, those of \(-0.5\) are more spread. (c) Validation on fresh data.</figcaption></figure>
+<div class="widget" id="w-moesp" data-widget="moesp"></div>
+<h2 id="s-8-9" class="sec"><span class="secnum">8.9</span> Summary and limitations</h2>
+<div class="center"><div class="tablewrap"><table class="tbl"><thead><tr><th class="ap"></th><th class="ap">Ho&ndash;Kalman / Kung</th><th class="ap">MOESP (ordinary)</th></tr></thead><tbody><tr><td class="ap">data</td><td class="ap">impulse response (Markov parameters)</td><td class="ap">general PE input and output</td></tr><tr><td class="ap">key matrix</td><td class="ap">\(H_{s,\ell}=\Obs_s\Rch_\ell\)</td><td class="ap">\(Y\Pip=\Obs_sX\Pip\) (via LQ)</td></tr><tr><td class="ap">\(A\), \(C\)</td><td class="ap">shift invariance of \(L=U_n\Sigma_n^{1/2}\)</td><td class="ap">shift invariance of \(L=U_n\)</td></tr><tr><td class="ap">\(B\), \(D\)</td><td class="ap">first block column of \(P\), \(W(0)\)</td><td class="ap">linear LS (Kronecker/vec)</td></tr><tr><td class="ap">noise</td><td class="ap">SVD truncation (heuristic)</td><td class="ap">white output noise: consistent</td></tr><tr><td class="ap">MIMO</td><td class="ap">yes</td><td class="ap">yes</td></tr></tbody></table></div></div>
+<p>What we have <em>not</em> seen: if the output noise is colored, or if there is process noise
+(\(x(k+1)=Ax+Bu+w\)), then \(\frac1\ell V\Pip V\T\) does not converge to a multiple of the identity
+and ordinary MOESP gives <em>biased</em> estimates of \(\Im(\Obs_s)\). The remedy is to use
+<em>instrumental variables</em> built from past inputs (PI-MOESP) or past inputs and outputs
+(PO-MOESP), which are uncorrelated with the future noise; see Chapter&nbsp;9 of Verhaegen and
+Verdult [<a class="cite" href="references.html#bib-VerhaegenVerdult" data-cite="VerhaegenVerdult">1</a>] and the book by Katayama [<a class="cite" href="references.html#bib-Katayama" data-cite="Katayama">12</a>].</p>
+<h2 id="s-8-10" class="sec"><span class="secnum">8.10</span> Exercises</h2>
+<div class="exercise" id="exercise-8-1"><p><span class="thm-head"><span class="ex-name">Exercise 8.1</span>.</span> Write the data equation <a class="xref" href="#eq-data-eq" data-ref="eq:data-eq">(8.3)</a> explicitly for \(s=3\) and a SISO system, and verify
+by direct computation that \(\Toe_3U_{0,3,\ell}\) has the claimed structure.</p></div>
+<div class="exercise" id="exercise-8-2"><p><span class="thm-head"><span class="ex-name">Exercise 8.2</span>.</span> Show that \(\Pip\) in <a class="xref" href="#eq-proj" data-ref="eq:proj">(8.4)</a> is symmetric, idempotent and satisfies
+\(\Im(\Pip)=\Ker(U_{0,s,\ell})\). What is its rank?</p></div>
+<div class="exercise" id="exercise-8-3"><p><span class="thm-head"><span class="ex-name">Exercise 8.3</span>.</span> Prove the vectorization identity \(\vect(NPM)=(M\T\otimes N)\vect(P)\) by comparing the \(j\)-th
+column of both sides. Then verify numerically <a class="xref" href="#eq-BD-mimo" data-ref="eq:BD-mimo">(8.9)</a> for a random system with
+\(p=2\), \(q=3\).</p></div>
+<div class="exercise" id="exercise-8-4"><p><span class="thm-head"><span class="ex-name">Exercise 8.4</span>.</span> In the autonomous case, show that if \(x(0)\) is an eigenvector of \(A\) then
+\(\rank(Y_{0,s,\ell})=1\) whatever \(n\) is. Interpret the result in terms of excitation of the
+natural modes (Appendix&nbsp;<a class="xref" href="appA.html" data-ref="app:systems">A</a>).</p></div>
+<div class="exercise" id="exercise-8-5"><p><span class="thm-head"><span class="ex-name">Exercise 8.5</span>.</span> Repeat Example&nbsp;<a class="xref" href="#ex-moesp-noisy" data-ref="ex:moesp-noisy">8.2</a> for \(\sigma\in\{0.1,0.3,1\}\) and \(N\in\{200,1000,5000\}\). Plot
+the singular values and the spread of the eigenvalue estimates. For which combinations is
+the order still detectable?</p><div class="ex-links"><a class="ex-link" href="#w-moesp">Open the MOESP lab</a></div></div>
+<div class="exercise" id="exercise-8-6"><p><span class="thm-head"><span class="ex-name">Exercise 8.6</span>.</span> Replace the white output noise with colored noise \(v(k)=\frac{1}{1-0.9q^{-1}}e(k)\) and check
+empirically that the estimated eigenvalues are biased. Compare with the MATLAB function
+<code>n4sid</code>.</p></div>
+<h2 id="s-8-11" class="sec"><span class="secnum">8.11</span> Implementation in MATLAB and Python</h2>
+<p>The function <code>moesp</code> implements Algorithm&nbsp;<a class="xref" href="#alg-moesp" data-ref="alg:moesp">8.1</a> with both the explicit projection
+(<code>'proj'</code>, as in the notes) and the LQ implementation (<code>'lq'</code>, default); the
+regressor for \(B\), \(D\), \(x(0)\) is built with the recursion for \(G(k)\).</p>
+<div class="code" data-lang="matlab"><div class="code-head"><span class="code-lang">MATLAB</span><span class="code-title">moesp.m</span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button><a class="code-btn" href="code/matlab/moesp.m" download>Download</a></span></div><pre><code class="hl"><span class="k">function</span><span class="w"> </span><span class="p">[</span>A, B, C, D, x0, sv<span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nf">moesp</span><span class="p">(</span>u, y, s, n, method<span class="p">)</span>
+<span class="c">%MOESP  Basic (ordinary) MOESP subspace identification for the deterministic</span>
+<span class="c">%       and the white-output-noise case.</span>
+<span class="c">%   [A,B,C,D,x0,sv] = moesp(u, y, s, n, method)</span>
+<span class="c">%   u : N-by-p input samples  (row k+1 = u(k)^T, k = 0..N-1)</span>
+<span class="c">%   y : N-by-q output samples</span>
+<span class="c">%   s : number of block rows of the Hankel matrices (s &gt; n)</span>
+<span class="c">%   n : model order (inspect sv to choose it; pass n = [] to get only sv)</span>
+<span class="c">%   method : 'proj' (explicit projection, as in the lecture notes) or</span>
+<span class="c">%            'lq'   (numerically efficient LQ implementation, default)</span>
+<span class="k">if</span><span class="w"> </span><span class="nb">nargin</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="n">method</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">'lq'</span><span class="p">;</span><span class="w"> </span><span class="k">end</span>
+<span class="p">[</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">size</span><span class="p">(</span><span class="n">u</span><span class="p">);</span><span class="w">  </span><span class="n">q</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">size</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span>
+<span class="n">l</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">                           </span><span class="c">% number of columns of the Hankel matrices</span>
+<span class="n">U</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">blockhankel</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">);</span><span class="w">                </span><span class="c">% U_{0,s,l}  (s*p x l)</span>
+<span class="n">Y</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">blockhankel</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">);</span><span class="w">                </span><span class="c">% Y_{0,s,l}  (s*q x l)</span>
+<span class="k">switch</span><span class="w"> </span><span class="n">method</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s">'proj'</span>
+<span class="w">        </span><span class="c">% Y*Pi_{Ker(U)} = Y - Y U^T (U U^T)^{-1} U  (the l x l projector is never formed)</span>
+<span class="w">        </span><span class="n">YP</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">Y</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">((</span><span class="n">Y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">U</span><span class="o">'</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">U</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">U</span><span class="o">'</span><span class="p">))</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">U</span><span class="p">;</span>
+<span class="w">        </span><span class="p">[</span><span class="n">Uy</span><span class="p">,</span><span class="w"> </span><span class="n">Sy</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">svd</span><span class="p">(</span><span class="n">YP</span><span class="p">,</span><span class="w"> </span><span class="s">'econ'</span><span class="p">);</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s">'lq'</span>
+<span class="w">        </span><span class="c">% [U; Y] = [L11 0; L21 L22] [Q1; Q2]   =&gt;   Y*Pi_{Ker(U)} = L22*Q2</span>
+<span class="w">        </span><span class="n">Lf</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="nb">triu</span><span class="p">(</span><span class="nb">qr</span><span class="p">([</span><span class="n">U</span><span class="p">;</span><span class="w"> </span><span class="n">Y</span><span class="p">]</span><span class="o">'</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span><span class="o">'</span><span class="p">;</span><span class="w">     </span><span class="c">% lower-triangular LQ factor</span>
+<span class="w">        </span><span class="n">L22</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">Lf</span><span class="p">(</span><span class="n">s</span><span class="o">*</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="k">end</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="o">*</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="k">end</span><span class="p">);</span>
+<span class="w">        </span><span class="p">[</span><span class="n">Uy</span><span class="p">,</span><span class="w"> </span><span class="n">Sy</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">svd</span><span class="p">(</span><span class="n">L22</span><span class="p">);</span>
+<span class="w">    </span><span class="k">otherwise</span>
+<span class="w">        </span><span class="nb">error</span><span class="p">(</span><span class="s">'moesp: unknown method'</span><span class="p">);</span>
+<span class="k">end</span>
+<span class="n">sv</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">diag</span><span class="p">(</span><span class="n">Sy</span><span class="p">);</span>
+<span class="k">if</span><span class="w"> </span><span class="nb">isempty</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[];</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[];</span><span class="w"> </span><span class="n">C</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[];</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[];</span><span class="w"> </span><span class="n">x0</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[];</span><span class="w"> </span><span class="k">return</span><span class="p">;</span><span class="w"> </span><span class="k">end</span>
+<span class="n">Lm</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">Uy</span><span class="p">(:,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">n</span><span class="p">);</span><span class="w">                         </span><span class="c">% basis of Im(O_s) (up to a change of basis)</span>
+<span class="n">C</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">Lm</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="p">:);</span>
+<span class="n">A</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="nb">pinv</span><span class="p">(</span><span class="n">Lm</span><span class="p">(</span><span class="mi">1</span><span class="p">:(</span><span class="n">s</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="p">:))</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">Lm</span><span class="p">(</span><span class="n">q</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">s</span><span class="o">*</span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="p">:);</span>
+<span class="c">% ---- B, D, x0 by linear least squares (Kronecker product / vec trick) ----</span>
+<span class="c">% y(k) = C A^k x0 + sum_{tau&lt;k} (u(tau)^T kron C A^(k-tau-1)) vec(B) + (u(k)^T kron I_q) vec(D)</span>
+<span class="n">Phi</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">zeros</span><span class="p">(</span><span class="n">N</span><span class="o">*</span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">n</span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">p</span><span class="o">*</span><span class="n">q</span><span class="p">);</span>
+<span class="n">G</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="nb">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="o">*</span><span class="n">p</span><span class="p">);</span><span class="w">                     </span><span class="c">% G_k = sum_{tau&lt;k} u(tau)^T kron A^(k-tau-1)</span>
+<span class="n">Ak</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="nb">eye</span><span class="p">(</span><span class="n">n</span><span class="p">);</span><span class="w">                            </span><span class="c">% A^k</span>
+<span class="k">for</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">    </span><span class="n">rows</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">k</span><span class="o">*</span><span class="n">q</span><span class="o">+</span><span class="mi">1</span><span class="p">:(</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">q</span><span class="p">;</span>
+<span class="w">    </span><span class="n">uk</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">u</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">:);</span>
+<span class="w">    </span><span class="n">Phi</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span><span class="w"> </span><span class="p">:)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">C</span><span class="o">*</span><span class="n">Ak</span><span class="p">,</span><span class="w"> </span><span class="n">C</span><span class="o">*</span><span class="n">G</span><span class="p">,</span><span class="w"> </span><span class="nb">kron</span><span class="p">(</span><span class="n">uk</span><span class="p">,</span><span class="w"> </span><span class="nb">eye</span><span class="p">(</span><span class="n">q</span><span class="p">))];</span>
+<span class="w">    </span><span class="n">G</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">A</span><span class="o">*</span><span class="n">G</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">kron</span><span class="p">(</span><span class="n">uk</span><span class="p">,</span><span class="w"> </span><span class="nb">eye</span><span class="p">(</span><span class="n">n</span><span class="p">));</span><span class="w">         </span><span class="c">% G_{k+1} = A G_k + u(k)^T kron I_n</span>
+<span class="w">    </span><span class="n">Ak</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">A</span><span class="o">*</span><span class="n">Ak</span><span class="p">;</span>
+<span class="k">end</span>
+<span class="n">theta</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">Phi</span><span class="w"> </span><span class="o">\</span><span class="w"> </span><span class="nb">reshape</span><span class="p">(</span><span class="n">y</span><span class="o">'</span><span class="p">,</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w">        </span><span class="c">% stacked outputs [y(0); y(1); ...; y(N-1)]</span>
+<span class="n">x0</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">theta</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n</span><span class="p">);</span>
+<span class="n">B</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="nb">reshape</span><span class="p">(</span><span class="n">theta</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">n</span><span class="o">+</span><span class="n">n</span><span class="o">*</span><span class="n">p</span><span class="p">),</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">);</span><span class="w">    </span><span class="c">% inverse of vec(.)</span>
+<span class="n">D</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="nb">reshape</span><span class="p">(</span><span class="n">theta</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="n">n</span><span class="o">*</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="k">end</span><span class="p">),</span><span class="w"> </span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">);</span>
+<span class="k">end</span>
+
+<span class="k">function</span><span class="w"> </span>H<span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nf">blockhankel</span><span class="p">(</span>x, s, l<span class="p">)</span>
+<span class="c">%BLOCKHANKEL  s block rows, l columns; column j = [x(j-1); x(j); ...; x(j+s-2)]</span>
+<span class="n">m</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">size</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span>
+<span class="n">H</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">zeros</span><span class="p">(</span><span class="n">s</span><span class="o">*</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">);</span>
+<span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">s</span>
+<span class="w">    </span><span class="n">H</span><span class="p">((</span><span class="nb">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="nb">i</span><span class="o">*</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="p">:)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">x</span><span class="p">(</span><span class="nb">i</span><span class="p">:</span><span class="nb">i</span><span class="o">+</span><span class="n">l</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="p">:)</span><span class="o">'</span><span class="p">;</span>
+<span class="k">end</span>
+<span class="k">end</span>
+</code></pre><textarea class="code-src" hidden>function [A, B, C, D, x0, sv] = moesp(u, y, s, n, method)
+%MOESP  Basic (ordinary) MOESP subspace identification for the deterministic
+%       and the white-output-noise case.
+%   [A,B,C,D,x0,sv] = moesp(u, y, s, n, method)
+%   u : N-by-p input samples  (row k+1 = u(k)^T, k = 0..N-1)
+%   y : N-by-q output samples
+%   s : number of block rows of the Hankel matrices (s &gt; n)
+%   n : model order (inspect sv to choose it; pass n = [] to get only sv)
+%   method : 'proj' (explicit projection, as in the lecture notes) or
+%            'lq'   (numerically efficient LQ implementation, default)
+if nargin &lt; 5, method = 'lq'; end
+[N, p] = size(u);  q = size(y, 2);
+l = N - s + 1;                           % number of columns of the Hankel matrices
+U = blockhankel(u, s, l);                % U_{0,s,l}  (s*p x l)
+Y = blockhankel(y, s, l);                % Y_{0,s,l}  (s*q x l)
+switch method
+    case 'proj'
+        % Y*Pi_{Ker(U)} = Y - Y U^T (U U^T)^{-1} U  (the l x l projector is never formed)
+        YP = Y - ((Y * U') / (U * U')) * U;
+        [Uy, Sy] = svd(YP, 'econ');
+    case 'lq'
+        % [U; Y] = [L11 0; L21 L22] [Q1; Q2]   =&gt;   Y*Pi_{Ker(U)} = L22*Q2
+        Lf  = triu(qr([U; Y]', 0))';     % lower-triangular LQ factor
+        L22 = Lf(s*p+1:end, s*p+1:end);
+        [Uy, Sy] = svd(L22);
+    otherwise
+        error('moesp: unknown method');
+end
+sv = diag(Sy);
+if isempty(n), A = []; B = []; C = []; D = []; x0 = []; return; end
+Lm = Uy(:, 1:n);                         % basis of Im(O_s) (up to a change of basis)
+C  = Lm(1:q, :);
+A  = pinv(Lm(1:(s-1)*q, :)) * Lm(q+1:s*q, :);
+% ---- B, D, x0 by linear least squares (Kronecker product / vec trick) ----
+% y(k) = C A^k x0 + sum_{tau&lt;k} (u(tau)^T kron C A^(k-tau-1)) vec(B) + (u(k)^T kron I_q) vec(D)
+Phi = zeros(N*q, n + n*p + p*q);
+G   = zeros(n, n*p);                     % G_k = sum_{tau&lt;k} u(tau)^T kron A^(k-tau-1)
+Ak  = eye(n);                            % A^k
+for k = 0:N-1
+    rows = k*q+1:(k+1)*q;
+    uk = u(k+1, :);
+    Phi(rows, :) = [C*Ak, C*G, kron(uk, eye(q))];
+    G  = A*G + kron(uk, eye(n));         % G_{k+1} = A G_k + u(k)^T kron I_n
+    Ak = A*Ak;
+end
+theta = Phi \ reshape(y', [], 1);        % stacked outputs [y(0); y(1); ...; y(N-1)]
+x0 = theta(1:n);
+B  = reshape(theta(n+1:n+n*p), n, p);    % inverse of vec(.)
+D  = reshape(theta(n+n*p+1:end), q, p);
+end
+
+function H = blockhankel(x, s, l)
+%BLOCKHANKEL  s block rows, l columns; column j = [x(j-1); x(j); ...; x(j+s-2)]
+m = size(x, 2);
+H = zeros(s*m, l);
+for i = 1:s
+    H((i-1)*m+1:i*m, :) = x(i:i+l-1, :)';
+end
+end</textarea></div>
+<p><code>simss</code> simulates a discrete-time state-space model (core MATLAB, no toolbox):</p>
+<div class="code" data-lang="matlab"><div class="code-head"><span class="code-lang">MATLAB</span><span class="code-title">simss.m</span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button><a class="code-btn" href="code/matlab/simss.m" download>Download</a></span></div><pre><code class="hl"><span class="k">function</span><span class="w"> </span>y<span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nf">simss</span><span class="p">(</span>A, B, C, D, u, x<span class="p">)</span>
+<span class="c">%SIMSS  Simulate x(k+1) = A x(k) + B u(k), y(k) = C x(k) + D u(k).</span>
+<span class="c">%   u : N-by-p inputs, x : initial state;  y : N-by-q outputs</span>
+<span class="k">if</span><span class="w"> </span><span class="nb">nargin</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">zeros</span><span class="p">(</span><span class="nb">size</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="k">end</span>
+<span class="n">N</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">size</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w">  </span><span class="n">y</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="nb">size</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">));</span>
+<span class="k">for</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">N</span>
+<span class="w">    </span><span class="n">y</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="p">:)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">(</span><span class="n">C</span><span class="o">*</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">D</span><span class="o">*</span><span class="n">u</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="p">:)</span><span class="o">'</span><span class="p">)</span><span class="o">'</span><span class="p">;</span>
+<span class="w">    </span><span class="n">x</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">A</span><span class="o">*</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">B</span><span class="o">*</span><span class="n">u</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="p">:)</span><span class="o">'</span><span class="p">;</span>
+<span class="k">end</span>
+<span class="k">end</span>
+</code></pre><textarea class="code-src" hidden>function y = simss(A, B, C, D, u, x)
+%SIMSS  Simulate x(k+1) = A x(k) + B u(k), y(k) = C x(k) + D u(k).
+%   u : N-by-p inputs, x : initial state;  y : N-by-q outputs
+if nargin &lt; 6, x = zeros(size(A, 1), 1); end
+N = size(u, 1);  y = zeros(N, size(C, 1));
+for k = 1:N
+    y(k, :) = (C*x + D*u(k, :)')';
+    x = A*x + B*u(k, :)';
+end
+end</textarea></div>
+<p>The demo reproduces Example&nbsp;<a class="xref" href="#ex-moesp-noisy" data-ref="ex:moesp-noisy">8.2</a> (in GNU Octave 8.4 it prints the eigenvalues
+\(-0.4977\), \(0.5951\pm0.4989j\), \(0.9003\) and a validation fit of \(99.1\%\) against the
+noise-free output):</p>
+<div class="code" data-lang="matlab"><div class="code-head"><span class="code-lang">MATLAB</span><span class="code-title">ch8_moesp_demo.m</span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button><a class="code-btn" href="code/matlab/ch8_moesp_demo.m" download>Download</a></span></div><pre><code class="hl"><span class="c">%% Chapter 8 - MOESP on a 4th-order SISO system with white output noise</span>
+<span class="n">A0</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mf">1.2</span><span class="w"> </span><span class="o">-</span><span class="mf">0.61</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">1</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0</span><span class="p">;</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0.9</span><span class="w"> </span><span class="s">0</span><span class="p">;</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="o">-</span><span class="mf">0.5</span><span class="p">];</span>
+<span class="n">B0</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="mf">0.4</span><span class="p">];</span><span class="w">  </span><span class="n">C0</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mf">0.5</span><span class="w"> </span><span class="mf">0.3</span><span class="w"> </span><span class="mi">1</span><span class="p">];</span><span class="w">  </span><span class="n">D0</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="nb">randn</span><span class="p">(</span><span class="s">'seed'</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">);</span>
+<span class="n">N</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span><span class="w">  </span><span class="n">s</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w">  </span><span class="n">sigma</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mf">0.3</span><span class="p">;</span>
+<span class="n">u</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="nb">randn</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="n">y0</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">simss</span><span class="p">(</span><span class="n">A0</span><span class="p">,</span><span class="w"> </span><span class="n">B0</span><span class="p">,</span><span class="w"> </span><span class="n">C0</span><span class="p">,</span><span class="w"> </span><span class="n">D0</span><span class="p">,</span><span class="w"> </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="nb">zeros</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">));</span>
+<span class="n">y</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">y0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">sigma</span><span class="o">*</span><span class="nb">randn</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="p">[</span><span class="o">~</span><span class="p">,</span><span class="w"> </span><span class="o">~</span><span class="p">,</span><span class="w"> </span><span class="o">~</span><span class="p">,</span><span class="w"> </span><span class="o">~</span><span class="p">,</span><span class="w"> </span><span class="o">~</span><span class="p">,</span><span class="w"> </span><span class="n">sv0</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">moesp</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">y0</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="p">[]);</span><span class="w">   </span><span class="c">% noise-free data</span>
+<span class="p">[</span><span class="o">~</span><span class="p">,</span><span class="w"> </span><span class="o">~</span><span class="p">,</span><span class="w"> </span><span class="o">~</span><span class="p">,</span><span class="w"> </span><span class="o">~</span><span class="p">,</span><span class="w"> </span><span class="o">~</span><span class="p">,</span><span class="w"> </span><span class="n">sv1</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">moesp</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w">  </span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="p">[]);</span><span class="w">   </span><span class="c">% noisy data</span>
+<span class="nb">disp</span><span class="p">([</span><span class="n">sv0</span><span class="w"> </span><span class="n">sv1</span><span class="p">]</span><span class="o">/</span><span class="nb">sqrt</span><span class="p">(</span><span class="n">N</span><span class="p">))</span><span class="w">                  </span><span class="c">% noise floor ~ sigma for i &gt; n</span>
+<span class="p">[</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">D</span><span class="p">,</span><span class="w"> </span><span class="n">x0</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">moesp</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">);</span>
+<span class="nb">disp</span><span class="p">([</span><span class="nb">sort</span><span class="p">(</span><span class="nb">eig</span><span class="p">(</span><span class="n">A0</span><span class="p">))</span><span class="w"> </span><span class="nb">sort</span><span class="p">(</span><span class="nb">eig</span><span class="p">(</span><span class="n">A</span><span class="p">))])</span>
+<span class="c">% validation on fresh data</span>
+<span class="n">uv</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">randn</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="n">yv</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">simss</span><span class="p">(</span><span class="n">A0</span><span class="p">,</span><span class="w"> </span><span class="n">B0</span><span class="p">,</span><span class="w"> </span><span class="n">C0</span><span class="p">,</span><span class="w"> </span><span class="n">D0</span><span class="p">,</span><span class="w"> </span><span class="n">uv</span><span class="p">,</span><span class="w"> </span><span class="nb">zeros</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">));</span>
+<span class="n">yh</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">simss</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">D</span><span class="p">,</span><span class="w"> </span><span class="n">uv</span><span class="p">,</span><span class="w"> </span><span class="nb">zeros</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">));</span>
+<span class="nb">fprintf</span><span class="p">(</span><span class="s">'fit = %.1f %%\n'</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">norm</span><span class="p">(</span><span class="n">yv</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">yh</span><span class="p">)</span><span class="o">/</span><span class="nb">norm</span><span class="p">(</span><span class="n">yv</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">mean</span><span class="p">(</span><span class="n">yv</span><span class="p">))));</span>
+</code></pre><textarea class="code-src" hidden>%% Chapter 8 - MOESP on a 4th-order SISO system with white output noise
+A0 = [1.2 -0.61 0 0; 1 0 0 0; 0 0 0.9 0; 0 0 0 -0.5];
+B0 = [1; 0; 1; 0.4];  C0 = [1 0.5 0.3 1];  D0 = 0;
+randn('seed', 4);
+N = 1000;  s = 10;  sigma = 0.3;
+u  = randn(N, 1);
+y0 = simss(A0, B0, C0, D0, u, zeros(4, 1));
+y  = y0 + sigma*randn(N, 1);
+[~, ~, ~, ~, ~, sv0] = moesp(u, y0, s, []);   % noise-free data
+[~, ~, ~, ~, ~, sv1] = moesp(u, y,  s, []);   % noisy data
+disp([sv0 sv1]/sqrt(N))                  % noise floor ~ sigma for i &gt; n
+[A, B, C, D, x0] = moesp(u, y, s, 4);
+disp([sort(eig(A0)) sort(eig(A))])
+% validation on fresh data
+uv = randn(300, 1);
+yv = simss(A0, B0, C0, D0, uv, zeros(4, 1));
+yh = simss(A, B, C, D, uv, zeros(4, 1));
+fprintf('fit = %.1f %%\n', 100*(1 - norm(yv - yh)/norm(yv - mean(yv))));</textarea></div>
+<p>With the System Identification Toolbox, subspace identification is available through
+<code>n4sid</code> (which implements MOESP, N4SID and CVA weightings), and the result can be
+refined by PEM with <code>ssest</code>:</p>
+<div class="code" data-lang="matlab"><div class="code-head"><span class="code-lang">MATLAB</span><span class="code-title"></span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button></span></div><pre><code class="hl"><span class="n">data</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">iddata</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="n">opt</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">n4sidOptions</span><span class="p">(</span><span class="s">'N4Weight'</span><span class="p">,</span><span class="w"> </span><span class="s">'MOESP'</span><span class="p">,</span><span class="w"> </span><span class="s">'N4Horizon'</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">10</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="mi">10</span><span class="p">]);</span>
+<span class="n">m</span><span class="w">    </span><span class="p">=</span><span class="w"> </span><span class="n">n4sid</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="n">opt</span><span class="p">);</span><span class="w">          </span><span class="c">% plots the singular values to choose n</span>
+<span class="n">m4</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="n">n4sid</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">opt</span><span class="p">);</span><span class="w">             </span><span class="c">% idss model: m4.A, m4.B, m4.C, m4.D</span>
+<span class="n">m4p</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">ssest</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">m4</span><span class="p">);</span><span class="w">                 </span><span class="c">% PEM refinement initialized with MOESP</span>
+<span class="n">compare</span><span class="p">(</span><span class="n">zv</span><span class="p">,</span><span class="w"> </span><span class="n">m4</span><span class="p">,</span><span class="w"> </span><span class="n">m4p</span><span class="p">);</span>
+</code></pre><textarea class="code-src" hidden>data = iddata(y, u, 1);
+opt  = n4sidOptions('N4Weight', 'MOESP', 'N4Horizon', [10 10 10]);
+m    = n4sid(data, 1:10, opt);          % plots the singular values to choose n
+m4   = n4sid(data, 4, opt);             % idss model: m4.A, m4.B, m4.C, m4.D
+m4p  = ssest(data, m4);                 % PEM refinement initialized with MOESP
+compare(zv, m4, m4p);</textarea></div>
+<p>The Python implementation in <code>sysid.py</code> mirrors the MATLAB one:</p>
+<div class="code" data-lang="python"><div class="code-head"><span class="code-lang">Python</span><span class="code-title"></span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button></span></div><pre><code class="hl"><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sysid</span><span class="w"> </span><span class="kn">import</span> <span class="n">moesp</span><span class="p">,</span> <span class="n">simulate_ss</span><span class="p">,</span> <span class="n">fit_percent</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.2</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.61</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">]])</span>
+<span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">]]);</span> <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]);</span> <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span> <span class="n">N</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">10</span>
+<span class="n">u</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">simulate_ss</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.3</span><span class="o">*</span><span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="o">*</span><span class="n">_</span><span class="p">,</span> <span class="n">sv</span> <span class="o">=</span> <span class="n">moesp</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>                               <span class="c1"># inspect sv to choose n</span>
+<span class="n">Ah</span><span class="p">,</span> <span class="n">Bh</span><span class="p">,</span> <span class="n">Ch</span><span class="p">,</span> <span class="n">Dh</span><span class="p">,</span> <span class="n">x0h</span><span class="p">,</span> <span class="n">sv</span> <span class="o">=</span> <span class="n">moesp</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>         <span class="c1"># method="lq" by default</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sort_complex</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvals</span><span class="p">(</span><span class="n">Ah</span><span class="p">)))</span>
+<span class="n">uv</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">fit_percent</span><span class="p">(</span><span class="n">simulate_ss</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">uv</span><span class="p">),</span> <span class="n">simulate_ss</span><span class="p">(</span><span class="n">Ah</span><span class="p">,</span> <span class="n">Bh</span><span class="p">,</span> <span class="n">Ch</span><span class="p">,</span> <span class="n">Dh</span><span class="p">,</span> <span class="n">uv</span><span class="p">)))</span>
+</code></pre><textarea class="code-src" hidden>import numpy as np
+from sysid import moesp, simulate_ss, fit_percent
+A = np.array([[1.2, -0.61, 0, 0], [1, 0, 0, 0], [0, 0, 0.9, 0], [0, 0, 0, -0.5]])
+B = np.array([[1.], [0], [1], [0.4]]); C = np.array([[1., 0.5, 0.3, 1]]); D = np.zeros((1, 1))
+rng = np.random.default_rng(4); N, s = 1000, 10
+u = rng.standard_normal((N, 1))
+y = simulate_ss(A, B, C, D, u) + 0.3*rng.standard_normal((N, 1))
+*_, sv = moesp(u, y, s)                               # inspect sv to choose n
+Ah, Bh, Ch, Dh, x0h, sv = moesp(u, y, s, n=4)         # method="lq" by default
+print(np.sort_complex(np.linalg.eigvals(Ah)))
+uv = rng.standard_normal((N, 1))
+print(fit_percent(simulate_ss(A, B, C, D, uv), simulate_ss(Ah, Bh, Ch, Dh, uv)))</textarea></div>
+<details class="box advanced"><summary><span class="adv-label">Further Study:</span> PI/PO-MOESP, N4SID, CVA and the innovation form</summary><div class="box-body"><p><em>Innovation form.</em> With process and measurement noise, every stationary LTI system with
+rational spectrum admits the <em>innovation (Kalman) form</em>
+\(x(k+1)=Ax(k)+Bu(k)+Ke(k)\), \(y(k)=Cx(k)+Du(k)+e(k)\), where \(e\) is the (white) innovation and \(K\)
+the steady-state Kalman gain. The output-error assumption of this chapter corresponds to
+\(K=0\); ARX models correspond to a particular \(K\) (deadbeat observer, Appendix&nbsp;<a class="xref" href="appB.html" data-ref="app:polynomial">B</a>).</p>
+<p><em>Instrumental variables.</em> Split the data into &ldquo;past&rdquo; and &ldquo;future&rdquo; Hankel matrices
+\(U_p,Y_p\) and \(U_f,Y_f\). In PO-MOESP the future data equation \(Y_f=\Obs_sX_f+\Toe_sU_f+\text{noise}\)
+is projected onto \(\Ker(U_f)\) and then multiplied by \(Z\T=[U_p\T\;Y_p\T]\): since the future
+noise is uncorrelated with past data, \(\lim\frac1\ell Y_f\Pip_{U_f}Z\T=\Obs_s\lim\frac1\ell X_f\Pip_{U_f}Z\T\)
+has rank \(n\) and column space \(\Im(\Obs_s)\) for <em>colored</em> noise and process noise alike.
+In practice this is implemented by an LQ factorization of \([U_f;Z;Y_f]\)
+[<a class="cite" href="references.html#bib-VerhaegenVerdult" data-cite="VerhaegenVerdult">1</a>, <a class="cite" href="references.html#bib-Katayama" data-cite="Katayama">12</a>].</p>
+<p><em>N4SID and CVA.</em> Van Overschee and De Moor [<a class="cite" href="references.html#bib-VanOverschee" data-cite="VanOverschee">8</a>] showed that MOESP, N4SID
+and CVA (canonical variate analysis, Larimore) are special cases of a unified algorithm in
+which the SVD is applied to \(W_1\,\mathcal O\,W_2\), the oblique projection \(\mathcal O\) of \(Y_f\)
+along \(U_f\) onto the past data, weighted by different matrices \(W_1,W_2\). N4SID estimates a
+state sequence (the Kalman filter states) instead of \(\Im(\Obs_s)\), and then obtains
+\(A,B,C,D\) by least squares.</p>
+<p><em>Closed loop.</em> If \(u\) is generated by feedback, future inputs are correlated with past
+noise and all &ldquo;open-loop&rdquo; subspace methods are biased. Closed-loop variants
+(e.g. predictor-based subspace identification, PBSID) estimate the predictor form
+\(x(k+1)=(A-KC)x+(B-KD)u+Ky\) first.</p>
+<p><em>Statistical properties.</em> Subspace estimates are consistent under the stated
+assumptions but in general not efficient; they are the standard way to initialize
+prediction-error (maximum-likelihood) estimation of state-space models.</p></div></details>
+</article>
+<nav class="pagenav"><a class="pn prev" href="ch7.html"><span>&larr; Previous</span><b>Towards subspace identification: the Ho–Kalman realization</b></a><a class="pn next" href="appA.html"><span>Next &rarr;</span><b>Discrete-time LTI systems in state space</b></a></nav>
+<footer class="foot">Lecture notes by Vittorio De Iuliis · University of L'Aquila · a.y. 2024–2025 · interactive web edition generated from the LaTeX sources</footer>
+</main>
+<div id="searchbox" class="searchbox" hidden>
+  <div class="searchpanel"><input id="searchinput" type="search" placeholder="Search the notes (e.g. Hankel, PSNR, Gauss–Markov)…" autocomplete="off">
+  <div id="searchres" class="searchres"></div></div>
+</div>
+</body>
+</html>

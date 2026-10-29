@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ch. 3: The singular value decomposition · System Identification</title>
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem('sid-theme');if(t)document.documentElement.setAttribute('data-theme',t);var f=localStorage.getItem('sid-font');if(f)document.documentElement.style.setProperty('--fs',f+'px');}catch(e){}</script>
+
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']],
+    processEscapes: false, processEnvironments: true,
+    packages: ['base','ams','newcommand','noundefined','configmacros','textmacros','boldsymbol','mathtools','html','color','cancel','unicode'],
+    macros: {
+      R: '\\mathbb{R}', C: '\\mathbb{C}', N: '\\mathbb{N}', E: '\\mathbb{E}',
+      Im: '\\operatorname{Im}', Ker: '\\operatorname{Ker}', rank: '\\operatorname{rank}',
+      spn: '\\operatorname{span}', col: '\\operatorname{col}', row: '\\operatorname{row}',
+      tr: '\\operatorname{tr}', diag: '\\operatorname{diag}', vect: '\\operatorname{vec}',
+      argmin: '\\operatorname*{arg\\,min}', argmax: '\\operatorname*{arg\\,max}',
+      T: '^{\\mathsf{T}}', pinvsym: '^{\\dagger}',
+      norm: ['\\left\\lVert #1\\right\\rVert', 1], abs: ['\\left\\lvert #1\\right\\rvert', 1],
+      ip: ['\\langle #1,#2\\rangle', 2],
+      Obs: '\\mathcal{O}', Rch: '\\mathcal{R}', Toe: '\\mathcal{T}', Hk: '\\mathcal{H}', Z: '\\mathcal{Z}',
+      Pip: '\\Pi^{\\perp}', bmat: ['\\begin{bmatrix}#1\\end{bmatrix}', 1], pmat: ['\\begin{pmatrix}#1\\end{pmatrix}', 1],
+      up: '\\uparrow', dn: '\\downarrow', hatth: '\\hat{\\theta}', sm: '\\scriptstyle'
+    }
+  },
+  svg: { fontCache: 'global', scale: 1.0 },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code','select','option'],
+             ignoreHtmlClass: 'no-mathjax' },
+  startup: { ready() { MathJax.startup.defaultReady(); MathJax.startup.promise.then(() => document.dispatchEvent(new Event('mathjax-ready'))); } }
+};
+</script>
+<script src="vendor/tex-svg-full.js" defer></script>
+
+<script src="assets/refs.js" defer></script>
+<script src="assets/la.js" defer></script>
+<script src="assets/plot.js" defer></script>
+<script src="assets/widgets.js" defer></script>
+<script src="assets/app.js" defer></script>
+</head>
+<body data-page="ch3">
+<header class="topbar">
+  <button class="iconbtn" id="navtoggle" aria-label="Contents"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html">System Identification <span>&amp; Data Analysis</span></a>
+  <div class="topsp"></div>
+  <a class="iconbtn labsbtn" href="index.html#labs" title="List of the interactive laboratories">Labs</a>
+  <button class="iconbtn" id="searchbtn" aria-label="Search" title="Search (/)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></button>
+  <button class="iconbtn" id="fontminus" title="Smaller text">A&minus;</button>
+  <button class="iconbtn" id="fontplus" title="Larger text">A+</button>
+  <button class="iconbtn" id="themebtn" title="Light / dark theme"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button>
+</header>
+<nav class="sidebar" id="sidebar"><div class="navhead"><a href="index.html">Contents</a></div><ol class="navlist"><li><a href="notation.html"><span class="navnum"></span>Notation</a></li><li><a href="ch1.html"><span class="navnum">1</span>Introduction</a></li><li><a href="ch2.html"><span class="navnum">2</span>Fundamentals of linear algebra</a></li><li class="cur"><a href="ch3.html"><span class="navnum">3</span>The singular value decomposition</a><ol class="navsec"><li><a href="#s-3-1" data-sec="s-3-1"><span class="navnum">3.1</span>Definition</a></li><li><a href="#s-3-2" data-sec="s-3-2"><span class="navnum">3.2</span>Where the SVD comes from</a></li><li><a href="#sec-svd-subspaces" data-sec="sec-svd-subspaces"><span class="navnum">3.3</span>The SVD and the four fundamental subspaces</a></li><li><a href="#sec-numrank" data-sec="sec-numrank"><span class="navnum">3.4</span>Numerical rank and inspection of the singular values</a></li><li><a href="#sec-norms-eym" data-sec="sec-norms-eym"><span class="navnum">3.5</span>Matrix norms and low-rank approximation</a></li><li><a href="#sec-imgsvd" data-sec="sec-imgsvd"><span class="navnum">3.6</span>An application: image compression</a></li><li><a href="#sec-pca" data-sec="sec-pca"><span class="navnum">3.7</span>Principal component analysis</a></li><li><a href="#s-3-8" data-sec="s-3-8"><span class="navnum">3.8</span>Exercises</a></li><li><a href="#s-3-9" data-sec="s-3-9"><span class="navnum">3.9</span>Implementation in MATLAB and Python</a></li></ol></li><li><a href="ch4.html"><span class="navnum">4</span>Least squares</a></li><li><a href="ch5.html"><span class="navnum">5</span>Introduction to system identification</a></li><li><a href="ch6.html"><span class="navnum">6</span>Prediction-error methods for polynomial models</a></li><li><a href="ch7.html"><span class="navnum">7</span>Towards subspace identification: the Ho–Kalman realization</a></li><li><a href="ch8.html"><span class="navnum">8</span>Subspace identification: the MOESP method</a></li><li><a href="appA.html"><span class="navnum">A</span>Discrete-time LTI systems in state space</a></li><li><a href="appB.html"><span class="navnum">B</span>Polynomial input–output models</a></li><li><a href="references.html"><span class="navnum"></span>Bibliography</a></li></ol></nav>
+<div class="scrim" id="scrim"></div>
+<main class="content" id="content">
+<article class="chapter">
+<h1 class="chap" id="top"><span class="chapnum">Chapter 3</span><span class="chaptitle">The singular value decomposition</span></h1>
+<p>The singular value decomposition (SVD) is the most important advanced tool of linear
+algebra used in this course: it provides the rank of a matrix in a numerically reliable
+way, orthonormal bases of the four fundamental subspaces, the pseudo-inverse used in least
+squares (Chapter&nbsp;<a class="xref" href="ch4.html" data-ref="ch:ls">4</a>), the best low-rank approximation of a matrix. It is the core
+computation of the Ho&ndash;Kalman and MOESP algorithms (Chapters&nbsp;<a class="xref" href="ch7.html" data-ref="ch:hokalman">7</a> and <a class="xref" href="ch8.html" data-ref="ch:moesp">8</a>), and a cornestore in many other data-driven problems from applied mathematics and engineering.</p>
+<h2 id="s-3-1" class="sec"><span class="secnum">3.1</span> Definition</h2>
+<div class="thm thm-theorem" id="thm-svd"><p><span class="thm-head"><span class="thm-name">Theorem 3.1</span> <span class="thm-title">(Singular value decomposition)</span>.</span> Every matrix \(A\in\R^{m\times n}\) can be factorized as</p>
+<div class="eq" id="eq-svd">\[\underset{m\times n}{A}=\underset{m\times m}{U}\;\underset{m\times n}{\Sigma}\;\underset{n\times n}{V\T}
+   =\sum_{i=1}^{\min(m,n)}\sigma_i\,u_iv_i\T , \tag{3.1}\]</div>
+<p>where</p>
+<ul><li><p>\(U=[u_1\;u_2\;\cdots\;u_m]\) is the orthogonal matrix (\(U\T U=I_m\)) of the <em>left
+      singular vectors</em> of \(A\);</p></li><li><p>\(V=[v_1\;v_2\;\cdots\;v_n]\) is the orthogonal matrix (\(V\T V=I_n\)) of the <em>right
+      singular vectors</em> of \(A\);</p></li><li><p>\(\Sigma\) is the matrix of the <em>singular values</em> of \(A\), non-negative numbers
+      ordered as \(\sigma_1\ge\sigma_2\ge\cdots\ge\sigma_{\min(m,n)}\ge0\), with structure</p>
+<div class="eq">\[
+  \Sigma=\bmat{\diag(\sigma_1,\dots,\sigma_n)\\ 0_{(m-n)\times n}}\ \ (m\ge n),
+  \qquad
+  \Sigma=\bmat{\diag(\sigma_1,\dots,\sigma_m) &amp; 0_{m\times(n-m)}}\ \ (n\ge m).
+\]</div></li></ul>
+<p>If \(\rank(A)=r\), then \(\sigma_1\ge\cdots\ge\sigma_r&gt;0=\sigma_{r+1}=\cdots=\sigma_{\min(m,n)}\):
+<em>the rank is the number of non-zero singular values</em>.</p></div>
+<div class="box example" id="ex-svd-simple"><div class="box-title">Example 3.1: two simple SVDs</div><div class="box-body"><p>For \(A=\bmat{1&amp;0\\0&amp;1\\0&amp;0}\) (\(3\times2\), \(\min(m,n)=2\)) we have \(A=U\Sigma V\T\) with
+\(U=I_3\), \(V=I_2\) and \(\Sigma=\bmat{1&amp;0\\0&amp;1\\0&amp;0}\): \(\sigma_1=\sigma_2=1\), \(\rank A=2\).
+For \(A=\bmat{1&amp;0\\0&amp;0\\0&amp;0}\) we get again \(U=I_3\), \(V=I_2\) and \(\Sigma=A\):
+\(\sigma_1=1=\sigma_r\) with \(r=1\), and \(\sigma_{r+1}=\sigma_{\min(m,n)}=\sigma_2=0\).</p></div></div>
+<h2 id="s-3-2" class="sec"><span class="secnum">3.2</span> Where the SVD comes from</h2>
+<p>The SVD is closely related to the eigendecomposition of the symmetric positive semidefinite
+matrices \(A\T A\) and \(AA\T\) (Theorem&nbsp;<a class="xref" href="ch2.html#thm-spectral" data-ref="thm:spectral">2.10</a>). Using \(U\T U=I_m\),</p>
+<div class="eq" id="eq-ATA">\[\underset{n\times n}{A\T A}=V\Sigma\T U\T U\Sigma V\T=V\,(\Sigma\T\Sigma)\,V\T , \tag{3.2}\]</div>
+<p>which is exactly of the form \(R\Lambda R\T\) with \(R=V\) orthogonal. Hence the right singular
+vectors \(V=[v_1\;\cdots\;v_n]\) are eigenvectors of \(A\T A\) and</p>
+<div class="eq">\[
+  \Sigma\T\Sigma=\diag(\sigma_1^2,\dots,\sigma_n^2)=\diag(\lambda_1,\dots,\lambda_n)
+  \quad(m\ge n),\qquad \sigma_i=\sqrt{\lambda_i(A\T A)} ,
+\]</div>
+<p>that is, the singular values \(\sigma_i\) are the square roots of the eigenvalues of \(A\T A\).</p>
+<p>Similarly, using \(V\T V=I_n\),</p>
+<div class="eq">\[
+  \underset{m\times m}{AA\T}=U\Sigma V\T V\Sigma\T U\T=U\,(\Sigma\Sigma\T)\,U\T ,
+\]</div>
+<p>so the left singular vectors \(U=[u_1\;\cdots\;u_m]\) are eigenvectors of \(AA\T\), and the
+matrix</p>
+<div class="eq">\[
+  \Sigma\Sigma\T=\diag(\sigma_1^2,\dots,\sigma_n^2,0,\dots,0)\qquad(m&gt;n)
+\]</div>
+<p>contains the eigenvalues of \(AA\T\).</p>
+<div class="box keybox"><p><strong>Summary.</strong> \(A=U\Sigma V\T=\sum_{i=1}^{\min(m,n)}\sigma_iu_iv_i\T\), where</p>
+<ul><li><p>\(U\) collects the left singular vectors of \(A\), i.e. orthonormal eigenvectors of \(AA\T\);</p></li><li><p>\(V\) collects the right singular vectors of \(A\), i.e. orthonormal eigenvectors of \(A\T A\);</p></li><li><p>\(\Sigma\) contains in its diagonal block the square roots of the non-zero eigenvalues
+      of either \(AA\T\) or \(A\T A\) (they are the same), padded with zeros, ordered
+      decreasingly;</p></li><li><p>from \(A=U\Sigma V\T\) one has \(AV=U\Sigma\), i.e. \(Av_i=\sigma_iu_i\) for
+      \(i\le\min(m,n)\);</p></li><li><p>from \(A\T=V\Sigma\T U\T\) one has \(A\T U=V\Sigma\T\), i.e. \(A\T u_i=\sigma_iv_i\) for
+      \(i\le\min(m,n)\).</p></li></ul>
+<p>In MATLAB: <code>[U,S,V] = svd(A)</code>; <code>svd(A)</code> returns only the singular values.</p></div>
+<p>The last relations suggest how to <em>construct</em> the SVD: compute an orthonormal
+eigenbasis \(v_1,\dots,v_n\) of \(A\T A\) with eigenvalues \(\sigma_1^2\ge\cdots\ge\sigma_n^2\),
+set \(u_i=Av_i/\sigma_i\) for \(\sigma_i&gt;0\) (these are orthonormal, since
+\(u_i\T u_j=v_i\T A\T Av_j/(\sigma_i\sigma_j)=\delta_{ij}\)), and complete \(\{u_i\}\) to an
+orthonormal basis of \(\R^m\). This also proves Theorem&nbsp;<a class="xref" href="#thm-svd" data-ref="thm:svd">3.1</a>. (Numerical libraries do
+<em>not</em> form \(A\T A\), which would square the condition number, but work directly on \(A\)
+[<a class="cite" href="references.html#bib-GolubVanLoan" data-cite="GolubVanLoan">4</a>].)</p>
+<div class="box example" id="ex-svd-hand"><div class="box-title">Example 3.2: a complete hand computation</div><div class="box-body"><p>Let \(A=\bmat{3&amp;2&amp;2\\2&amp;3&amp;-2}\). Then \(AA\T=\bmat{17&amp;8\\8&amp;17}\), with eigenvalues \(25\) and \(9\)
+and eigenvectors \(u_1=\tfrac1{\sqrt2}(1,1)\T\), \(u_2=\tfrac1{\sqrt2}(1,-1)\T\); hence
+\(\sigma_1=5\), \(\sigma_2=3\). The right singular vectors are</p>
+<div class="eq">\[
+  v_1=\frac{A\T u_1}{\sigma_1}=\frac1{\sqrt2}\pmat{1\\1\\0},\qquad
+  v_2=\frac{A\T u_2}{\sigma_2}=\frac1{3\sqrt2}\pmat{1\\-1\\4},\qquad
+  v_3=\frac13\pmat{2\\-2\\-1},
+\]</div>
+<p>where \(v_3\) completes the orthonormal basis of \(\R^3\) (it spans \(\Ker(A)\)). Therefore</p>
+<div class="eq">\[
+  A=\underbrace{\tfrac1{\sqrt2}\bmat{1&amp;1\\1&amp;-1}}_{U}
+    \underbrace{\bmat{5&amp;0&amp;0\\0&amp;3&amp;0}}_{\Sigma}
+    \underbrace{\bmat{1/\sqrt2&amp;1/\sqrt2&amp;0\\ 1/(3\sqrt2)&amp;-1/(3\sqrt2)&amp;4/(3\sqrt2)\\ 2/3&amp;-2/3&amp;-1/3}}_{V\T}
+   =5\,u_1v_1\T+3\,u_2v_2\T .
+\]</div>
+<p>For the symmetric matrix of Example&nbsp;<a class="xref" href="ch2.html#ex-A3" data-ref="ex:A3">2.1</a>, \(A=\bmat{1&amp;0&amp;1\\0&amp;1&amp;1\\1&amp;1&amp;2}\succeq0\), the SVD
+coincides with the spectral decomposition: \(\sigma=(3,1,0)\), \(u_1=v_1=\tfrac1{\sqrt6}(1,1,2)\T\),
+\(u_2=v_2=\tfrac1{\sqrt2}(1,-1,0)\T\) and \(u_3=v_3=\tfrac1{\sqrt3}(-1,-1,1)\T\), which spans the
+kernel found in Example&nbsp;<a class="xref" href="ch2.html#ex-A3" data-ref="ex:A3">2.1</a>.</p></div></div>
+<p><strong class="runin">Geometric interpretation.</strong>  Since \(Av_i=\sigma_iu_i\), the matrix \(A\) maps the
+orthonormal basis \(\{v_i\}\) of \(\R^n\) onto the orthogonal vectors \(\{\sigma_iu_i\}\) of
+\(\R^m\): the unit sphere is mapped onto an (possibly degenerate) ellipsoid whose semi-axes
+have directions \(u_i\) and lengths \(\sigma_i\) (Figure&nbsp;<a class="xref" href="#fig-svd-geometry" data-ref="fig:svd-geometry">3.1</a>). In the factorization
+\(A=U\Sigma V\T\) the map is decomposed into a rotation/reflection (\(V\T\)), an axis scaling
+(\(\Sigma\)) and another rotation/reflection (\(U\)).</p>
+<figure class="fig" id="fig-svd-geometry"><div class="fig-img"><img src="figures/fig-svd-geometry.svg" alt="Figure 3.1" loading="lazy" style="width:503px"></div><figcaption><span class="fig-name">Figure 3.1:</span> Geometric meaning of the SVD: \(A\) maps the right singular vectors \(v_i\) onto the
+semi-axes \(\sigma_iu_i\) of an ellipse. \(\sigma_1=\norm{A}_2\) is the maximum gain, and
+\(\sigma_{\min}\) the minimum one.</figcaption></figure>
+<div class="widget" id="w-svdgeom" data-widget="svdgeom"></div>
+<h2 id="sec-svd-subspaces" class="sec"><span class="secnum">3.3</span> The SVD and the four fundamental subspaces</h2>
+<p>Let now \(\rank(A)=r\le\min(m,n)\). In this case we know that \(\sigma_{r+1}=\cdots=\sigma_{min(m,n)}=0\) so that we can partition the SVD conformably:</p>
+<div class="eq" id="eq-svd-part">\[A=U\Sigma V\T=
+  \bmat{U_r &amp; \bar U_r}
+  \bmat{\Sigma_r &amp; 0\\ 0 &amp; 0}
+  \bmat{V_r\T\\ \bar V_r\T}
+  =U_r\Sigma_rV_r\T=\sum_{i=1}^r\sigma_iu_iv_i\T , \tag{3.3}\]</div>
+<p>with \(U_r=[u_1\cdots u_r]\) (\(m\times r\)), \(\bar U_r=[u_{r+1}\cdots u_m]\) (\(m\times(m-r)\)),
+\(V_r=[v_1\cdots v_r]\) (\(n\times r\)), \(\bar V_r=[v_{r+1}\cdots v_n]\) (\(n\times(n-r)\)) and
+\(\Sigma_r=\diag(\sigma_1,\dots,\sigma_r)\) nonsingular. The factorization
+\(A=U_r\Sigma_rV_r\T\) is the <em>compact</em> (or <em>reduced</em>) SVD. An alternative
+notation is \(\bar U_r=U_r^\perp\), \(\bar V_r=V_r^\perp\) that highlights the fact that the columns in \(U_r^\perp\) are orthogonal to those of \(U_r\) and the same holds for the columns in \(V_r^\perp\) with respect to those in \(V_r\).</p>
+<p>Multiplying \(A=U\Sigma V\T\) on the right by \(V\) gives \(AV=U\Sigma\), i.e.</p>
+<div class="eq">\[
+  A\bmat{V_r&amp;\bar V_r}=\bmat{U_r&amp;\bar U_r}\bmat{\Sigma_r&amp;0\\0&amp;0}
+  \iff
+  \left\{\begin{aligned}
+  &amp;\text{(I)}\quad AV_r=U_r\Sigma_r: &amp;&amp; Av_i=\sigma_iu_i,\ i=1,\dots,r,\\
+  &amp;\text{(II)}\quad A\bar V_r=0: &amp;&amp; Av_i=0,\ i=r+1,\dots,n.
+  \end{aligned}\right.
+\]</div>
+<p>From (I), every \(u_i\), \(i\le r\), belongs to \(\Im(A)\); since they are \(r=\dim\Im(A)\)
+independent vectors, \(\Im(A)=\spn\{u_1,\dots,u_r\}=\Im(U_r)\). From (II) and
+\(\dim\Ker(A)=n-r\), \(\Ker(A)=\spn\{v_{r+1},\dots,v_n\}=\Im(\bar V_r)\).
+Transposing, \(A\T=V\Sigma\T U\T\) and \(A\T U=V\Sigma\T\), i.e.</p>
+<div class="eq">\[
+  \text{(III)}\quad A\T U_r=V_r\Sigma_r,\qquad \text{(IV)}\quad A\T\bar U_r=0,
+\]</div>
+<p>which give \(\Im(A\T)=\spn\{v_1,\dots,v_r\}=\Im(V_r)\) and
+\(\Ker(A\T)=\spn\{u_{r+1},\dots,u_m\}=\Im(\bar U_r)\).</p>
+<div class="box keybox"><p><strong>The SVD and the four fundamental subspaces</strong> of \(A\in\R^{m\times n}\), \(r=\rank(A)\):</p>
+<div class="center"><div class="tablewrap"><table class="tbl"><tbody><tr><td class="al vr">\(\Im(A)=\spn\{u_1,\dots,u_r\}=\Im(U_r)\)</td><td class="al">\(\Im(A\T)=\spn\{v_1,\dots,v_r\}=\Im(V_r)\)</td></tr><tr class="rule"><td class="al vr">\(\Ker(A\T)=\spn\{u_{r+1},\dots,u_m\}=\Im(\bar U_r)\)</td><td class="al">\(\Ker(A)=\spn\{v_{r+1},\dots,v_n\}=\Im(\bar V_r)\)</td></tr></tbody></table></div></div>
+<p>The orthogonality relations of Theorem&nbsp;<a class="xref" href="ch2.html#thm-foursub" data-ref="thm:foursub">2.5</a> are now evident: \(U_r\T\bar U_r=0\) and
+\(V_r\T\bar V_r=0\).</p></div>
+<h2 id="sec-numrank" class="sec"><span class="secnum">3.4</span> Numerical rank and inspection of the singular values</h2>
+<p>In exact arithmetic the rank is the number of non-zero singular values. With real data
+(measurement errors, rounding, approximations) a matrix is almost never exactly rank
+deficient: all its singular values are typically non-zero. The inspection of the singular
+values of a (large) matrix is nevertheless very useful to understand <em>how much
+significant information</em> is stored in it. Consider a \(100\times100\) matrix \(A\) containing
+&ldquo;ugly&rdquo; numbers and look at the plot of \(\sigma_1,\dots,\sigma_{100}\)
+(Figure&nbsp;<a class="xref" href="#fig-sv-inspection" data-ref="fig:sv-inspection">3.2</a>):</p>
+<ul><li><p>if the singular values decay slowly, there is no clear evidence that some part of
+      the data can be neglected with close-to-zero information loss;</p></li><li><p>if there is a clear <em>gap</em>, e.g. \(\sigma_{10}\gg\sigma_{11}\approx\sigma_{12}\approx\cdots\),
+      there is evidence that the significant information is mainly stored in the first ten
+      components of the SVD, and \(A\) is well approximated by</p>
+<div class="eq">\[
+        A_{10}=\bmat{u_1&amp;\cdots&amp;u_{10}}\diag(\sigma_1,\dots,\sigma_{10})
+        \bmat{v_1&amp;\cdots&amp;v_{10}}\T=\sum_{i=1}^{10}\sigma_iu_iv_i\T .
+      \]</div></li></ul>
+<p>The <em>numerical rank</em> (or \(\varepsilon\)-rank) is the number of singular values larger
+than a threshold \(\varepsilon\) chosen according to the noise level; MATLAB&rsquo;s <code>rank</code>
+uses \(\varepsilon=\max(m,n)\,\mathrm{eps}(\sigma_1)\), which is appropriate for rounding
+errors only. This idea, choosing an order by looking for a gap in the singular values,
+will be used to determine the order of a system in Chapters&nbsp;<a class="xref" href="ch7.html" data-ref="ch:hokalman">7</a> and <a class="xref" href="ch8.html" data-ref="ch:moesp">8</a>.</p>
+<figure class="fig" id="fig-sv-inspection"><div class="fig-img"><img src="figures/fig-sv-inspection.svg" alt="Figure 3.2" loading="lazy" style="width:702px"></div><figcaption><span class="fig-name">Figure 3.2:</span> First 40 singular values of two \(100\times100\) matrices. (a) Slowly decaying
+spectrum: no part of the matrix can be discarded without loss. (b) Rank-10 matrix plus
+small noise: \(\sigma_{10}=5.04\) while \(\sigma_{11}=0.96\); the noise produces a &ldquo;floor&rdquo; of
+small singular values (data: <code>experiments.py</code>).</figcaption></figure>
+<div class="widget" id="w-numrank" data-widget="numrank"></div>
+<h2 id="sec-norms-eym" class="sec"><span class="secnum">3.5</span> Matrix norms and low-rank approximation</h2>
+<p>The SVD gives simple expressions of the two matrix norms introduced in Chapter&nbsp;<a class="xref" href="ch2.html" data-ref="ch:linalg">2</a>:</p>
+<div class="eq">\[
+  \norm{A}_2=\sqrt{\lambda_{\max}(A\T A)}=\sigma_1,
+\]</div>
+<div class="eq">\[
+  \norm{A}_F=\Bigl(\sum_{i=1}^m\sum_{j=1}^n\abs{a_{ij}}^2\Bigr)^{1/2}=\sqrt{\tr(A\T A)}
+  =\Bigl(\,\sum_{i=1}^{\min(m,n)}\sigma_i^2\Bigr)^{1/2}
+\]</div>
+<p>(the Frobenius norm is invariant under orthogonal transformations; indeed, since the trace
+is invariant under similarity, \(\tr(A\T A)\) equals \(\tr(V\Sigma\T\Sigma V\T)=\sum\sigma_i^2\)). The <em>low-rank approximation</em>
+problem consists in approximating a given matrix with a matrix of lower rank.</p>
+<div class="thm thm-theorem" id="thm-eym"><p><span class="thm-head"><span class="thm-name">Theorem 3.2</span> <span class="thm-title">(Eckart&ndash;Young&ndash;Mirsky)</span>.</span> Let \(A\in\R^{m\times n}\) have SVD <a class="xref" href="#eq-svd" data-ref="eq:svd">(3.1)</a> and let \(p&lt;\rank(A)\). The &ldquo;closest&rdquo;
+matrix of rank \(p\) to \(A\), both in the \(2\)-norm and in the Frobenius norm, is the
+truncated SVD</p>
+<div class="eq">\[
+  \hat A_p=\argmin_{M\in\R^{m\times n},\ \rank(M)=p}\norm{A-M}_{2,F}
+          =\sum_{i=1}^p\sigma_iu_iv_i\T ,
+\]</div>
+<p>and the approximation errors are</p>
+<div class="eq">\[
+  \norm{A-\hat A_p}_2=\sigma_{p+1},\qquad
+  \norm{A-\hat A_p}_F=\Bigl(\,\sum_{i=p+1}^{\min(m,n)}\sigma_i^2\Bigr)^{1/2}.
+\]</div></div>
+<p>For example, for \(A\in\R^{100\times80}\) the best rank-3 approximation in
+\(\norm{\cdot}_{2}\) and \(\norm{\cdot}_F\) is simply the truncation</p>
+<div class="eq">\[
+  \hat A_3=\bmat{u_1&amp;u_2&amp;u_3}\diag(\sigma_1,\sigma_2,\sigma_3)\bmat{v_1\T\\v_2\T\\v_3\T}
+          =\sum_{i=1}^3\sigma_iu_iv_i\T .
+\]</div>
+<p>For the matrix of Figure&nbsp;<a class="xref" href="#fig-sv-inspection" data-ref="fig:sv-inspection">3.2</a>(b), the rank-10 truncation has
+\(\norm{A-\hat A_{10}}_2=\sigma_{11}=0.962\) and a relative Frobenius error of \(18\%\), entirely
+due to the noise floor. Note that storing \(\hat A_p\) requires \(p(m+n+1)\) numbers instead of
+\(mn\): this is the principle of SVD-based data compression (Section&nbsp;<a class="xref" href="#sec-imgsvd" data-ref="sec:imgsvd">3.6</a>).</p>
+<p><strong class="runin">Condition number.</strong>  For a square nonsingular \(A\) (or a tall \(A\) with independent
+columns) the (2-norm) condition number is \(\kappa(A)=\sigma_1/\sigma_{\min}\). It measures
+the sensitivity of the solution of \(Ax=y\) to perturbations: a relative error
+\(\norm{\delta y}/\norm{y}\) can be amplified up to \(\kappa(A)\) times. Since
+\(\kappa(A\T A)=\kappa(A)^2\), forming \(A\T A\) explicitly should be avoided when \(A\) is
+ill conditioned (Section&nbsp;<a class="xref" href="ch4.html#sec-ls-numerics" data-ref="sec:ls-numerics">4.11</a>).</p>
+<h2 id="sec-imgsvd" class="sec"><span class="secnum">3.6</span> An application: image compression</h2>
+<p>A digital colour image of \(m\times n\) pixels is stored as three \(m\times n\) matrices
+\(A_R,A_G,A_B\), the red, green and blue <em>channels</em>, whose entries are the intensities
+of the pixels (integers \(0,\dots,255\) for 8-bit images, here divided by \(255\) so that they
+lie in \([0,1]\)); a grey-scale image is a single matrix. The matrices of natural images have
+full rank, but their singular values decrease quickly, so that a few singular triplets
+carry most of the information. By Theorem&nbsp;<a class="xref" href="#thm-eym" data-ref="thm:eym">3.2</a>, the truncated SVD of each channel</p>
+<div class="eq">\[
+  \hat A_p=\sum_{i=1}^p\sigma_iu_iv_i\T
+\]</div>
+<p>is the best approximation of rank \(p\), and it is described by the \(p\) triplets
+\((\sigma_i,u_i,v_i)\), i.e. by \(p(m+n+1)\) numbers instead of \(mn\).</p>
+<p><strong class="runin">Storage.</strong>  The fraction of numbers to be stored and the compression ratio are</p>
+<div class="eq">\[
+  c_p=\frac{p\,(m+n+1)}{mn},\qquad \text{compression ratio}=\frac1{c_p}.
+\]</div>
+<p>The representation is convenient only if \(c_p&lt;1\), i.e. \(p&lt;\bar p=mn/(m+n+1)\), which is
+slightly less than \(\min(m,n)/2\) for a square image and approaches \(\min(m,n)\) for a very
+elongated one: beyond \(\bar p\) the factors require more numbers than the image itself.</p>
+<p><strong class="runin">Quality.</strong>  The degradation is measured by comparing \(A\) (the three channels
+together) with its approximation \(\hat A_p\) (the three truncated channels). Two common
+measures are the relative Frobenius error and the <em>peak signal-to-noise ratio</em></p>
+<div class="eq">\[
+  e_p=\frac{\norm{A-\hat A_p}_F}{\norm{A}_F},\qquad
+  \mathrm{PSNR}_p=10\log_{10}\frac{1}{\mathrm{MSE}_p}\ \text{dB},\qquad
+  \mathrm{MSE}_p=\frac{\norm{A-\hat A_p}_F^2}{3mn},
+\]</div>
+<p>where \(1\) at the numerator of the PSNR is the peak value of the intensities. By
+Theorem&nbsp;<a class="xref" href="#thm-eym" data-ref="thm:eym">3.2</a> both follow from the singular values alone,
+\(\norm{A-\hat A_p}_F^2=\sum_{c\in\{R,G,B\}}\sum_{i&gt;p}\sigma_{c,i}^2\), without forming
+\(\hat A_p\). As a rule of thumb, a PSNR above \(30\)&thinsp;dB corresponds to an acceptable quality,
+and above \(40\)&thinsp;dB the differences are hardly visible. (Since the entries of \(A\) lie in
+\([0,1]\), clipping \(\hat A_p\) to \([0,1]\) before displaying it can only reduce the error.)</p>
+<p><strong class="runin">What a rank-one term looks like.</strong>  Each term \(\sigma_iu_iv_i\T\) is a rank-one
+image: all its rows are multiples of \(v_i\T\) and all its columns are multiples of \(u_i\). It
+is therefore a <em>separable</em> pattern of horizontal and vertical stripes, the product of a
+vertical profile (\(u_i\)) and a horizontal one (\(v_i\)). Structures aligned with the rows and
+the columns of the image are thus reproduced by few terms, while oblique lines, curved
+contours and fine textures need many of them.</p>
+<div class="box example" id="ex-img-svd"><div class="box-title">Example 3.3: SVD compression of a colour photograph</div><div class="box-body"><p>The photograph of Figure&nbsp;<a class="xref" href="#fig-img-svd" data-ref="fig:img-svd">3.3</a>(a), a <em>trabocco</em> (a traditional fishing
+platform of the Abruzzo coast), has \(m=705\) rows and \(n=1280\) columns, so that
+\(mn=902\,400\) numbers per channel and \(\bar p=454.4\). Figure&nbsp;<a class="xref" href="#fig-img-sv" data-ref="fig:img-sv">3.4</a>(a) shows the
+singular values of the three channels. The first one is much larger than the others
+(\(\sigma_1\approx 490\)&ndash;\(650\), \(\sigma_2\approx 80\)&ndash;\(95\)): since all the entries are positive,
+\(\sigma_1u_1v_1\T\) essentially reproduces the average brightness. After that the singular
+values decay slowly and without any gap (\(\sigma_{11}\approx 23\), \(\sigma_{101}\approx 4\),
+\(\sigma_{301}\approx 1.3\), \(\sigma_{705}\approx 0.025\)): unlike the matrix of
+Figure&nbsp;<a class="xref" href="#fig-sv-inspection" data-ref="fig:sv-inspection">3.2</a>(b), there is no &ldquo;true&rdquo; rank, and the choice of \(p\) is a trade-off
+between storage and quality, summarized in Table&nbsp;<a class="xref" href="#tab-img-svd" data-ref="tab:img-svd">3.1</a> and Figure&nbsp;<a class="xref" href="#fig-img-sv" data-ref="fig:img-sv">3.4</a>(b).</p>
+<p>The rank-one approximation, Figure&nbsp;<a class="xref" href="#fig-img-svd" data-ref="fig:img-svd">3.3</a>(b), is a plaid of horizontal and vertical
+stripes in which the horizon and the poles are already visible. With \(p=10\) the poles, the
+horizontal beams and the horizon are sharp, while the clouds and the walkway are shapeless;
+with \(p=30\) the scene is recognizable, but the ropes, which are oblique, are still missing;
+with \(p=100\) the ropes and the seagulls appear and the residual error looks like a fine
+noise, most visible in the sky; with \(p=300\) the image is hard to distinguish from the
+original. Note that the fraction of energy \(\sum_{i\le p}\sigma_i^2/\sum_i\sigma_i^2\) is a
+poor indicator of quality here: it is already \(91.5\%\) for \(p=1\), precisely because of the
+dominant first singular value. A PSNR of \(30\)&thinsp;dB requires \(p=133\) (\(c_p=29\%\), ratio
+\(3.4\)), and \(40\)&thinsp;dB requires \(p=346\) (\(c_p=76\%\)).</p></div></div>
+<figure class="fig" id="fig-img-svd"><div class="subgrid"><figure class="subfig"><img src="images/trabocco.jpg" alt="" loading="lazy"><figcaption>(a) original</figcaption></figure><figure class="subfig"><img src="images/trabocco_p001.jpg" alt="" loading="lazy"><figcaption>(b) \(p=1\)</figcaption></figure><figure class="subfig"><img src="images/trabocco_p010.jpg" alt="" loading="lazy"><figcaption>(c) \(p=10\)</figcaption></figure><figure class="subfig"><img src="images/trabocco_p030.jpg" alt="" loading="lazy"><figcaption>(d) \(p=30\)</figcaption></figure><figure class="subfig"><img src="images/trabocco_p100.jpg" alt="" loading="lazy"><figcaption>(e) \(p=100\)</figcaption></figure><figure class="subfig"><img src="images/trabocco_p300.jpg" alt="" loading="lazy"><figcaption>(f) \(p=300\)</figcaption></figure></div><figcaption><span class="fig-name">Figure 3.3:</span> Rank-\(p\) approximations of a \(705\times1280\) colour image, obtained by truncating
+the SVD of each of the three channels (Example&nbsp;<a class="xref" href="#ex-img-svd" data-ref="ex:img-svd">3.3</a>). Storage and quality are
+reported in Table&nbsp;<a class="xref" href="#tab-img-svd" data-ref="tab:img-svd">3.1</a>.</figcaption></figure>
+<figure class="tab" id="tab-img-svd"><figcaption><span class="fig-name">Table 3.1:</span> Storage and quality of the rank-\(p\) approximations of Figure&nbsp;<a class="xref" href="#fig-img-svd" data-ref="fig:img-svd">3.3</a>
+(\(m=705\), \(n=1280\)). Numbers per channel: \(p(m+n+1)\); energy:
+\(\sum_c\sum_{i\le p}\sigma_{c,i}^2/\sum_c\sum_i\sigma_{c,i}^2\).</figcaption><div class="tablewrap"><table class="tbl"><thead><tr><th class="ar">\(p\)</th><th class="ar">numbers per channel</th><th class="ar">\(c_p\)</th><th class="ar">ratio \(1/c_p\)</th><th class="ar">energy</th><th class="ar">\(e_p\)</th><th class="ar">PSNR [dB]</th></tr></thead><tbody><tr><td class="ar">1</td><td class="ar">1&thinsp;986</td><td class="ar">0.2%</td><td class="ar">454.4</td><td class="ar">91.54%</td><td class="ar">29.08%</td><td class="ar">14.8</td></tr><tr><td class="ar">10</td><td class="ar">19&thinsp;860</td><td class="ar">2.2%</td><td class="ar">45.4</td><td class="ar">97.21%</td><td class="ar">16.71%</td><td class="ar">19.6</td></tr><tr><td class="ar">30</td><td class="ar">59&thinsp;580</td><td class="ar">6.6%</td><td class="ar">15.1</td><td class="ar">98.69%</td><td class="ar">11.45%</td><td class="ar">22.9</td></tr><tr><td class="ar">100</td><td class="ar">198&thinsp;600</td><td class="ar">22.0%</td><td class="ar">4.5</td><td class="ar">99.62%</td><td class="ar">6.14%</td><td class="ar">28.3</td></tr><tr><td class="ar">300</td><td class="ar">595&thinsp;800</td><td class="ar">66.0%</td><td class="ar">1.5</td><td class="ar">99.96%</td><td class="ar">2.08%</td><td class="ar">37.7</td></tr><tr class="rule"><td class="ar">original</td><td class="ar">902&thinsp;400</td><td class="ar">100%</td><td class="ar">1</td><td class="ar">100%</td><td class="ar">0</td><td class="ar">\(\infty\)</td></tr></tbody></table></div></figure>
+<figure class="fig" id="fig-img-sv"><div class="fig-img"><img src="figures/fig-img-sv.svg" alt="Figure 3.4" loading="lazy" style="width:730px"></div><figcaption><span class="fig-name">Figure 3.4:</span> (a) Singular values of the three channels of the image of Figure&nbsp;<a class="xref" href="#fig-img-svd" data-ref="fig:img-svd">3.3</a>:
+after the dominant \(\sigma_1\) they decay slowly, without a gap. (b) PSNR of the rank-\(p\)
+approximation as a function of the fraction \(c_p\) of stored numbers; the markers are the
+approximations of Figure&nbsp;<a class="xref" href="#fig-img-svd" data-ref="fig:img-svd">3.3</a>.</figcaption></figure>
+<div class="widget" id="w-imgsvd" data-widget="imgsvd"></div>
+<div class="thm thm-remark" id="rem-img-practice"><p><span class="thm-head"><span class="thm-name">Remark 3.3</span> <span class="thm-title">(SVD compression in practice)</span>.</span> This application is meant as an illustration of Theorem&nbsp;<a class="xref" href="#thm-eym" data-ref="thm:eym">3.2</a>, not as a practical
+compression method, and it is not how common image formats work. JPEG, for instance, splits
+the image into \(8\times8\) blocks, represents each block through the discrete cosine
+transform and quantizes the coefficients according to the sensitivity of the human eye:
+the photograph of Figure&nbsp;<a class="xref" href="#fig-img-svd" data-ref="fig:img-svd">3.3</a>(a) is a JPEG file about \(12\) times smaller than its
+raw pixels, with no visible degradation. Note also that the SVD saves memory only if the
+factors are stored, and that their entries are real numbers rather than 8-bit integers.</p></div>
+<h2 id="sec-pca" class="sec"><span class="secnum">3.7</span> Principal component analysis</h2>
+<p>Principal component analysis (PCA) is the statistical twin of the low-rank approximation
+and is the most common SVD-based tool of data analysis [<a class="cite" href="references.html#bib-Jolliffe" data-cite="Jolliffe">16</a>]. Let
+\(X\in\R^{N\times d}\) collect \(N\) observations (rows) of \(d\) variables (columns), e.g. \(d\)
+sensor signals sampled \(N\) times. Define the sample mean \(\mu=\frac1N\sum_{k}x_k\) (a row
+vector) and the <em>centred</em> data matrix \(X_c=X-\mathbf 1\mu\). The sample covariance matrix is</p>
+<div class="eq">\[
+  S=\frac1{N-1}X_c\T X_c\in\R^{d\times d},\qquad S=S\T\succeq0 .
+\]</div>
+<p>PCA looks for the orthonormal directions \(w_1,w_2,\dots\) along which the projected data
+have maximum variance: \(w_1=\argmax_{\norm{w}=1}w\T Sw\), then \(w_2\) maximizes the same
+quantity among directions orthogonal to \(w_1\), and so on. By Theorem&nbsp;<a class="xref" href="ch2.html#thm-spectral" data-ref="thm:spectral">2.10</a> the
+solution is given by the eigenvectors of \(S\), and by <a class="xref" href="#eq-ATA" data-ref="eq:ATA">(3.2)</a> these are the right
+singular vectors of \(X_c\):</p>
+<div class="box keybox"><p>If \(X_c=U\Sigma V\T\) is the (thin) SVD of the centred data, then</p>
+<ul><li><p>the <em>principal directions</em> are the columns \(v_1,\dots,v_d\) of \(V\);</p></li><li><p>the variance along \(v_i\) is \(\lambda_i=\sigma_i^2/(N-1)\), and
+      \(\lambda_i/\sum_j\lambda_j\) is the <em>fraction of explained variance</em>;</p></li><li><p>the <em>principal components</em> (scores) are the columns of \(X_cV=U\Sigma\);</p></li><li><p>keeping the first \(p\) components gives \(X\approx\mathbf 1\mu+X_cV_pV_p\T\), which is the
+      best rank-\(p\) approximation of \(X_c\) (Theorem&nbsp;<a class="xref" href="#thm-eym" data-ref="thm:eym">3.2</a>).</p></li></ul></div>
+<div class="box example" id="example-3-4"><div class="box-title">Example 3.4: PCA of two correlated variables</div><div class="box-body"><p>Sixty points were generated by stretching a standard Gaussian cloud by factors \(2\) and
+\(0.5\), rotating it by \(30^\circ\) and translating it (Figure&nbsp;<a class="xref" href="#fig-pca" data-ref="fig:pca">3.5</a>). PCA gives
+\(\mu=(2.90,1.94)\), principal directions \(v_1=(0.873,0.487)\T\) (close to the true
+direction \((\cos30^\circ,\sin30^\circ)=(0.866,0.5)\)) and \(v_2=(-0.487,0.873)\T\), variances
+\(\lambda_1=4.73\), \(\lambda_2=0.30\). The first component explains \(94\%\) of the variance: the
+data are essentially one-dimensional, and replacing each point by its projection on the
+line \(\mu+\alpha v_1\) loses only \(6\%\) of the variance.</p></div></div>
+<figure class="fig" id="fig-pca"><div class="fig-img"><img src="figures/fig-pca.svg" alt="Figure 3.5" loading="lazy" style="width:381px"></div><figcaption><span class="fig-name">Figure 3.5:</span> PCA of a two-dimensional data cloud. The first principal direction \(v_1\) captures
+\(94\%\) of the variance; the dashed line is the best one-dimensional (rank-one)
+approximation of the centred data.</figcaption></figure>
+<div class="thm thm-remark" id="remark-3-4"><p><span class="thm-head"><span class="thm-name">Remark 3.4</span>.</span> (i) Centring is essential: without it the first singular vector points towards the mean.
+(ii) If the variables have different units, they should also be scaled (e.g. to unit
+variance), otherwise PCA is dominated by the variable with the largest numbers.
+(iii) PCA minimizes the sum of squared <em>orthogonal</em> distances of the points from the
+approximating subspace; ordinary least squares (Chapter&nbsp;<a class="xref" href="ch4.html" data-ref="ch:ls">4</a>) minimizes <em>vertical</em>
+distances. The two coincide only in special cases; the link is <em>total least squares</em>
+(Section&nbsp;<a class="xref" href="ch4.html#sec-tls" data-ref="sec:tls">4.9</a>).</p></div>
+<h2 id="s-3-8" class="sec"><span class="secnum">3.8</span> Exercises</h2>
+<div class="exercise" id="exercise-3-1"><p><span class="thm-head"><span class="ex-name">Exercise 3.1</span>.</span> Compute by hand the SVD of \(A=\bmat{1&amp;1\\0&amp;1\\1&amp;0}\) and of \(A\T\). How are the two related?</p></div>
+<div class="exercise" id="exercise-3-2"><p><span class="thm-head"><span class="ex-name">Exercise 3.2</span>.</span> Prove that \(\norm{A}_2=\sigma_1\) using the SVD and the fact that orthogonal matrices
+preserve the Euclidean norm.</p></div>
+<div class="exercise" id="exercise-3-3"><p><span class="thm-head"><span class="ex-name">Exercise 3.3</span>.</span> Show that for a symmetric matrix the singular values are the absolute values of the
+eigenvalues. When do the singular vectors coincide with the eigenvectors?</p></div>
+<div class="exercise" id="exercise-3-4"><p><span class="thm-head"><span class="ex-name">Exercise 3.4</span> <span class="thm-title">(Image compression)</span>.</span> Repeat the experiment of Section&nbsp;<a class="xref" href="#sec-imgsvd" data-ref="sec:imgsvd">3.6</a> on a photograph of your choice. (a) Convert it
+to grey scale, \(Y=0.299A_R+0.587A_G+0.114A_B\), and find the smallest \(p\) giving a PSNR of
+\(30\)&thinsp;dB; compare it with the colour case. (b) Represent the colour image by its luminance \(Y\)
+and the two chrominances \(A_B-Y\), \(A_R-Y\), truncate \(Y\) at rank \(p\) and the chrominances at
+rank \(p/4\), and compare the PSNR with that of Table&nbsp;<a class="xref" href="#tab-img-svd" data-ref="tab:img-svd">3.1</a> at equal storage.</p><div class="ex-links"><a class="ex-link" href="#w-imgsvd">Open the image-compression lab (upload your photo)</a></div></div>
+<div class="exercise" id="exercise-3-5"><p><span class="thm-head"><span class="ex-name">Exercise 3.5</span>.</span> Generate \(N=200\) samples of three signals \(x_1=s+\eta_1\), \(x_2=2s+\eta_2\), \(x_3=\eta_3\), with \(s\),
+\(\eta_i\) independent Gaussian (\(\mathrm{std}(s)=1\), \(\mathrm{std}(\eta_i)=0.1\)). Apply PCA and
+interpret the explained variances and the first principal direction.</p></div>
+<h2 id="s-3-9" class="sec"><span class="secnum">3.9</span> Implementation in MATLAB and Python</h2>
+<p><code>[U,S,V] = svd(A)</code> computes the full SVD, <code>svd(A,"econ")</code> the thin one
+(for \(m&gt;n\), only the first \(n\) columns of \(U\)), <code>svds(A,k)</code> the \(k\) largest singular
+triplets of large sparse matrices; <code>norm(A)</code> and <code>norm(A,"fro")</code> give
+\(\sigma_1\) and \(\norm{A}_F\), <code>cond(A)</code> gives \(\sigma_1/\sigma_{\min}\). MATLAB&rsquo;s
+<code>pca</code> (Statistics Toolbox) centres the data and returns the principal directions
+(<code>coeff</code>), the scores and the variances (<code>latent</code>).</p>
+<div class="code" data-lang="matlab"><div class="code-head"><span class="code-lang">MATLAB</span><span class="code-title">ch3_svd_pca.m</span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button><a class="code-btn" href="code/matlab/ch3_svd_pca.m" download>Download</a></span></div><pre><code class="hl"><span class="c">%% Chapter 3 - SVD, low-rank approximation, PCA</span>
+<span class="n">A</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">3</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="n">2</span><span class="w"> </span><span class="s">3</span><span class="w"> </span><span class="o">-</span><span class="mi">2</span><span class="p">];</span>
+<span class="p">[</span><span class="n">U</span><span class="p">,</span><span class="w"> </span><span class="n">S</span><span class="p">,</span><span class="w"> </span><span class="n">V</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">svd</span><span class="p">(</span><span class="n">A</span><span class="p">)</span><span class="w">                      </span><span class="c">% sigma = 5, 3</span>
+<span class="nb">disp</span><span class="p">(</span><span class="nb">norm</span><span class="p">(</span><span class="n">A</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">U</span><span class="o">*</span><span class="n">S</span><span class="o">*</span><span class="n">V</span><span class="o">'</span><span class="p">))</span>
+<span class="c">% relationship with the eigendecompositions of A'A and AA'</span>
+<span class="nb">disp</span><span class="p">(</span><span class="nb">sort</span><span class="p">(</span><span class="nb">eig</span><span class="p">(</span><span class="n">A</span><span class="o">*</span><span class="n">A</span><span class="o">'</span><span class="p">),</span><span class="w"> </span><span class="s">'descend'</span><span class="p">)</span><span class="o">'</span><span class="p">)</span><span class="w">       </span><span class="c">% = sigma.^2 = [25 9]</span>
+<span class="nb">disp</span><span class="p">(</span><span class="nb">sort</span><span class="p">(</span><span class="nb">eig</span><span class="p">(</span><span class="n">A</span><span class="o">'*</span><span class="n">A</span><span class="p">),</span><span class="w"> </span><span class="s">'descend'</span><span class="p">)</span><span class="o">'</span><span class="p">)</span><span class="w">       </span><span class="c">% = [25 9 0]</span>
+
+<span class="c">%% Numerical rank and low-rank approximation (Eckart-Young-Mirsky)</span>
+<span class="n">m</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span><span class="w"> </span><span class="nb">rand</span><span class="p">(</span><span class="s">'seed'</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"> </span><span class="nb">randn</span><span class="p">(</span><span class="s">'seed'</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="p">[</span><span class="n">Q1</span><span class="p">,</span><span class="w"> </span><span class="o">~</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">qr</span><span class="p">(</span><span class="nb">randn</span><span class="p">(</span><span class="n">m</span><span class="p">));</span><span class="w"> </span><span class="p">[</span><span class="n">Q2</span><span class="p">,</span><span class="w"> </span><span class="o">~</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">qr</span><span class="p">(</span><span class="nb">randn</span><span class="p">(</span><span class="n">m</span><span class="p">));</span>
+<span class="n">s</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="nb">linspace</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">),</span><span class="w"> </span><span class="nb">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="o">-</span><span class="mi">10</span><span class="p">)];</span>
+<span class="n">An</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">Q1</span><span class="o">*</span><span class="nb">diag</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">*</span><span class="n">Q2</span><span class="o">'</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">0.05</span><span class="o">*</span><span class="nb">randn</span><span class="p">(</span><span class="n">m</span><span class="p">);</span><span class="w">    </span><span class="c">% rank-10 matrix + noise</span>
+<span class="n">sv</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">svd</span><span class="p">(</span><span class="n">An</span><span class="p">);</span>
+<span class="nb">stem</span><span class="p">(</span><span class="n">sv</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">40</span><span class="p">));</span><span class="w"> </span><span class="nb">xlabel</span><span class="p">(</span><span class="s">'i'</span><span class="p">);</span><span class="w"> </span><span class="nb">ylabel</span><span class="p">(</span><span class="s">'\sigma_i'</span><span class="p">);</span><span class="w">   </span><span class="c">% evident gap after sigma_10</span>
+<span class="p">[</span><span class="n">U</span><span class="p">,</span><span class="w"> </span><span class="n">S</span><span class="p">,</span><span class="w"> </span><span class="n">V</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">svd</span><span class="p">(</span><span class="n">An</span><span class="p">);</span>
+<span class="n">p</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+<span class="n">Ap</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">U</span><span class="p">(:,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">p</span><span class="p">)</span><span class="o">*</span><span class="n">S</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">p</span><span class="p">)</span><span class="o">*</span><span class="n">V</span><span class="p">(:,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">p</span><span class="p">)</span><span class="o">'</span><span class="p">;</span>
+<span class="nb">fprintf</span><span class="p">(</span><span class="s">'||A-A_p||_2 = %.4f,  sigma_{p+1} = %.4f\n'</span><span class="p">,</span><span class="w"> </span><span class="nb">norm</span><span class="p">(</span><span class="n">An</span><span class="o">-</span><span class="n">Ap</span><span class="p">),</span><span class="w"> </span><span class="n">sv</span><span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">));</span>
+<span class="nb">fprintf</span><span class="p">(</span><span class="s">'||A-A_p||_F = %.4f,  sqrt(sum sigma_i^2, i&gt;p) = %.4f\n'</span><span class="p">,</span><span class="w"> </span><span class="k">...</span>
+<span class="w">        </span><span class="nb">norm</span><span class="p">(</span><span class="n">An</span><span class="o">-</span><span class="n">Ap</span><span class="p">,</span><span class="w"> </span><span class="s">'fro'</span><span class="p">),</span><span class="w"> </span><span class="nb">sqrt</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">sv</span><span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="k">end</span><span class="p">)</span><span class="o">.^</span><span class="mi">2</span><span class="p">)));</span>
+
+<span class="c">%% PCA via SVD of the centred data matrix (rows = observations)</span>
+<span class="n">N</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">60</span><span class="p">;</span><span class="w"> </span><span class="n">th</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">pi</span><span class="o">/</span><span class="mi">6</span><span class="p">;</span><span class="w"> </span><span class="n">Rr</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="nb">cos</span><span class="p">(</span><span class="n">th</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="nb">sin</span><span class="p">(</span><span class="n">th</span><span class="p">);</span><span class="w"> </span><span class="nb">sin</span><span class="p">(</span><span class="n">th</span><span class="p">)</span><span class="w"> </span><span class="nb">cos</span><span class="p">(</span><span class="n">th</span><span class="p">)];</span>
+<span class="n">X</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="p">(</span><span class="nb">randn</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="o">.*</span><span class="p">[</span><span class="mi">2</span><span class="w"> </span><span class="mf">0.5</span><span class="p">])</span><span class="o">*</span><span class="n">Rr</span><span class="o">'</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">[</span><span class="mi">3</span><span class="w"> </span><span class="mi">2</span><span class="p">];</span>
+<span class="n">mu</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">mean</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="n">Xc</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">mu</span><span class="p">;</span><span class="w">                            </span><span class="c">% centring is essential</span>
+<span class="p">[</span><span class="o">~</span><span class="p">,</span><span class="w"> </span><span class="n">Sx</span><span class="p">,</span><span class="w"> </span><span class="n">Vx</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">svd</span><span class="p">(</span><span class="n">Xc</span><span class="p">,</span><span class="w"> </span><span class="s">'econ'</span><span class="p">);</span>
+<span class="n">lambda</span><span class="w">    </span><span class="p">=</span><span class="w"> </span><span class="nb">diag</span><span class="p">(</span><span class="n">Sx</span><span class="p">)</span><span class="o">.^</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span><span class="w">          </span><span class="c">% variances along the principal directions</span>
+<span class="n">explained</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">lambda</span><span class="o">/</span><span class="nb">sum</span><span class="p">(</span><span class="n">lambda</span><span class="p">)</span><span class="w">          </span><span class="c">% fraction of explained variance</span>
+<span class="n">scores</span><span class="w">    </span><span class="p">=</span><span class="w"> </span><span class="n">Xc</span><span class="o">*</span><span class="n">Vx</span><span class="p">;</span><span class="w">                      </span><span class="c">% principal components (coordinates)</span>
+<span class="n">X1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">mu</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">scores</span><span class="p">(:,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">Vx</span><span class="p">(:,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="o">'</span><span class="p">;</span><span class="w">       </span><span class="c">% rank-1 reconstruction</span>
+</code></pre><textarea class="code-src" hidden>%% Chapter 3 - SVD, low-rank approximation, PCA
+A = [3 2 2; 2 3 -2];
+[U, S, V] = svd(A)                      % sigma = 5, 3
+disp(norm(A - U*S*V'))
+% relationship with the eigendecompositions of A'A and AA'
+disp(sort(eig(A*A'), 'descend')')       % = sigma.^2 = [25 9]
+disp(sort(eig(A'*A), 'descend')')       % = [25 9 0]
+
+%% Numerical rank and low-rank approximation (Eckart-Young-Mirsky)
+m = 100; rand('seed', 0); randn('seed', 0);
+[Q1, ~] = qr(randn(m)); [Q2, ~] = qr(randn(m));
+s = [linspace(10, 5, 10), zeros(1, m-10)];
+An = Q1*diag(s)*Q2' + 0.05*randn(m);    % rank-10 matrix + noise
+sv = svd(An);
+stem(sv(1:40)); xlabel('i'); ylabel('\sigma_i');   % evident gap after sigma_10
+[U, S, V] = svd(An);
+p = 10;
+Ap = U(:, 1:p)*S(1:p, 1:p)*V(:, 1:p)';
+fprintf('||A-A_p||_2 = %.4f,  sigma_{p+1} = %.4f\n', norm(An-Ap), sv(p+1));
+fprintf('||A-A_p||_F = %.4f,  sqrt(sum sigma_i^2, i&gt;p) = %.4f\n', ...
+        norm(An-Ap, 'fro'), sqrt(sum(sv(p+1:end).^2)));
+
+%% PCA via SVD of the centred data matrix (rows = observations)
+N = 60; th = pi/6; Rr = [cos(th) -sin(th); sin(th) cos(th)];
+X  = (randn(N, 2).*[2 0.5])*Rr' + [3 2];
+mu = mean(X, 1);
+Xc = X - mu;                            % centring is essential
+[~, Sx, Vx] = svd(Xc, 'econ');
+lambda    = diag(Sx).^2/(N-1);          % variances along the principal directions
+explained = lambda/sum(lambda)          % fraction of explained variance
+scores    = Xc*Vx;                      % principal components (coordinates)
+X1 = mu + scores(:, 1)*Vx(:, 1)';       % rank-1 reconstruction</textarea></div>
+<p>Python equivalent:</p>
+<div class="code" data-lang="python"><div class="code-head"><span class="code-lang">Python</span><span class="code-title"></span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button></span></div><pre><code class="hl"><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">3.</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">]])</span>
+<span class="n">U</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">Vt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>              <span class="c1"># NB: numpy returns V^T, not V</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>                                 <span class="c1"># [5. 3.]</span>
+<span class="c1"># best rank-p approximation</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">truncate</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+    <span class="n">U</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">Vt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">U</span><span class="p">[:,</span> <span class="p">:</span><span class="n">p</span><span class="p">]</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">s</span><span class="p">[:</span><span class="n">p</span><span class="p">])</span> <span class="o">@</span> <span class="n">Vt</span><span class="p">[:</span><span class="n">p</span><span class="p">,</span> <span class="p">:]</span>
+<span class="c1"># PCA</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">((</span><span class="mi">60</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">.5</span><span class="p">]])</span>
+<span class="n">Xc</span> <span class="o">=</span> <span class="n">X</span> <span class="o">-</span> <span class="n">X</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">U</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">Vt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">Xc</span><span class="p">,</span> <span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">directions</span><span class="p">,</span> <span class="n">variances</span> <span class="o">=</span> <span class="n">Vt</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">s</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">scores</span> <span class="o">=</span> <span class="n">Xc</span> <span class="o">@</span> <span class="n">Vt</span><span class="o">.</span><span class="n">T</span>
+</code></pre><textarea class="code-src" hidden>import numpy as np
+A = np.array([[3., 2, 2], [2, 3, -2]])
+U, s, Vt = np.linalg.svd(A)              # NB: numpy returns V^T, not V
+print(s)                                 # [5. 3.]
+# best rank-p approximation
+def truncate(A, p):
+    U, s, Vt = np.linalg.svd(A, full_matrices=False)
+    return U[:, :p] @ np.diag(s[:p]) @ Vt[:p, :]
+# PCA
+X = np.random.default_rng(3).standard_normal((60, 2)) @ np.array([[2, 0], [0, .5]])
+Xc = X - X.mean(axis=0)
+U, s, Vt = np.linalg.svd(Xc, full_matrices=False)
+directions, variances = Vt.T, s**2 / (len(X) - 1)
+scores = Xc @ Vt.T</textarea></div>
+<p><strong class="runin">Image compression.</strong>  The following script reproduces Example&nbsp;<a class="xref" href="#ex-img-svd" data-ref="ex:img-svd">3.3</a>: <code>imread</code> returns the image as an \(m\times n\times3\)
+array of 8-bit integers, which <code>im2double</code> converts to values in \([0,1]\); the SVD of
+each channel is computed once and then truncated at the different ranks.</p>
+<div class="code" data-lang="matlab"><div class="code-head"><span class="code-lang">MATLAB</span><span class="code-title">image_svd_compression.m</span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button><a class="code-btn" href="code/matlab/image_svd_compression.m" download>Download</a></span></div><pre><code class="hl"><span class="c">%% Chapter 3 - Image compression with the truncated SVD</span>
+<span class="c">% Each colour channel of an m x n RGB image is an m x n matrix; its rank-p truncated SVD</span>
+<span class="c">% is the best rank-p approximation (Eckart-Young-Mirsky) and requires p*(m+n+1) numbers</span>
+<span class="c">% instead of m*n.  Run from code/matlab (the image is in ../../figures).</span>
+<span class="n">A</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">im2double</span><span class="p">(</span><span class="nb">imread</span><span class="p">(</span><span class="nb">fullfile</span><span class="p">(</span><span class="s">'..'</span><span class="p">,</span><span class="w"> </span><span class="s">'..'</span><span class="p">,</span><span class="w"> </span><span class="s">'figures'</span><span class="p">,</span><span class="w"> </span><span class="s">'trabocco.jpg'</span><span class="p">)));</span><span class="w">  </span><span class="c">% values in [0,1]</span>
+<span class="p">[</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">nc</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">size</span><span class="p">(</span><span class="n">A</span><span class="p">);</span>
+<span class="n">ranks</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="mi">30</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="mi">300</span><span class="p">];</span>
+
+<span class="c">% SVD of each channel, computed once (thin SVD: min(m,n) singular triplets)</span>
+<span class="n">U</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">cell</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nc</span><span class="p">);</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">cell</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nc</span><span class="p">);</span><span class="w"> </span><span class="n">V</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">cell</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nc</span><span class="p">);</span>
+<span class="k">for</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">nc</span>
+<span class="w">    </span><span class="p">[</span><span class="n">U</span><span class="p">{</span><span class="n">c</span><span class="p">},</span><span class="w"> </span><span class="n">S</span><span class="p">{</span><span class="n">c</span><span class="p">},</span><span class="w"> </span><span class="n">V</span><span class="p">{</span><span class="n">c</span><span class="p">}]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">svd</span><span class="p">(</span><span class="n">A</span><span class="p">(:,</span><span class="w"> </span><span class="p">:,</span><span class="w"> </span><span class="n">c</span><span class="p">),</span><span class="w"> </span><span class="s">'econ'</span><span class="p">);</span>
+<span class="k">end</span>
+
+<span class="c">% singular values of the three channels</span>
+<span class="nb">figure</span><span class="p">;</span>
+<span class="nb">semilogy</span><span class="p">(</span><span class="nb">diag</span><span class="p">(</span><span class="n">S</span><span class="p">{</span><span class="mi">1</span><span class="p">}),</span><span class="w"> </span><span class="s">'r'</span><span class="p">);</span><span class="w"> </span><span class="n">hold</span><span class="w"> </span><span class="s">on</span><span class="p">;</span><span class="w"> </span><span class="nb">semilogy</span><span class="p">(</span><span class="nb">diag</span><span class="p">(</span><span class="n">S</span><span class="p">{</span><span class="mi">2</span><span class="p">}),</span><span class="w"> </span><span class="s">'g'</span><span class="p">);</span><span class="w"> </span><span class="nb">semilogy</span><span class="p">(</span><span class="nb">diag</span><span class="p">(</span><span class="n">S</span><span class="p">{</span><span class="mi">3</span><span class="p">}),</span><span class="w"> </span><span class="s">'b'</span><span class="p">);</span>
+<span class="nb">xlabel</span><span class="p">(</span><span class="s">'i'</span><span class="p">);</span><span class="w"> </span><span class="nb">ylabel</span><span class="p">(</span><span class="s">'\sigma_i'</span><span class="p">);</span><span class="w"> </span><span class="nb">legend</span><span class="p">(</span><span class="s">'R'</span><span class="p">,</span><span class="w"> </span><span class="s">'G'</span><span class="p">,</span><span class="w"> </span><span class="s">'B'</span><span class="p">);</span><span class="w"> </span><span class="n">grid</span><span class="w"> </span><span class="s">on</span><span class="p">;</span>
+
+<span class="c">% rank-p approximations, storage and quality</span>
+<span class="nb">figure</span><span class="p">;</span>
+<span class="nb">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="nb">imshow</span><span class="p">(</span><span class="n">A</span><span class="p">);</span><span class="w"> </span><span class="nb">title</span><span class="p">(</span><span class="s">'Original'</span><span class="p">);</span>
+<span class="nb">fprintf</span><span class="p">(</span><span class="s">'break-even rank mn/(m+n+1) = %.1f\n'</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="o">*</span><span class="n">n</span><span class="o">/</span><span class="p">(</span><span class="n">m</span><span class="o">+</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">));</span>
+<span class="nb">fprintf</span><span class="p">(</span><span class="s">'    p   storage   ratio  rel.err   PSNR\n'</span><span class="p">);</span>
+<span class="k">for</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">ranks</span><span class="p">)</span>
+<span class="w">    </span><span class="n">p</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">ranks</span><span class="p">(</span><span class="n">k</span><span class="p">);</span>
+<span class="w">    </span><span class="n">Ap</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">zeros</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">nc</span><span class="p">);</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">nc</span>
+<span class="w">        </span><span class="n">Ap</span><span class="p">(:,</span><span class="w"> </span><span class="p">:,</span><span class="w"> </span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">U</span><span class="p">{</span><span class="n">c</span><span class="p">}(:,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">p</span><span class="p">)</span><span class="o">*</span><span class="n">S</span><span class="p">{</span><span class="n">c</span><span class="p">}(</span><span class="mi">1</span><span class="p">:</span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">p</span><span class="p">)</span><span class="o">*</span><span class="n">V</span><span class="p">{</span><span class="n">c</span><span class="p">}(:,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">p</span><span class="p">)</span><span class="o">'</span><span class="p">;</span>
+<span class="w">    </span><span class="k">end</span>
+<span class="w">    </span><span class="n">storage</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">p</span><span class="o">*</span><span class="p">(</span><span class="n">m</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">n</span><span class="p">);</span><span class="w">                 </span><span class="c">% fraction of stored numbers</span>
+<span class="w">    </span><span class="n">relerr</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="nb">norm</span><span class="p">(</span><span class="n">A</span><span class="p">(:)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">Ap</span><span class="p">(:))</span><span class="o">/</span><span class="nb">norm</span><span class="p">(</span><span class="n">A</span><span class="p">(:));</span><span class="w">       </span><span class="c">% relative Frobenius error</span>
+<span class="w">    </span><span class="n">psnrdB</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="mi">10</span><span class="o">*</span><span class="nb">log10</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="nb">mean</span><span class="p">((</span><span class="n">A</span><span class="p">(:)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">Ap</span><span class="p">(:))</span><span class="o">.^</span><span class="mi">2</span><span class="p">));</span><span class="w"> </span><span class="c">% peak value = 1</span>
+<span class="w">    </span><span class="nb">fprintf</span><span class="p">(</span><span class="s">'%5d  %6.1f%%  %6.1f  %6.2f%%  %5.1f dB\n'</span><span class="p">,</span><span class="w"> </span><span class="k">...</span>
+<span class="w">            </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="o">*</span><span class="n">storage</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="o">/</span><span class="n">storage</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="o">*</span><span class="n">relerr</span><span class="p">,</span><span class="w"> </span><span class="n">psnrdB</span><span class="p">);</span>
+<span class="w">    </span><span class="n">Ap</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">Ap</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w">                       </span><span class="c">% clip to [0,1] for display</span>
+<span class="w">    </span><span class="nb">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="nb">imshow</span><span class="p">(</span><span class="n">Ap</span><span class="p">);</span><span class="w"> </span><span class="nb">title</span><span class="p">(</span><span class="nb">sprintf</span><span class="p">(</span><span class="s">'p = %d'</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">));</span>
+<span class="w">    </span><span class="nb">imwrite</span><span class="p">(</span><span class="n">Ap</span><span class="p">,</span><span class="w"> </span><span class="nb">sprintf</span><span class="p">(</span><span class="s">'trabocco_p%03d.jpg'</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">),</span><span class="w"> </span><span class="s">'Quality'</span><span class="p">,</span><span class="w"> </span><span class="mi">95</span><span class="p">);</span>
+<span class="k">end</span>
+</code></pre><textarea class="code-src" hidden>%% Chapter 3 - Image compression with the truncated SVD
+% Each colour channel of an m x n RGB image is an m x n matrix; its rank-p truncated SVD
+% is the best rank-p approximation (Eckart-Young-Mirsky) and requires p*(m+n+1) numbers
+% instead of m*n.  Run from code/matlab (the image is in ../../figures).
+A = im2double(imread(fullfile('..', '..', 'figures', 'trabocco.jpg')));  % values in [0,1]
+[m, n, nc] = size(A);
+ranks = [1 10 30 100 300];
+
+% SVD of each channel, computed once (thin SVD: min(m,n) singular triplets)
+U = cell(1, nc); S = cell(1, nc); V = cell(1, nc);
+for c = 1:nc
+    [U{c}, S{c}, V{c}] = svd(A(:, :, c), 'econ');
+end
+
+% singular values of the three channels
+figure;
+semilogy(diag(S{1}), 'r'); hold on; semilogy(diag(S{2}), 'g'); semilogy(diag(S{3}), 'b');
+xlabel('i'); ylabel('\sigma_i'); legend('R', 'G', 'B'); grid on;
+
+% rank-p approximations, storage and quality
+figure;
+subplot(2, 3, 1); imshow(A); title('Original');
+fprintf('break-even rank mn/(m+n+1) = %.1f\n', m*n/(m+n+1));
+fprintf('    p   storage   ratio  rel.err   PSNR\n');
+for k = 1:numel(ranks)
+    p  = ranks(k);
+    Ap = zeros(m, n, nc);
+    for c = 1:nc
+        Ap(:, :, c) = U{c}(:, 1:p)*S{c}(1:p, 1:p)*V{c}(:, 1:p)';
+    end
+    storage = p*(m + n + 1)/(m*n);                 % fraction of stored numbers
+    relerr  = norm(A(:) - Ap(:))/norm(A(:));       % relative Frobenius error
+    psnrdB  = 10*log10(1/mean((A(:) - Ap(:)).^2)); % peak value = 1
+    fprintf('%5d  %6.1f%%  %6.1f  %6.2f%%  %5.1f dB\n', ...
+            p, 100*storage, 1/storage, 100*relerr, psnrdB);
+    Ap = min(max(Ap, 0), 1);                       % clip to [0,1] for display
+    subplot(2, 3, k + 1); imshow(Ap); title(sprintf('p = %d', p));
+    imwrite(Ap, sprintf('trabocco_p%03d.jpg', p), 'Quality', 95);
+end</textarea></div>
+<p>Python equivalent (NumPy and Pillow; the same computation produces the data of
+Figure&nbsp;<a class="xref" href="#fig-img-sv" data-ref="fig:img-sv">3.4</a> and Table&nbsp;<a class="xref" href="#tab-img-svd" data-ref="tab:img-svd">3.1</a> in <code>experiments.py</code>):</p>
+<div class="code" data-lang="python"><div class="code-head"><span class="code-lang">Python</span><span class="code-title"></span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button></span></div><pre><code class="hl"><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"trabocco.jpg"</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="o">/</span> <span class="mi">255</span>   <span class="c1"># m x n x 3, in [0,1]</span>
+<span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span>
+<span class="n">svds</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">A</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">c</span><span class="p">],</span> <span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+<span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">300</span><span class="p">]:</span>
+    <span class="n">Ap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">U</span><span class="p">[:,</span> <span class="p">:</span><span class="n">p</span><span class="p">]</span> <span class="o">*</span> <span class="n">s</span><span class="p">[:</span><span class="n">p</span><span class="p">]</span> <span class="o">@</span> <span class="n">Vt</span><span class="p">[:</span><span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">U</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">Vt</span> <span class="ow">in</span> <span class="n">svds</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">storage</span> <span class="o">=</span> <span class="n">p</span> <span class="o">*</span> <span class="p">(</span><span class="n">m</span> <span class="o">+</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">m</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span>
+    <span class="n">relerr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">A</span> <span class="o">-</span> <span class="n">Ap</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+    <span class="n">psnr</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">A</span> <span class="o">-</span> <span class="n">Ap</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"p=</span><span class="si">{</span><span class="n">p</span><span class="si">:</span><span class="s2">3d</span><span class="si">}</span><span class="s2">  storage=</span><span class="si">{</span><span class="mi">100</span><span class="o">*</span><span class="n">storage</span><span class="si">:</span><span class="s2">5.1f</span><span class="si">}</span><span class="s2">%  err=</span><span class="si">{</span><span class="mi">100</span><span class="o">*</span><span class="n">relerr</span><span class="si">:</span><span class="s2">5.2f</span><span class="si">}</span><span class="s2">%  PSNR=</span><span class="si">{</span><span class="n">psnr</span><span class="si">:</span><span class="s2">4.1f</span><span class="si">}</span><span class="s2"> dB"</span><span class="p">)</span>
+    <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">255</span> <span class="o">*</span> <span class="n">Ap</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))))</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="sa">f</span><span class="s2">"trabocco_p</span><span class="si">{</span><span class="n">p</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">.jpg"</span><span class="p">)</span>
+</code></pre><textarea class="code-src" hidden>import numpy as np
+from PIL import Image
+A = np.asarray(Image.open("trabocco.jpg"), dtype=float) / 255   # m x n x 3, in [0,1]
+m, n, _ = A.shape
+svds = [np.linalg.svd(A[:, :, c], full_matrices=False) for c in range(3)]
+for p in [1, 10, 30, 100, 300]:
+    Ap = np.stack([U[:, :p] * s[:p] @ Vt[:p] for U, s, Vt in svds], axis=2)
+    storage = p * (m + n + 1) / (m * n)
+    relerr = np.linalg.norm(A - Ap) / np.linalg.norm(A)
+    psnr = 10 * np.log10(1 / np.mean((A - Ap) ** 2))
+    print(f"p={p:3d}  storage={100*storage:5.1f}%  err={100*relerr:5.2f}%  PSNR={psnr:4.1f} dB")
+    Image.fromarray(np.uint8(np.round(255 * Ap.clip(0, 1)))).save(f"trabocco_p{p:03d}.jpg")</textarea></div>
+<details class="box advanced"><summary><span class="adv-label">Further Study:</span> Perturbation of singular values and subspaces</summary><div class="box-body"><p><em>Weyl&rsquo;s inequality for singular values.</em> For every \(A,E\in\R^{m\times n}\),
+\(\abs{\sigma_i(A+E)-\sigma_i(A)}\le\norm{E}_2\) for all \(i\). Thus, if \(A\) has rank \(r\) and is
+observed as \(A+E\), the &ldquo;noise&rdquo; singular values satisfy \(\sigma_i(A+E)\le\norm{E}_2\) for
+\(i&gt;r\), while \(\sigma_r(A+E)\ge\sigma_r(A)-\norm{E}_2\): the rank is detectable from the gap as
+long as \(\sigma_r(A)&gt;2\norm{E}_2\). For an \(m\times n\) matrix \(E\) with i.i.d. zero-mean
+entries of variance \(\sigma^2\), \(\norm{E}_2\approx\sigma(\sqrt m+\sqrt n)\) (random matrix
+theory), which explains the level of the noise floor in Figure&nbsp;<a class="xref" href="#fig-sv-inspection" data-ref="fig:sv-inspection">3.2</a>(b).</p>
+<p><em>Proof of Theorem&nbsp;<a class="xref" href="#thm-eym" data-ref="thm:eym">3.2</a> in the 2-norm.</em> Let \(\rank(M)=p\). Then \(\dim\Ker(M)=n-p\) and
+the subspace \(\spn\{v_1,\dots,v_{p+1}\}\) has dimension \(p+1\), so they intersect in some unit
+vector \(z=\sum_{i\le p+1}\gamma_iv_i\). Hence
+\(\norm{A-M}_2^2\ge\norm{(A-M)z}_2^2=\norm{Az}_2^2=\sum_{i\le p+1}\sigma_i^2\gamma_i^2\ge\sigma_{p+1}^2\),
+and the bound is attained by \(\hat A_p\).</p>
+<p><em>Subspace perturbation (Wedin&rsquo;s \(\sin\Theta\) theorem).</em> The principal angles
+\(\Theta\) between \(\Im(U_r)\) and the corresponding subspace computed from \(A+E\) satisfy
+\(\norm{\sin\Theta}_2\lesssim\norm{E}_2/(\sigma_r(A)-\sigma_{r+1}(A+E))\): the column space
+estimated by an SVD is accurate when the gap is large with respect to the noise. This is
+the quantitative reason why subspace identification methods work well with good
+signal-to-noise ratios (Chapter&nbsp;<a class="xref" href="ch8.html" data-ref="ch:moesp">8</a>).</p></div></details>
+</article>
+<nav class="pagenav"><a class="pn prev" href="ch2.html"><span>&larr; Previous</span><b>Fundamentals of linear algebra</b></a><a class="pn next" href="ch4.html"><span>Next &rarr;</span><b>Least squares</b></a></nav>
+<footer class="foot">Lecture notes by Vittorio De Iuliis · University of L'Aquila · a.y. 2024–2025 · interactive web edition generated from the LaTeX sources</footer>
+</main>
+<div id="searchbox" class="searchbox" hidden>
+  <div class="searchpanel"><input id="searchinput" type="search" placeholder="Search the notes (e.g. Hankel, PSNR, Gauss–Markov)…" autocomplete="off">
+  <div id="searchres" class="searchres"></div></div>
+</div>
+</body>
+</html>

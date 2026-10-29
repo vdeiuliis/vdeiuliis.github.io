@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ch. 7: Towards subspace identification: the Ho–Kalman realization · System Identification</title>
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem('sid-theme');if(t)document.documentElement.setAttribute('data-theme',t);var f=localStorage.getItem('sid-font');if(f)document.documentElement.style.setProperty('--fs',f+'px');}catch(e){}</script>
+
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']],
+    processEscapes: false, processEnvironments: true,
+    packages: ['base','ams','newcommand','noundefined','configmacros','textmacros','boldsymbol','mathtools','html','color','cancel','unicode'],
+    macros: {
+      R: '\\mathbb{R}', C: '\\mathbb{C}', N: '\\mathbb{N}', E: '\\mathbb{E}',
+      Im: '\\operatorname{Im}', Ker: '\\operatorname{Ker}', rank: '\\operatorname{rank}',
+      spn: '\\operatorname{span}', col: '\\operatorname{col}', row: '\\operatorname{row}',
+      tr: '\\operatorname{tr}', diag: '\\operatorname{diag}', vect: '\\operatorname{vec}',
+      argmin: '\\operatorname*{arg\\,min}', argmax: '\\operatorname*{arg\\,max}',
+      T: '^{\\mathsf{T}}', pinvsym: '^{\\dagger}',
+      norm: ['\\left\\lVert #1\\right\\rVert', 1], abs: ['\\left\\lvert #1\\right\\rvert', 1],
+      ip: ['\\langle #1,#2\\rangle', 2],
+      Obs: '\\mathcal{O}', Rch: '\\mathcal{R}', Toe: '\\mathcal{T}', Hk: '\\mathcal{H}', Z: '\\mathcal{Z}',
+      Pip: '\\Pi^{\\perp}', bmat: ['\\begin{bmatrix}#1\\end{bmatrix}', 1], pmat: ['\\begin{pmatrix}#1\\end{pmatrix}', 1],
+      up: '\\uparrow', dn: '\\downarrow', hatth: '\\hat{\\theta}', sm: '\\scriptstyle'
+    }
+  },
+  svg: { fontCache: 'global', scale: 1.0 },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code','select','option'],
+             ignoreHtmlClass: 'no-mathjax' },
+  startup: { ready() { MathJax.startup.defaultReady(); MathJax.startup.promise.then(() => document.dispatchEvent(new Event('mathjax-ready'))); } }
+};
+</script>
+<script src="vendor/tex-svg-full.js" defer></script>
+
+<script src="assets/refs.js" defer></script>
+<script src="assets/la.js" defer></script>
+<script src="assets/plot.js" defer></script>
+<script src="assets/widgets.js" defer></script>
+<script src="assets/app.js" defer></script>
+</head>
+<body data-page="ch7">
+<header class="topbar">
+  <button class="iconbtn" id="navtoggle" aria-label="Contents"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html">System Identification <span>&amp; Data Analysis</span></a>
+  <div class="topsp"></div>
+  <a class="iconbtn labsbtn" href="index.html#labs" title="List of the interactive laboratories">Labs</a>
+  <button class="iconbtn" id="searchbtn" aria-label="Search" title="Search (/)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></button>
+  <button class="iconbtn" id="fontminus" title="Smaller text">A&minus;</button>
+  <button class="iconbtn" id="fontplus" title="Larger text">A+</button>
+  <button class="iconbtn" id="themebtn" title="Light / dark theme"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button>
+</header>
+<nav class="sidebar" id="sidebar"><div class="navhead"><a href="index.html">Contents</a></div><ol class="navlist"><li><a href="notation.html"><span class="navnum"></span>Notation</a></li><li><a href="ch1.html"><span class="navnum">1</span>Introduction</a></li><li><a href="ch2.html"><span class="navnum">2</span>Fundamentals of linear algebra</a></li><li><a href="ch3.html"><span class="navnum">3</span>The singular value decomposition</a></li><li><a href="ch4.html"><span class="navnum">4</span>Least squares</a></li><li><a href="ch5.html"><span class="navnum">5</span>Introduction to system identification</a></li><li><a href="ch6.html"><span class="navnum">6</span>Prediction-error methods for polynomial models</a></li><li class="cur"><a href="ch7.html"><span class="navnum">7</span>Towards subspace identification: the Ho–Kalman realization</a><ol class="navsec"><li><a href="#sec-hk-siso" data-sec="sec-hk-siso"><span class="navnum">7.1</span>The SISO case</a></li><li><a href="#sec-hk-mimo" data-sec="sec-hk-mimo"><span class="navnum">7.2</span>The MIMO case</a></li><li><a href="#sec-hk-noise" data-sec="sec-hk-noise"><span class="navnum">7.3</span>Noisy impulse responses: SVD truncation</a></li><li><a href="#sec-hk-general" data-sec="sec-hk-general"><span class="navnum">7.4</span>Ho&ndash;Kalman for general input sequences</a></li><li><a href="#s-7-5" data-sec="s-7-5"><span class="navnum">7.5</span>Exercises</a></li><li><a href="#s-7-6" data-sec="s-7-6"><span class="navnum">7.6</span>Implementation in MATLAB and Python</a></li></ol></li><li><a href="ch8.html"><span class="navnum">8</span>Subspace identification: the MOESP method</a></li><li><a href="appA.html"><span class="navnum">A</span>Discrete-time LTI systems in state space</a></li><li><a href="appB.html"><span class="navnum">B</span>Polynomial input–output models</a></li><li><a href="references.html"><span class="navnum"></span>Bibliography</a></li></ol></nav>
+<div class="scrim" id="scrim"></div>
+<main class="content" id="content">
+<article class="chapter">
+<h1 class="chap" id="top"><span class="chapnum">Chapter 7</span><span class="chaptitle">Towards subspace identification: the Ho&ndash;Kalman realization</span></h1>
+<p>We now move towards state-space models, i.e. methods that allow one to estimate LTI
+discrete-time state-space models directly from data. The first step is a classical
+<em>deterministic realization</em> methodology: the Ho&ndash;Kalman method, which produces an
+<em>exact</em> state-space model starting from a particular kind of input&ndash;output data,
+the impulse response (B.&nbsp;L.&nbsp;Ho and R.&nbsp;E.&nbsp;Kalman, &ldquo;Effective construction of linear
+state-variable models from input/output functions&rdquo;, 1966 [<a class="cite" href="references.html#bib-HoKalman" data-cite="HoKalman">9</a>]). Its SVD-based
+version, due to Kung [<a class="cite" href="references.html#bib-Kung" data-cite="Kung">10</a>], contains all the ideas of the subspace methods of
+Chapter&nbsp;<a class="xref" href="ch8.html" data-ref="ch:moesp">8</a>.</p>
+<p>The problem is: given \(N\) input&ndash;output samples \(\{u(k),y(k)\}_{k=0}^{N-1}\), find
+\(\{A,B,C,D\}\) for the system, up to a change of coordinates. What we are starting from is
+the <em>impulse response</em> of the system (a black-box LTI model, initially at rest,
+\(x(0)=0\), excited by \(u(k)=\delta(k)\)).</p>
+<h2 id="sec-hk-siso" class="sec"><span class="secnum">7.1</span> The SISO case</h2>
+<p>Let us start from the SISO case, \(p=q=1\):</p>
+<div class="eq">\[
+\left\{\begin{aligned}
+  x(k+1)&amp;=Ax(k)+Bu(k),\\ y(k)&amp;=Cx(k)+Du(k),
+\end{aligned}\right.\qquad x(k)\in\R^n,\ u(k)\in\R,\ y(k)\in\R .
+\]</div>
+<p>With \(u(k)=\delta(k)\) (\(\delta(0)=1\), \(\delta(k)=0\) otherwise) and \(x(0)=0\) the output is the
+impulse response</p>
+<div class="eq">\[
+  y(k)=w(k)=\begin{cases}D,&amp;k=0,\\ CA^{k-1}B,&amp;k&gt;0.\end{cases}
+\]</div>
+<p>The training dataset is \(\{\delta(k),w(k)\}_{k=0}^{N-1}\), and we want
+\(\{\delta(k),w(k)\}_{k=0}^{N-1}\mapsto\{A,B,C,D\}\) up to a change of coordinates. Obviously
+\(w(0)=D\), while \(w(k)=CA^{k-1}B\) for \(k&gt;0\) (the <em>Markov parameters</em>).</p>
+<p><strong class="runin">The Hankel matrix of the impulse response.</strong>  Arrange the Markov parameters in
+the <em>Hankel matrix</em> (constant along the anti-diagonals)</p>
+<div class="eq" id="eq-hankel">\[H_{s,\ell}=\bmat{w(1)&amp;w(2)&amp;\cdots&amp;w(\ell)\\ w(2)&amp;w(3)&amp;\cdots&amp;w(\ell+1)\\ \vdots&amp;\vdots&amp;\ddots&amp;\vdots\\ w(s)&amp;w(s+1)&amp;\cdots&amp;w(s+\ell-1)}
+  =\bmat{CB&amp;CAB&amp;\cdots&amp;CA^{\ell-1}B\\ CAB&amp;CA^2B&amp;\cdots&amp;CA^{\ell}B\\ \vdots&amp;\vdots&amp;&amp;\vdots\\ CA^{s-1}B&amp;CA^sB&amp;\cdots&amp;CA^{s+\ell-2}B}. \tag{7.1}\]</div>
+<p>Here \(s\) (number of rows) and \(\ell\) (number of columns) are two parameters that can be
+chosen by the user, with \(s+\ell-1\le N-1\) (i.e. \(s+\ell\le N\)) so that all the entries are
+available, but with the assumption that</p>
+<div class="eq">\[
+  s&gt;n,\qquad \ell\ge n,
+\]</div>
+<p>where \(n\) is the (unknown) order of the minimal system. (The strict inequality \(s&gt;n\) is
+needed for the computation of \(A\) below; choosing \(s=\ell\) gives a &ldquo;symmetric&rdquo; Hankel
+matrix and, with the balanced choice below, a balanced realization.) The fundamental
+observation is that the Hankel matrix <em>factorizes</em>:</p>
+<div class="eq" id="eq-hankel-fact">\[H_{s,\ell}=\underbrace{\bmat{C\\ CA\\ \vdots\\ CA^{s-1}}}_{\Obs_s}\cdot\underbrace{\bmat{B&amp;AB&amp;\cdots&amp;A^{\ell-1}B}}_{\Rch_\ell}, \tag{7.2}\]</div>
+<p>where \(\Obs_s\) is the <em>extended observability matrix</em> and \(\Rch_\ell\) the
+<em>extended reachability matrix</em>. If the system is minimal (reachable and observable)
+and \(s,\ell\ge n\), then \(\rank(\Obs_s)=n\) and \(\rank(\Rch_\ell)=n\) (Appendix&nbsp;<a class="xref" href="appA.html" data-ref="app:systems">A</a>).
+<em>Sylvester&rsquo;s inequality</em> for the rank of the product of two matrices
+(Lemma&nbsp;<a class="xref" href="ch2.html#lem-sylvester" data-ref="lem:sylvester">2.12</a>) gives, in our case,</p>
+<div class="eq">\begin{gather*}
+  \underbrace{\rank(\Obs_s)}_{n}+\underbrace{\rank(\Rch_\ell)}_{n}-n\;\le\;\rank(\underbrace{\Obs_s\Rch_\ell}_{H_{s,\ell}})\;\le\;\min\bigl(\underbrace{\rank(\Obs_s)}_{n},\underbrace{\rank(\Rch_\ell)}_{n}\bigr)\\
+  \implies\boxed{\rank(H_{s,\ell})=n .}
+\end{gather*}</div>
+<div class="box keybox"><p>The Hankel matrix of impulse-response samples has rank equal to the order of the minimal
+system (which produced the impulse response), and by Corollary&nbsp;<a class="xref" href="ch2.html#cor-sylv" data-ref="cor:sylv">2.13</a>
+\(\Im(H_{s,\ell})=\Im(\Obs_s)\).</p></div>
+<p><strong class="runin">Factorizing via the SVD.</strong>  Take the SVD of \(H_{s,\ell}\): since its rank is \(n\),</p>
+<div class="eq">\[
+  H_{s,\ell}=U\Sigma V\T=\bmat{U_n&amp;\bar U_n}\bmat{\Sigma_n&amp;0\\0&amp;0}\bmat{V_n\T\\ \bar V_n\T}=U_n\Sigma_nV_n\T ,
+\]</div>
+<p>with \(U_n\in\R^{s\times n}\), \(\Sigma_n\in\R^{n\times n}\), \(V_n\in\R^{\ell\times n}\) all of rank \(n\),
+and \(\Im(\Obs_s)=\Im(U_n)\) (because \(\rank(\Obs_s)=\rank(U_n)=n\)). The factorization
+<a class="xref" href="#eq-hankel-fact" data-ref="eq:hankel-fact">(7.2)</a> is not unique: for any nonsingular \(T\),</p>
+<div class="eq">\[
+  \Obs_sT=\bmat{CT\\ CT\,T^{-1}AT\\ CT\,(T^{-1}AT)^2\\ \vdots}=\bmat{C\\ CA\\ CA^2\\ \vdots}T,
+\]</div>
+<div class="eq">\[
+  T^{-1}\Rch_\ell=\bmat{T^{-1}B&amp;T^{-1}AT\,T^{-1}B&amp;\cdots}=T^{-1}\bmat{B&amp;AB&amp;\cdots&amp;A^{\ell-1}B}
+\]</div>
+<p>are the extended observability and reachability matrices of the equivalent system with
+matrices \(T^{-1}AT\), \(T^{-1}B\), \(CT\), \(D\), and \(H_{s,\ell}=(\Obs_sT)(T^{-1}\Rch_\ell)\). Now observe that</p>
+<div class="eq">\[
+  H_{s,\ell}=\Obs_s\Rch_\ell=\underbrace{U_n}_{\Obs_sT}\ \underbrace{\Sigma_nV_n\T}_{T^{-1}\Rch_\ell},
+  \qquad\text{but also, you may choose}\qquad
+  H_{s,\ell}=\underbrace{U_n\Sigma_n}_{\Obs_sT}\ \underbrace{V_n\T}_{T^{-1}\Rch_\ell},
+\]</div>
+<p>and every choice corresponds to a different state basis. A <em>balanced</em> choice is</p>
+<div class="eq" id="eq-balanced">\[H_{s,\ell}=\underbrace{U_n\Sigma_n^{1/2}}_{L\,=\,\Obs_sT}\cdot\underbrace{\Sigma_n^{1/2}V_n\T}_{P\,=\,T^{-1}\Rch_\ell},
+  \qquad \Sigma_n^{1/2}=\diag(\sqrt{\sigma_1},\dots,\sqrt{\sigma_n}). \tag{7.3}\]</div>
+<p><strong class="runin">Extracting the system matrices.</strong>  Since \(L=\Obs_s\) and \(P=\Rch_\ell\) (up to the
+same change of coordinates, which we now drop from the notation),</p>
+<div class="eq">\[
+  L=\bmat{C\\ CA\\ \vdots\\ CA^{s-1}},\qquad P=\bmat{B&amp;AB&amp;\cdots&amp;A^{\ell-1}B},
+\]</div>
+<p>so that \(C\) is the first row of \(L\) and \(B\) is the first column of \(P\):</p>
+<div class="eq">\[
+  C=L(1,:),\qquad B=P(:,1)
+\]</div>
+<p>(MATLAB notation: first row and all columns; all rows and first column).
+To understand how to extract \(A\), have a look at \(L\). For instance with \(s=3\),
+\(L=\bmat{C\\CA\\CA^2}\) and \(\bmat{C\\CA}A=\bmat{CA\\CA^2}\). In general, defining</p>
+<div class="eq">\[
+  L^{\up}=\bmat{C\\ CA\\ \vdots\\ CA^{s-2}}=L(1\!:\!s-1,:),\qquad
+  L^{\dn}=\bmat{CA\\ \vdots\\ CA^{s-1}}=L(2\!:\!s,:),
+\]</div>
+<p>(\(L\) without its last row, and without its first row) we have the <em>shift-invariance
+property</em></p>
+<div class="eq">\[
+  \boxed{L^{\up}A=L^{\dn}}\qquad\implies\qquad A=\bigl(L^{\up\mathsf T}L^{\up}\bigr)^{-1}L^{\up\mathsf T}L^{\dn}=(L^{\up})\pinvsym L^{\dn},
+\]</div>
+<p>where \(L^{\up}=\Obs_{s-1}\) has full column rank \(n\) because \(s-1\ge n\).</p>
+<div class="box algobox" id="alg-hk-siso"><div class="box-title">Algorithm 7.1: Ho&ndash;Kalman method, SISO (Kung&rsquo;s SVD-based version)</div><div class="box-body"><p><strong>Input:</strong> impulse response samples \(\{w(0),\dots,w(N-1)\}\); \(s,\ell\) with \(s&gt;n\),
+\(\ell\ge n\), \(s+\ell\le N\).</p>
+<ol><li><p>\(D=w(0)\).</p></li><li><p>Build the Hankel matrix \(H_{s,\ell}\) in <a class="xref" href="#eq-hankel" data-ref="eq:hankel">(7.1)</a>; from the theory
+      \(\rank(H_{s,\ell})=n\).</p></li><li><p>Compute the SVD \(H_{s,\ell}=U_n\Sigma_nV_n\T=U_n\Sigma_n^{1/2}\,\Sigma_n^{1/2}V_n\T\).</p></li><li><p>Define \(L=U_n\Sigma_n^{1/2}\) (\(=\Obs_s\) up to a change of coordinates) and
+      \(P=\Sigma_n^{1/2}V_n\T\) (\(=\Rch_\ell\) up to the same change of coordinates).</p></li><li><p>\(C=L(1,:)\), \(\;B=P(:,1)\), \(\;A=(L^{\up})\pinvsym L^{\dn}\) with \(L^{\up}=L(1\!:\!s-1,:)\),
+      \(L^{\dn}=L(2\!:\!s,:)\).</p></li></ol></div></div>
+<div class="box example" id="example-7-1"><div class="box-title">Example 7.1: a first-order system by hand</div><div class="box-body"><p>Let \(w(0)=0\) and \(w(k)=0.5^{k-1}\) for \(k\ge1\) (so \(D=0\)). With \(s=\ell=2\),
+\(H_{2,2}=\bmat{1&amp;0.5\\0.5&amp;0.25}\) has rank one (\(n=1\)), \(\sigma_1=1.25\) and
+\(u_1=v_1=\tfrac1{\sqrt5}(2,1)\T\). Then \(L=u_1\sqrt{\sigma_1}=(1,0.5)\T\),
+\(P=\sqrt{\sigma_1}v_1\T=(1,0.5)\), so \(C=1\), \(B=1\), and \(L^{\up}A=L^{\dn}\) reads \(1\cdot A=0.5\):
+\(A=0.5\). Indeed \(CA^{k-1}B=0.5^{k-1}\).</p></div></div>
+<h2 id="sec-hk-mimo" class="sec"><span class="secnum">7.2</span> The MIMO case</h2>
+<p>What about the MIMO case, with \(p\) inputs and \(q\) outputs? Now</p>
+<div class="eq">\[
+  W(k)=\bmat{w_{11}(k)&amp;\cdots&amp;w_{1p}(k)\\ \vdots&amp;&amp;\vdots\\ w_{q1}(k)&amp;\cdots&amp;w_{qp}(k)}\in\R^{q\times p},
+  \qquad W(k)=\begin{cases}D,&amp;k=0,\\ CA^{k-1}B,&amp;k&gt;0,\end{cases}
+\]</div>
+<p>where \(w_{ij}(k)\) is the impulse response observed on the \(i\)-th output for an input whose
+\(j\)-th component is \(\delta(k)\) and all the others are zero (so \(p\) impulse experiments, or
+one experiment per input channel, are needed). Then \(D=W(0)\) and the <em>block Hankel
+matrix</em></p>
+<div class="eq">\[
+  H_{s,\ell}=\bmat{W(1)&amp;W(2)&amp;\cdots&amp;W(\ell)\\ \vdots&amp;\vdots&amp;&amp;\vdots\\ W(s)&amp;W(s+1)&amp;\cdots&amp;W(s+\ell-1)}\in\R^{sq\times\ell p}
+\]</div>
+<p>still factorizes as</p>
+<div class="eq">\[
+  H_{s,\ell}=\underbrace{\bmat{C\\ CA\\ \vdots\\ CA^{s-1}}}_{\Obs_s\in\R^{sq\times n},\ \rank n}\cdot
+  \underbrace{\bmat{B&amp;AB&amp;\cdots&amp;A^{\ell-1}B}}_{\Rch_\ell\in\R^{n\times\ell p},\ \rank n},
+\]</div>
+<p>and Sylvester&rsquo;s inequality still applies with no change: \(\rank(H_{s,\ell})=n\). The
+matrices \(L\) and \(P\) now have a block structure:</p>
+<div class="eq">\[
+  L=\bmat{C\\ CA\\ \vdots\\ CA^{s-1}}\!\!\begin{array}{l}\}\,q\text{ rows}\\ \}\,q\text{ rows}\\ \\ \}\,q\text{ rows}\end{array}\in\R^{sq\times n},
+  \qquad
+  P=\bigl[\underbrace{B}_{p\text{ col.}}\ \underbrace{AB}_{p\text{ col.}}\ \cdots\ \underbrace{A^{\ell-1}B}_{p\text{ col.}}\bigr]\in\R^{n\times\ell p},
+\]</div>
+<p>so \(C\) is the first <em>block</em> row of \(L\) (\(q\) rows), \(B\) the first block column of \(P\)
+(\(p\) columns), and the shift invariance acts on block rows. The SISO algorithm is the special
+case \(p=q=1\) of the following one.</p>
+<div class="box algobox" id="alg-hk-mimo"><div class="box-title">Algorithm 7.2: Ho&ndash;Kalman method, MIMO (general case)</div><div class="box-body"><p><strong>Input:</strong> Markov parameters \(\{W(0),\dots,W(N-1)\}\), \(W(k)\in\R^{q\times p}\); \(s&gt;n\),
+\(\ell\ge n\), \(s+\ell\le N\).</p>
+<ol><li><p>\(D=W(0)\).</p></li><li><p>Build the block Hankel matrix \(H_{s,\ell}\in\R^{sq\times\ell p}\) and compute its SVD
+      \(H_{s,\ell}=U_n\Sigma_n^{1/2}\,\Sigma_n^{1/2}V_n\T\) (inspect the singular values to choose \(n\)).</p></li><li><p>\(L=U_n\Sigma_n^{1/2}\) (\(=\Obs_sT\)), \(\;P=\Sigma_n^{1/2}V_n\T\) (\(=T^{-1}\Rch_\ell\)).</p></li><li><p>\(C=L(1\!:\!q,:)\), \(\;B=P(:,1\!:\!p)\).</p></li><li><p>\(A=(L^{\up})\pinvsym L^{\dn}\), with \(L^{\up}=L(1\!:\!(s-1)q,:)\) and \(L^{\dn}=L(q+1\!:\!sq,:)\),
+      from \(\bmat{C\\ \vdots\\ CA^{s-2}}A=\bmat{CA\\ \vdots\\ CA^{s-1}}\).</p></li></ol></div></div>
+<div class="thm thm-remark" id="remark-7-1"><p><span class="thm-head"><span class="thm-name">Remark 7.1</span>.</span> In the MIMO case the conditions \(s&gt;n\), \(\ell\ge n\) are sufficient but not necessary: it is
+enough that \(\Obs_{s-1}\) and \(\Rch_\ell\) have rank \(n\), i.e. that \(s-1\) and \(\ell\) are at least
+the observability and reachability indices of the system, which can be much smaller than
+\(n\) when \(q,p&gt;1\).</p></div>
+<h2 id="sec-hk-noise" class="sec"><span class="secnum">7.3</span> Noisy impulse responses: SVD truncation</h2>
+<p>Little tweaks to the standard Ho&ndash;Kalman method make it usable with real data. If the
+samples \(w(0),\dots,w(N-1)\) are (slightly) affected by errors, \(D=w(0)\) will contain some error, and
+you cannot be sure that \(\rank(H_{s,\ell})=n\): in general the noisy Hankel matrix has full
+rank. Still, since we have to work on \(H_{s,\ell}\) using the SVD, we <em>inspect the
+singular values</em> of \(H_{s,\ell}\) and try to estimate what the most likely order of the true
+system is (Section&nbsp;<a class="xref" href="ch3.html#sec-numrank" data-ref="sec:numrank">3.4</a>). If, say, \(\sigma_1,\dots,\sigma_5\) are large and
+\(\sigma_6\approx\sigma_7\approx\cdots\approx0\), you can assume that you are not going to have
+huge errors estimating a fifth-order model: truncate the SVD to \(n=5\) and proceed with the
+algorithm. By Theorem&nbsp;<a class="xref" href="ch3.html#thm-eym" data-ref="thm:eym">3.2</a>, \(U_n\Sigma_nV_n\T\) is the best rank-\(n\) approximation of the
+noisy Hankel matrix. (It is no longer exactly Hankel, which is why the realization is only
+approximate.)</p>
+<div class="box example" id="ex-hk-noisy"><div class="box-title">Example 7.2: Ho&ndash;Kalman on a noisy impulse response</div><div class="box-body"><p>Consider the fourth-order SISO system</p>
+<div class="eq">\[
+A=\bmat{1.2&amp;-0.61&amp;0&amp;0\\1&amp;0&amp;0&amp;0\\0&amp;0&amp;0.9&amp;0\\0&amp;0&amp;0&amp;-0.5},\quad
+B=\bmat{1\\0\\1\\0.4},\quad C=\bmat{1&amp;0.5&amp;0.3&amp;1},\quad D=0,
+\]</div>
+<p>with poles \(0.6\pm0.5j\), \(0.9\), \(-0.5\). The first \(60\) Markov parameters are corrupted by
+white noise with standard deviation \(0.02\), and \(H_{25,25}\) is built. The singular values
+(Figure&nbsp;<a class="xref" href="#fig-hk" data-ref="fig:hk">7.1</a>a) show four dominant values \(4.62,1.92,0.95,0.33\) followed by a floor
+starting at \(0.17\): the order \(n=4\) is clearly detected. The estimated poles are
+\(0.599\pm0.502j\), \(0.898\) and \(-0.383\): the first three are very accurate, while the pole in
+\(-0.5\) is poorly estimated, because its contribution to the Hankel matrix
+(\(\sigma_4=0.35\) in the noise-free case) is only twice the noise floor. The identified
+impulse response (Figure&nbsp;<a class="xref" href="#fig-hk" data-ref="fig:hk">7.1</a>b) nevertheless reproduces the true one well: a mode that
+contributes little to the data is hard to estimate, but also matters little for the
+input&ndash;output behaviour.</p></div></div>
+<figure class="fig" id="fig-hk"><div class="fig-img"><img src="figures/fig-hk.svg" alt="Figure 7.1" loading="lazy" style="width:683px"></div><figcaption><span class="fig-name">Figure 7.1:</span> Ho&ndash;Kalman realization from a noisy impulse response (Example&nbsp;<a class="xref" href="#ex-hk-noisy" data-ref="ex:hk-noisy">7.2</a>).
+(a) The exact Hankel matrix has exactly four non-zero singular values (circles; the others,
+of the order of \(10^{-16}\), are rounding errors and lie far below the displayed range). With
+noise (squares; the two series are slightly shifted horizontally because the first four
+values almost coincide) a floor appears from \(i=5\) on, but the gap still reveals \(n=4\).
+(b) The identified model reproduces the true impulse response.</figcaption></figure>
+<div class="widget" id="w-hokalman" data-widget="hokalman"></div>
+<p><strong class="runin">A first simple way to do model reduction.</strong>  Also notice that this methodology can
+be seen as a first simple way to do <em>model reduction</em>. Start from a system with some
+large \(n\): just apply the Ho&ndash;Kalman method for some \(\tilde n&lt;n\), and you will end up with
+an approximated \(\tilde n\)-th order system. For the system of Example&nbsp;<a class="xref" href="#ex-hk-noisy" data-ref="ex:hk-noisy">7.2</a> (exact data),
+the reduced models of order \(3\) and \(2\) keep the dominant poles (\(0.63\pm0.50j\), \(0.84\) and
+\(0.61\pm0.42j\) respectively) and have relative impulse-response errors of \(9.4\%\) and \(18.8\%\).
+With the balanced choice <a class="xref" href="#eq-balanced" data-ref="eq:balanced">(7.3)</a> this procedure is closely related to
+<em>balanced truncation</em> (see the advanced topic).</p>
+<h2 id="sec-hk-general" class="sec"><span class="secnum">7.4</span> Ho&ndash;Kalman for general input sequences</h2>
+<p>Can the Ho&ndash;Kalman method be applied for general input sequences? For SISO systems with
+\(x(0)=0\) the output is the convolution</p>
+<div class="eq">\[
+  y(k)=\sum_{\tau=0}^kw(k-\tau)u(\tau),
+\]</div>
+<p>in which the basic Ho&ndash;Kalman method requires the \(w(k)\), whereas we want to use a general
+input \(u(\tau)\). Can we <em>deconvolve</em> this expression, i.e. \(\{u(k),y(k)\}_{k=0}^{N-1}\mapsto\{w(k)\}_{k=0}^{N-1}\mapsto\{A,B,C,D\}\)? Writing</p>
+<div class="eq">\[
+  y(0)=w(0)u(0),\quad y(1)=w(1)u(0)+w(0)u(1),\quad y(2)=w(2)u(0)+w(1)u(1)+w(0)u(2),\ \dots
+\]</div>
+<p>we get a lower-triangular Toeplitz system</p>
+<div class="eq">\[
+  \underbrace{\bmat{y(0)\\ y(1)\\ \vdots\\ y(N-1)}}_{Y_{0,N}}=
+  \underbrace{\bmat{u(0)&amp;0&amp;\cdots&amp;0\\ u(1)&amp;u(0)&amp;\cdots&amp;0\\ \vdots&amp;&amp;\ddots&amp;\vdots\\ u(N-1)&amp;u(N-2)&amp;\cdots&amp;u(0)}}_{\mathcal T_u}
+  \underbrace{\bmat{w(0)\\ w(1)\\ \vdots\\ w(N-1)}}_{W_{0,N}\ (\text{unknown})}
+  \quad\implies\quad W_{0,N}=\mathcal T_u^{-1}Y_{0,N},
+\]</div>
+<p>which is solvable whenever \(u(0)\neq0\) (then \(\det\mathcal T_u=u(0)^N\neq0\)). Now that you have
+\(\{w(0),\dots,w(N-1)\}\), which are needed to run the Ho&ndash;Kalman algorithm&hellip; just run it!
+(The notes denote \(\mathcal T_u\) by \(U_{0,N,N}\) and use \((\cdot)\pinvsym\); for a square
+nonsingular matrix the two coincide.)</p>
+<p>For MIMO systems, \(y(k)=\sum_\tau W(k-\tau)u(\tau)\) and the same least-squares approach
+applies to the unknowns \([W(0)\;W(1)\;\cdots\;W(M-1)]\in\R^{q\times Mp}\), the regressor at time
+\(k\) being \([u\T(k)\;u\T(k-1)\;\cdots\;u\T(k-M+1)]\T\).</p>
+<p><strong class="runin">Things that can be &ldquo;discussed&rdquo;.</strong></p>
+<ul><li><p>You start from a particular kind of input&ndash;output data (the impulse response), or
+      you have to estimate it first.</p></li><li><p>You are not accounting for errors (this can be somehow improved by SVD truncation,
+      but there is no noise model and no statistical guarantee).</p></li></ul>
+<p>The MOESP method of Chapter&nbsp;<a class="xref" href="ch8.html" data-ref="ch:moesp">8</a> is the modern revisitation and extension of the
+original approach of Ho and Kalman (and Kung) that addresses these points.</p>
+<h2 id="s-7-5" class="sec"><span class="secnum">7.5</span> Exercises</h2>
+<div class="exercise" id="exercise-7-1"><p><span class="thm-head"><span class="ex-name">Exercise 7.1</span>.</span> Compute by hand the Ho&ndash;Kalman realization from \(w(0)=1\), \(w(k)=(-0.8)^{k-1}\), \(k\ge1\), with
+\(s=\ell=2\). Verify that \(W(z)=1+\frac1{z+0.8}\).</p><div class="ex-links"><a class="ex-link" href="#w-hokalman:ex1">Load in the Ho–Kalman lab</a></div></div>
+<div class="exercise" id="exercise-7-2"><p><span class="thm-head"><span class="ex-name">Exercise 7.2</span>.</span> Consider \(w(k)=1\) for all \(k\ge1\) and \(w(0)=0\) (a discrete-time integrator). What is the
+rank of \(H_{s,\ell}\)? Is the realization stable? Is this compatible with the assumption
+\(w(k)\to0\) used in Section&nbsp;<a class="xref" href="#sec-hk-general" data-ref="sec:hk-general">7.4</a>?</p><div class="ex-links"><a class="ex-link" href="#w-hokalman:ex2">Load the integrator</a></div></div>
+<div class="exercise" id="exercise-7-3"><p><span class="thm-head"><span class="ex-name">Exercise 7.3</span>.</span> Show that with the balanced choice <a class="xref" href="#eq-balanced" data-ref="eq:balanced">(7.3)</a> and \(s=\ell\) one has
+\(L\T L=PP\T=\Sigma_n\). Interpret this in terms of finite-horizon observability and
+reachability Gramians.</p></div>
+<div class="exercise" id="exercise-7-4"><p><span class="thm-head"><span class="ex-name">Exercise 7.4</span>.</span> Starting from the \(2\times2\) MIMO system used in the test of <code>hokalman.m</code>
+(\(A=\bmat{0.8&amp;0.2&amp;0\\-0.2&amp;0.8&amp;0\\0&amp;0&amp;0.5}\), \(B=\bmat{1&amp;0\\0&amp;1\\1&amp;1}\),
+\(C=\bmat{1&amp;0&amp;1\\0&amp;1&amp;-1}\), \(D=\bmat{0&amp;0.5\\0&amp;0}\)), find the smallest \(s=\ell\) for which the
+algorithm recovers the exact eigenvalues, and explain the result with the observability and
+reachability indices.</p><div class="ex-links"><a class="ex-link" href="#w-hokalman:mimo">Load the MIMO system</a></div></div>
+<div class="exercise" id="exercise-7-5"><p><span class="thm-head"><span class="ex-name">Exercise 7.5</span>.</span> Implement the least-squares FIR estimation of the Markov parameters for a MIMO system and
+combine it with <code>hokalman</code>. Study the accuracy of the estimated poles as a function
+of \(M\), \(N\) and of the noise level.</p></div>
+<h2 id="s-7-6" class="sec"><span class="secnum">7.6</span> Implementation in MATLAB and Python</h2>
+<p>The MATLAB function below implements Algorithm&nbsp;<a class="xref" href="#alg-hk-mimo" data-ref="alg:hk-mimo">7.2</a> (the SISO case is obtained with
+<code>W</code> of size \(1\times1\times M\)).</p>
+<div class="code" data-lang="matlab"><div class="code-head"><span class="code-lang">MATLAB</span><span class="code-title">hokalman.m</span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button><a class="code-btn" href="code/matlab/hokalman.m" download>Download</a></span></div><pre><code class="hl"><span class="k">function</span><span class="w"> </span><span class="p">[</span>A, B, C, D, sv<span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nf">hokalman</span><span class="p">(</span>W, s, l, n<span class="p">)</span>
+<span class="c">%HOKALMAN  Ho-Kalman (Kung's SVD-based) realization from Markov parameters.</span>
+<span class="c">%   [A,B,C,D,sv] = hokalman(W, s, l, n)</span>
+<span class="c">%   W  : q-by-p-by-M array, W(:,:,k+1) = impulse response matrix w(k), k = 0..M-1</span>
+<span class="c">%   s,l: number of block rows / block columns of the Hankel matrix</span>
+<span class="c">%        (s, l &gt; n  and  s + l &lt;= M)</span>
+<span class="c">%   n  : order of the realization (choose it by inspecting sv if unknown)</span>
+<span class="c">%   sv : singular values of the block Hankel matrix H_{s,l}</span>
+<span class="p">[</span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">M</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">size</span><span class="p">(</span><span class="n">W</span><span class="p">);</span>
+<span class="k">if</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">M</span>
+<span class="w">    </span><span class="nb">error</span><span class="p">(</span><span class="s">'hokalman: need s + l &lt;= number of Markov parameters'</span><span class="p">);</span>
+<span class="k">end</span>
+<span class="n">D</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">W</span><span class="p">(:,</span><span class="w"> </span><span class="p">:,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w">                         </span><span class="c">% w(0) = D</span>
+<span class="n">H</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">zeros</span><span class="p">(</span><span class="n">s</span><span class="o">*</span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="o">*</span><span class="n">p</span><span class="p">);</span><span class="w">                    </span><span class="c">% block Hankel matrix of w(1),...,w(s+l-1)</span>
+<span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">s</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nb">j</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">l</span>
+<span class="w">        </span><span class="n">H</span><span class="p">((</span><span class="nb">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">q</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="nb">i</span><span class="o">*</span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nb">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="nb">j</span><span class="o">*</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">W</span><span class="p">(:,</span><span class="w"> </span><span class="p">:,</span><span class="w"> </span><span class="nb">i</span><span class="o">+</span><span class="nb">j</span><span class="p">);</span><span class="w">   </span><span class="c">% block (i,j) = w(i+j-1)</span>
+<span class="w">    </span><span class="k">end</span>
+<span class="k">end</span>
+<span class="p">[</span><span class="n">U</span><span class="p">,</span><span class="w"> </span><span class="n">S</span><span class="p">,</span><span class="w"> </span><span class="n">V</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">svd</span><span class="p">(</span><span class="n">H</span><span class="p">);</span>
+<span class="n">sv</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">diag</span><span class="p">(</span><span class="n">S</span><span class="p">);</span>
+<span class="n">Un</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">U</span><span class="p">(:,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">n</span><span class="p">);</span><span class="w">  </span><span class="n">Sn</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">S</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">n</span><span class="p">);</span><span class="w">  </span><span class="n">Vn</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">V</span><span class="p">(:,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">n</span><span class="p">);</span>
+<span class="n">L</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">Un</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">sqrt</span><span class="p">(</span><span class="n">Sn</span><span class="p">);</span><span class="w">                      </span><span class="c">% = O_s T       (extended observability)</span>
+<span class="n">P</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">sqrt</span><span class="p">(</span><span class="n">Sn</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">Vn</span><span class="o">'</span><span class="p">;</span><span class="w">                     </span><span class="c">% = T^{-1} C_l  (extended reachability)</span>
+<span class="n">C</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">L</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="p">:);</span><span class="w">                          </span><span class="c">% first block row</span>
+<span class="n">B</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">P</span><span class="p">(:,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">p</span><span class="p">);</span><span class="w">                          </span><span class="c">% first block column</span>
+<span class="n">Lup</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="n">L</span><span class="p">(</span><span class="mi">1</span><span class="p">:(</span><span class="n">s</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="p">:);</span><span class="w">                </span><span class="c">% L without its last block row</span>
+<span class="n">Ldown</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">L</span><span class="p">(</span><span class="n">q</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">s</span><span class="o">*</span><span class="n">q</span><span class="p">,</span><span class="w"> </span><span class="p">:);</span><span class="w">                  </span><span class="c">% L without its first block row</span>
+<span class="n">A</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">pinv</span><span class="p">(</span><span class="n">Lup</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">Ldown</span><span class="p">;</span><span class="w">                  </span><span class="c">% shift invariance: Lup*A = Ldown</span>
+<span class="k">end</span>
+</code></pre><textarea class="code-src" hidden>function [A, B, C, D, sv] = hokalman(W, s, l, n)
+%HOKALMAN  Ho-Kalman (Kung's SVD-based) realization from Markov parameters.
+%   [A,B,C,D,sv] = hokalman(W, s, l, n)
+%   W  : q-by-p-by-M array, W(:,:,k+1) = impulse response matrix w(k), k = 0..M-1
+%   s,l: number of block rows / block columns of the Hankel matrix
+%        (s, l &gt; n  and  s + l &lt;= M)
+%   n  : order of the realization (choose it by inspecting sv if unknown)
+%   sv : singular values of the block Hankel matrix H_{s,l}
+[q, p, M] = size(W);
+if s + l &gt; M
+    error('hokalman: need s + l &lt;= number of Markov parameters');
+end
+D = W(:, :, 1);                         % w(0) = D
+H = zeros(s*q, l*p);                    % block Hankel matrix of w(1),...,w(s+l-1)
+for i = 1:s
+    for j = 1:l
+        H((i-1)*q+1:i*q, (j-1)*p+1:j*p) = W(:, :, i+j);   % block (i,j) = w(i+j-1)
+    end
+end
+[U, S, V] = svd(H);
+sv = diag(S);
+Un = U(:, 1:n);  Sn = S(1:n, 1:n);  Vn = V(:, 1:n);
+L = Un * sqrt(Sn);                      % = O_s T       (extended observability)
+P = sqrt(Sn) * Vn';                     % = T^{-1} C_l  (extended reachability)
+C = L(1:q, :);                          % first block row
+B = P(:, 1:p);                          % first block column
+Lup   = L(1:(s-1)*q, :);                % L without its last block row
+Ldown = L(q+1:s*q, :);                  % L without its first block row
+A = pinv(Lup) * Ldown;                  % shift invariance: Lup*A = Ldown
+end</textarea></div>
+<p>The demo script reproduces Example&nbsp;<a class="xref" href="#ex-hk-noisy" data-ref="ex:hk-noisy">7.2</a>, the model-reduction experiment and the two
+approaches to general inputs.</p>
+<div class="code" data-lang="matlab"><div class="code-head"><span class="code-lang">MATLAB</span><span class="code-title">ch7_hokalman_demo.m</span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button><a class="code-btn" href="code/matlab/ch7_hokalman_demo.m" download>Download</a></span></div><pre><code class="hl"><span class="c">%% Chapter 7 - Ho-Kalman realization from (noisy) impulse response samples</span>
+<span class="n">A0</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mf">1.2</span><span class="w"> </span><span class="o">-</span><span class="mf">0.61</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">1</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0</span><span class="p">;</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0.9</span><span class="w"> </span><span class="s">0</span><span class="p">;</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="o">-</span><span class="mf">0.5</span><span class="p">];</span>
+<span class="n">B0</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="mf">0.4</span><span class="p">];</span><span class="w">  </span><span class="n">C0</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mf">0.5</span><span class="w"> </span><span class="mf">0.3</span><span class="w"> </span><span class="mi">1</span><span class="p">];</span><span class="w">  </span><span class="n">D0</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="n">M</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">60</span><span class="p">;</span><span class="w">  </span><span class="n">W</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">M</span><span class="p">);</span><span class="w">  </span><span class="n">W</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">D0</span><span class="p">;</span>
+<span class="k">for</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">M</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">W</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">C0</span><span class="o">*</span><span class="n">A0</span><span class="o">^</span><span class="p">(</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">B0</span><span class="p">;</span><span class="w"> </span><span class="k">end</span>
+<span class="nb">randn</span><span class="p">(</span><span class="s">'seed'</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span>
+<span class="n">Wn</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">W</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">0.02</span><span class="o">*</span><span class="nb">randn</span><span class="p">(</span><span class="nb">size</span><span class="p">(</span><span class="n">W</span><span class="p">));</span><span class="w">            </span><span class="c">% noisy Markov parameters</span>
+<span class="n">s</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">25</span><span class="p">;</span><span class="w">  </span><span class="n">l</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">25</span><span class="p">;</span>
+<span class="p">[</span><span class="o">~</span><span class="p">,</span><span class="w"> </span><span class="o">~</span><span class="p">,</span><span class="w"> </span><span class="o">~</span><span class="p">,</span><span class="w"> </span><span class="o">~</span><span class="p">,</span><span class="w"> </span><span class="n">sv</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">hokalman</span><span class="p">(</span><span class="n">Wn</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">);</span>
+<span class="nb">semilogy</span><span class="p">(</span><span class="n">sv</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">15</span><span class="p">),</span><span class="w"> </span><span class="s">'o'</span><span class="p">);</span><span class="w">  </span><span class="n">grid</span><span class="w"> </span><span class="s">on</span><span class="p">;</span><span class="w">       </span><span class="c">% inspect the singular values -&gt; n = 4</span>
+<span class="p">[</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">D</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">hokalman</span><span class="p">(</span><span class="n">Wn</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">);</span>
+<span class="nb">disp</span><span class="p">([</span><span class="nb">sort</span><span class="p">(</span><span class="nb">eig</span><span class="p">(</span><span class="n">A0</span><span class="p">))</span><span class="w"> </span><span class="nb">sort</span><span class="p">(</span><span class="nb">eig</span><span class="p">(</span><span class="n">A</span><span class="p">))])</span><span class="w">       </span><span class="c">% true vs estimated poles</span>
+
+<span class="c">%% Model reduction: realizations of lower order from the exact data</span>
+<span class="k">for</span><span class="w"> </span><span class="n">nr</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">2</span><span class="p">:</span><span class="mi">3</span>
+<span class="w">    </span><span class="p">[</span><span class="n">Ar</span><span class="p">,</span><span class="w"> </span><span class="n">Br</span><span class="p">,</span><span class="w"> </span><span class="n">Cr</span><span class="p">,</span><span class="w"> </span><span class="n">Dr</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">hokalman</span><span class="p">(</span><span class="n">W</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">nr</span><span class="p">);</span>
+<span class="w">    </span><span class="nb">disp</span><span class="p">(</span><span class="nb">eig</span><span class="p">(</span><span class="n">Ar</span><span class="p">).</span><span class="o">'</span><span class="p">)</span>
+<span class="k">end</span>
+
+<span class="c">%% General input: recover the Markov parameters from input-output data</span>
+<span class="c">% (a) exact deconvolution with the square lower-triangular Toeplitz matrix</span>
+<span class="c">%     (x(0) = 0, u(0) ~= 0): correct in exact arithmetic, but T can be</span>
+<span class="c">%     extremely ill-conditioned -&gt; use it only for short records</span>
+<span class="n">N</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">15</span><span class="p">;</span><span class="w">  </span><span class="n">u</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">randn</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w">  </span><span class="n">u</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="n">y</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">simss</span><span class="p">(</span><span class="n">A0</span><span class="p">,</span><span class="w"> </span><span class="n">B0</span><span class="p">,</span><span class="w"> </span><span class="n">C0</span><span class="p">,</span><span class="w"> </span><span class="n">D0</span><span class="p">,</span><span class="w"> </span><span class="n">u</span><span class="p">);</span>
+<span class="n">T</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">toeplitz</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">u</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="nb">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">)]);</span><span class="w">   </span><span class="c">% U_{0,N,N}</span>
+<span class="n">w</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="o">\</span><span class="w"> </span><span class="n">y</span><span class="p">;</span>
+<span class="nb">fprintf</span><span class="p">(</span><span class="s">'cond(T) = %.2e, max error = %.2e\n'</span><span class="p">,</span><span class="w"> </span><span class="nb">cond</span><span class="p">(</span><span class="n">T</span><span class="p">),</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">w</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">squeeze</span><span class="p">(</span><span class="n">W</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">N</span><span class="p">)))));</span>
+<span class="c">% (b) least-squares FIR estimate of the first Mw Markov parameters from a</span>
+<span class="c">%     long, noisy record (w(k) ~ 0 for k &gt;= Mw because the system is stable)</span>
+<span class="n">N</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span><span class="w">  </span><span class="n">Mw</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">60</span><span class="p">;</span><span class="w">  </span><span class="n">u</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">randn</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="n">y</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">simss</span><span class="p">(</span><span class="n">A0</span><span class="p">,</span><span class="w"> </span><span class="n">B0</span><span class="p">,</span><span class="w"> </span><span class="n">C0</span><span class="p">,</span><span class="w"> </span><span class="n">D0</span><span class="p">,</span><span class="w"> </span><span class="n">u</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">0.05</span><span class="o">*</span><span class="nb">randn</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="n">T</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">toeplitz</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">u</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="nb">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">Mw</span><span class="o">-</span><span class="mi">1</span><span class="p">)]);</span><span class="w">  </span><span class="c">% tall N x Mw Toeplitz matrix</span>
+<span class="n">w</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="o">\</span><span class="w"> </span><span class="n">y</span><span class="p">;</span><span class="w">                               </span><span class="c">% LS estimate of w(0..Mw-1)</span>
+<span class="nb">fprintf</span><span class="p">(</span><span class="s">'cond(T) = %.2f, max error = %.3f\n'</span><span class="p">,</span><span class="w"> </span><span class="nb">cond</span><span class="p">(</span><span class="n">T</span><span class="p">),</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">w</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">squeeze</span><span class="p">(</span><span class="n">W</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">Mw</span><span class="p">)))));</span>
+<span class="n">Wls</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">reshape</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">Mw</span><span class="p">);</span>
+<span class="p">[</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">D</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">hokalman</span><span class="p">(</span><span class="n">Wls</span><span class="p">,</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">);</span>
+<span class="nb">disp</span><span class="p">(</span><span class="nb">eig</span><span class="p">(</span><span class="n">A</span><span class="p">).</span><span class="o">'</span><span class="p">)</span>
+</code></pre><textarea class="code-src" hidden>%% Chapter 7 - Ho-Kalman realization from (noisy) impulse response samples
+A0 = [1.2 -0.61 0 0; 1 0 0 0; 0 0 0.9 0; 0 0 0 -0.5];
+B0 = [1; 0; 1; 0.4];  C0 = [1 0.5 0.3 1];  D0 = 0;
+M = 60;  W = zeros(1, 1, M);  W(1) = D0;
+for k = 1:M-1, W(k+1) = C0*A0^(k-1)*B0; end
+randn('seed', 2);
+Wn = W + 0.02*randn(size(W));            % noisy Markov parameters
+s = 25;  l = 25;
+[~, ~, ~, ~, sv] = hokalman(Wn, s, l, 4);
+semilogy(sv(1:15), 'o');  grid on;       % inspect the singular values -&gt; n = 4
+[A, B, C, D] = hokalman(Wn, s, l, 4);
+disp([sort(eig(A0)) sort(eig(A))])       % true vs estimated poles
+
+%% Model reduction: realizations of lower order from the exact data
+for nr = 2:3
+    [Ar, Br, Cr, Dr] = hokalman(W, s, l, nr);
+    disp(eig(Ar).')
+end
+
+%% General input: recover the Markov parameters from input-output data
+% (a) exact deconvolution with the square lower-triangular Toeplitz matrix
+%     (x(0) = 0, u(0) ~= 0): correct in exact arithmetic, but T can be
+%     extremely ill-conditioned -&gt; use it only for short records
+N = 15;  u = randn(N, 1);  u(1) = 1;
+y = simss(A0, B0, C0, D0, u);
+T = toeplitz(u, [u(1) zeros(1, N-1)]);   % U_{0,N,N}
+w = T \ y;
+fprintf('cond(T) = %.2e, max error = %.2e\n', cond(T), max(abs(w - squeeze(W(1:N)))));
+% (b) least-squares FIR estimate of the first Mw Markov parameters from a
+%     long, noisy record (w(k) ~ 0 for k &gt;= Mw because the system is stable)
+N = 1000;  Mw = 60;  u = randn(N, 1);
+y = simss(A0, B0, C0, D0, u) + 0.05*randn(N, 1);
+T = toeplitz(u, [u(1) zeros(1, Mw-1)]);  % tall N x Mw Toeplitz matrix
+w = T \ y;                               % LS estimate of w(0..Mw-1)
+fprintf('cond(T) = %.2f, max error = %.3f\n', cond(T), max(abs(w - squeeze(W(1:Mw)))));
+Wls = reshape(w, 1, 1, Mw);
+[A, B, C, D] = hokalman(Wls, 25, 25, 4);
+disp(eig(A).')</textarea></div>
+<p>With the Control System Toolbox, <code>impulse(ss(A,B,C,D,1))</code> produces the Markov
+parameters and <code>balred</code>/<code>balreal</code> perform balanced truncation; the System
+Identification Toolbox function <code>impulseest</code> estimates the impulse response from
+general data (a regularized FIR estimate). In Python, <code>sysid.py</code> contains
+<code>markov_parameters</code>, <code>hokalman</code>, <code>deconvolve_markov</code> and <code>fir_ls</code>:</p>
+<div class="code" data-lang="python"><div class="code-head"><span class="code-lang">Python</span><span class="code-title"></span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button></span></div><pre><code class="hl"><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sysid</span><span class="w"> </span><span class="kn">import</span> <span class="n">markov_parameters</span><span class="p">,</span> <span class="n">hokalman</span><span class="p">,</span> <span class="n">fir_ls</span><span class="p">,</span> <span class="n">simulate_ss</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.2</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.61</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">]])</span>
+<span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">]]);</span> <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]);</span> <span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">W</span> <span class="o">=</span> <span class="n">markov_parameters</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>                 <span class="c1"># shape (60, q, p)</span>
+<span class="n">W</span> <span class="o">=</span> <span class="n">W</span> <span class="o">+</span> <span class="mf">0.02</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="n">W</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">Ah</span><span class="p">,</span> <span class="n">Bh</span><span class="p">,</span> <span class="n">Ch</span><span class="p">,</span> <span class="n">Dh</span><span class="p">,</span> <span class="n">sv</span> <span class="o">=</span> <span class="n">hokalman</span><span class="p">(</span><span class="n">W</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sv</span><span class="p">[:</span><span class="mi">8</span><span class="p">]);</span> <span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvals</span><span class="p">(</span><span class="n">Ah</span><span class="p">))</span>
+<span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>    <span class="c1"># general input: FIR-LS first</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">simulate_ss</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">u</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">w</span> <span class="o">=</span> <span class="n">fir_ls</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+<span class="n">Ah2</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">hokalman</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+</code></pre><textarea class="code-src" hidden>import numpy as np
+from sysid import markov_parameters, hokalman, fir_ls, simulate_ss
+A = np.array([[1.2, -0.61, 0, 0], [1, 0, 0, 0], [0, 0, 0.9, 0], [0, 0, 0, -0.5]])
+B = np.array([[1.], [0], [1], [0.4]]); C = np.array([[1., 0.5, 0.3, 1]]); D = np.zeros((1, 1))
+W = markov_parameters(A, B, C, D, 60)                 # shape (60, q, p)
+W = W + 0.02*np.random.default_rng(2).standard_normal(W.shape)
+Ah, Bh, Ch, Dh, sv = hokalman(W, 25, 25, n=4)
+print(sv[:8]); print(np.linalg.eigvals(Ah))
+u = np.random.default_rng(1).standard_normal(1000)    # general input: FIR-LS first
+y = simulate_ss(A, B, C, D, u)[:, 0]
+w = fir_ls(u, y, 60)
+Ah2, *_ = hokalman(w.reshape(60, 1, 1), 25, 25, 4)</textarea></div>
+<details class="box advanced"><summary><span class="adv-label">Further Study:</span> balanced realizations, Hankel singular values and ERA</summary><div class="box-body"><p><em>Kronecker&rsquo;s theorem.</em> A sequence \(\{W(k)\}_{k\ge1}\) admits a finite-dimensional
+realization iff the infinite block Hankel matrix \(H_{\infty,\infty}\) has finite rank, and
+the rank is the McMillan degree (minimal order). The <em>partial realization problem</em>
+(finite \(N\)) is well posed if the rank of \(H_{s,\ell}\) stabilizes for \(s,\ell\) large enough.</p>
+<p><em>Balanced realizations.</em> For a stable minimal system the Gramians
+\(\mathcal W_r=\sum_{k\ge0}A^kBB\T A^{k\mathsf T}=\Rch_\infty\Rch_\infty\T\) and
+\(\mathcal W_o=\sum_{k\ge0}A^{k\mathsf T}C\T CA^k=\Obs_\infty\T\Obs_\infty\) solve the Lyapunov
+equations \(A\mathcal W_rA\T-\mathcal W_r+BB\T=0\), \(A\T\mathcal W_oA-\mathcal W_o+C\T C=0\). The
+eigenvalues of \(\mathcal W_r\mathcal W_o\) are invariant under \(T\); their square roots are
+the <em>Hankel singular values</em> \(\sigma_i^H\), i.e. the singular values of \(H_{\infty,\infty}\).
+A realization is balanced if \(\mathcal W_r=\mathcal W_o=\diag(\sigma_i^H)\): Ho&ndash;Kalman with
+<a class="xref" href="#eq-balanced" data-ref="eq:balanced">(7.3)</a> and \(s=\ell\to\infty\) produces it. Truncating a balanced realization to
+order \(\tilde n\) yields a stable model with the a-priori error bound
+\(\norm{W-\tilde W}_{\mathcal H_\infty}\le2\sum_{i&gt;\tilde n}\sigma_i^H\) (Enns, Glover).</p>
+<p><em>ERA.</em> The <em>Eigensystem Realization Algorithm</em> (Juang and Pappa, 1985), widely
+used in structural dynamics and modal analysis, is Kung&rsquo;s algorithm with the shifted Hankel
+matrix \(H^{(1)}_{s,\ell}=\Obs_sA\Rch_\ell\) used to compute
+\(A=\Sigma_n^{-1/2}U_n\T H^{(1)}_{s,\ell}V_n\Sigma_n^{-1/2}\), and with averaging over multiple
+experiments to reduce the effect of noise.</p></div></details>
+</article>
+<nav class="pagenav"><a class="pn prev" href="ch6.html"><span>&larr; Previous</span><b>Prediction-error methods for polynomial models</b></a><a class="pn next" href="ch8.html"><span>Next &rarr;</span><b>Subspace identification: the MOESP method</b></a></nav>
+<footer class="foot">Lecture notes by Vittorio De Iuliis · University of L'Aquila · a.y. 2024–2025 · interactive web edition generated from the LaTeX sources</footer>
+</main>
+<div id="searchbox" class="searchbox" hidden>
+  <div class="searchpanel"><input id="searchinput" type="search" placeholder="Search the notes (e.g. Hankel, PSNR, Gauss–Markov)…" autocomplete="off">
+  <div id="searchres" class="searchres"></div></div>
+</div>
+</body>
+</html>

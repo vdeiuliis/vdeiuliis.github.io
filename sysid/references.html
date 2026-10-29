@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bibliography · System Identification</title>
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem('sid-theme');if(t)document.documentElement.setAttribute('data-theme',t);var f=localStorage.getItem('sid-font');if(f)document.documentElement.style.setProperty('--fs',f+'px');}catch(e){}</script>
+
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']],
+    processEscapes: false, processEnvironments: true,
+    packages: ['base','ams','newcommand','noundefined','configmacros','textmacros','boldsymbol','mathtools','html','color','cancel','unicode'],
+    macros: {
+      R: '\\mathbb{R}', C: '\\mathbb{C}', N: '\\mathbb{N}', E: '\\mathbb{E}',
+      Im: '\\operatorname{Im}', Ker: '\\operatorname{Ker}', rank: '\\operatorname{rank}',
+      spn: '\\operatorname{span}', col: '\\operatorname{col}', row: '\\operatorname{row}',
+      tr: '\\operatorname{tr}', diag: '\\operatorname{diag}', vect: '\\operatorname{vec}',
+      argmin: '\\operatorname*{arg\\,min}', argmax: '\\operatorname*{arg\\,max}',
+      T: '^{\\mathsf{T}}', pinvsym: '^{\\dagger}',
+      norm: ['\\left\\lVert #1\\right\\rVert', 1], abs: ['\\left\\lvert #1\\right\\rvert', 1],
+      ip: ['\\langle #1,#2\\rangle', 2],
+      Obs: '\\mathcal{O}', Rch: '\\mathcal{R}', Toe: '\\mathcal{T}', Hk: '\\mathcal{H}', Z: '\\mathcal{Z}',
+      Pip: '\\Pi^{\\perp}', bmat: ['\\begin{bmatrix}#1\\end{bmatrix}', 1], pmat: ['\\begin{pmatrix}#1\\end{pmatrix}', 1],
+      up: '\\uparrow', dn: '\\downarrow', hatth: '\\hat{\\theta}', sm: '\\scriptstyle'
+    }
+  },
+  svg: { fontCache: 'global', scale: 1.0 },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code','select','option'],
+             ignoreHtmlClass: 'no-mathjax' },
+  startup: { ready() { MathJax.startup.defaultReady(); MathJax.startup.promise.then(() => document.dispatchEvent(new Event('mathjax-ready'))); } }
+};
+</script>
+<script src="vendor/tex-svg-full.js" defer></script>
+
+<script src="assets/refs.js" defer></script>
+<script src="assets/la.js" defer></script>
+<script src="assets/plot.js" defer></script>
+<script src="assets/widgets.js" defer></script>
+<script src="assets/app.js" defer></script>
+</head>
+<body data-page="references">
+<header class="topbar">
+  <button class="iconbtn" id="navtoggle" aria-label="Contents"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html">System Identification <span>&amp; Data Analysis</span></a>
+  <div class="topsp"></div>
+  <a class="iconbtn labsbtn" href="index.html#labs" title="List of the interactive laboratories">Labs</a>
+  <button class="iconbtn" id="searchbtn" aria-label="Search" title="Search (/)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></button>
+  <button class="iconbtn" id="fontminus" title="Smaller text">A&minus;</button>
+  <button class="iconbtn" id="fontplus" title="Larger text">A+</button>
+  <button class="iconbtn" id="themebtn" title="Light / dark theme"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button>
+</header>
+<nav class="sidebar" id="sidebar"><div class="navhead"><a href="index.html">Contents</a></div><ol class="navlist"><li><a href="notation.html"><span class="navnum"></span>Notation</a></li><li><a href="ch1.html"><span class="navnum">1</span>Introduction</a></li><li><a href="ch2.html"><span class="navnum">2</span>Fundamentals of linear algebra</a></li><li><a href="ch3.html"><span class="navnum">3</span>The singular value decomposition</a></li><li><a href="ch4.html"><span class="navnum">4</span>Least squares</a></li><li><a href="ch5.html"><span class="navnum">5</span>Introduction to system identification</a></li><li><a href="ch6.html"><span class="navnum">6</span>Prediction-error methods for polynomial models</a></li><li><a href="ch7.html"><span class="navnum">7</span>Towards subspace identification: the Ho–Kalman realization</a></li><li><a href="ch8.html"><span class="navnum">8</span>Subspace identification: the MOESP method</a></li><li><a href="appA.html"><span class="navnum">A</span>Discrete-time LTI systems in state space</a></li><li><a href="appB.html"><span class="navnum">B</span>Polynomial input–output models</a></li><li class="cur"><a href="references.html"><span class="navnum"></span>Bibliography</a></li></ol></nav>
+<div class="scrim" id="scrim"></div>
+<main class="content" id="content">
+<article class="chapter">
+<h1 class="chap" id="top"><span class="chaptitle">Bibliography</span></h1><ol class="biblio"><li id="bib-VerhaegenVerdult">M.&nbsp;Verhaegen and V.&nbsp;Verdult, <em>Filtering and System
+  Identification: A Least Squares Approach</em>, Cambridge University Press, 2007.
+</li><li id="bib-Meyer">C.&nbsp;D.&nbsp;Meyer, <em>Matrix Analysis and Applied Linear Algebra</em>, SIAM, 2000.
+</li><li id="bib-Strang">G.&nbsp;Strang, &ldquo;The fundamental theorem of linear algebra&rdquo;,
+  <em>The American Mathematical Monthly</em>, 100(9):848&ndash;855, 1993.
+</li><li id="bib-GolubVanLoan">G.&nbsp;H.&nbsp;Golub and C.&nbsp;F.&nbsp;Van Loan, <em>Matrix Computations</em>, 4th ed.,
+  Johns Hopkins University Press, 2013.
+</li><li id="bib-Ljung">L.&nbsp;Ljung, <em>System Identification: Theory for the User</em>, 2nd ed.,
+  Prentice Hall, 1999.
+</li><li id="bib-SoderstromStoica">T.&nbsp;Söderström and P.&nbsp;Stoica, <em>System Identification</em>,
+  Prentice Hall, 1989.
+</li><li id="bib-DallaMora">M.&nbsp;Dalla Mora, A.&nbsp;Germani, C.&nbsp;Manes, <em>Introduzione alla teoria
+  dell&rsquo;identificazione dei sistemi</em>, EUROMA, 1997.
+</li><li id="bib-VanOverschee">P.&nbsp;Van Overschee and B.&nbsp;De Moor, <em>Subspace Identification for
+  Linear Systems: Theory, Implementation, Applications</em>, Kluwer, 1996.
+</li><li id="bib-HoKalman">B.&nbsp;L.&nbsp;Ho and R.&nbsp;E.&nbsp;Kalman, &ldquo;Effective construction of linear
+  state-variable models from input/output functions&rdquo;, <em>Regelungstechnik</em>, 14:545&ndash;548, 1966.
+</li><li id="bib-Kung">S.-Y.&nbsp;Kung, &ldquo;A new identification and model reduction algorithm via
+  singular value decomposition&rdquo;, <em>Proc. 12th Asilomar Conf. on Circuits, Systems and
+  Computers</em>, pp.&nbsp;705&ndash;714, 1978.
+</li><li id="bib-VerhaegenDewilde">M.&nbsp;Verhaegen and P.&nbsp;Dewilde, &ldquo;Subspace model identification.
+  Part 1: The output-error state-space model identification class of algorithms&rdquo;,
+  <em>Int. J. Control</em>, 56(5):1187&ndash;1210, 1992.
+</li><li id="bib-Katayama">T.&nbsp;Katayama, <em>Subspace Methods for System Identification</em>,
+  Springer, 2005.
+</li><li id="bib-Willems">J.&nbsp;C.&nbsp;Willems, P.&nbsp;Rapisarda, I.&nbsp;Markovsky, B.&nbsp;De Moor, &ldquo;A note on
+  persistency of excitation&rdquo;, <em>Systems &amp; Control Letters</em>, 54(4):325&ndash;329, 2005.
+</li><li id="bib-DePersisTesi">C.&nbsp;De Persis and P.&nbsp;Tesi, &ldquo;Formulas for data-driven control:
+  stabilization, optimality, and robustness&rdquo;, <em>IEEE Trans. Automatic Control</em>,
+  65(3):909&ndash;924, 2020.
+</li><li id="bib-Markovsky">I.&nbsp;Markovsky and F.&nbsp;Dörfler, &ldquo;Behavioral systems theory in
+  data-driven analysis, signal processing, and control&rdquo;, <em>Annual Reviews in Control</em>,
+  52:42&ndash;64, 2021.
+</li><li id="bib-Jolliffe">I.&nbsp;T.&nbsp;Jolliffe, <em>Principal Component Analysis</em>, 2nd ed., Springer, 2002.
+</li><li id="bib-HastieTibshirani">T.&nbsp;Hastie, R.&nbsp;Tibshirani, J.&nbsp;Friedman, <em>The Elements of
+  Statistical Learning</em>, 2nd ed., Springer, 2009.
+</li><li id="bib-Antsaklis">P.&nbsp;J.&nbsp;Antsaklis and A.&nbsp;N.&nbsp;Michel, <em>A Linear Systems Primer</em>,
+  Birkhäuser, 2007.
+</li><li id="bib-Kailath">T.&nbsp;Kailath, <em>Linear Systems</em>, Prentice Hall, 1980.
+</li><li id="bib-FranklinPowellWorkman">G.&nbsp;F.&nbsp;Franklin, J.&nbsp;D.&nbsp;Powell and M.&nbsp;L.&nbsp;Workman,
+  <em>Digital Control of Dynamic Systems</em>, 3rd ed., Addison-Wesley, 1998.
+</li><li id="bib-RubertiIsidori">A.&nbsp;Ruberti and A.&nbsp;Isidori, <em>Teoria dei sistemi</em>, Boringhieri,
+  1979.
+</li><li id="bib-GrasselliMeniniGaleani">O.&nbsp;M.&nbsp;Grasselli, L.&nbsp;Menini and S.&nbsp;Galeani, <em>Sistemi
+  dinamici. Introduzione all&rsquo;analisi e primi strumenti di controllo</em>, Hoepli, 2008.
+</li><li id="bib-MonacoCalifano">S.&nbsp;Monaco, C.&nbsp;Califano, P.&nbsp;Di&nbsp;Giamberardino and M.&nbsp;Mattioni,
+  <em>Teoria dei sistemi. Lineari stazionari a dimensione finita</em>, Esculapio, 2021.
+</li><li id="bib-Gauss1809">C.&nbsp;F.&nbsp;Gauss, <em>Theoria motus corporum coelestium in sectionibus conicis
+  solem ambientium</em>, Perthes et Besser, Hamburg, 1809.
+</li><li id="bib-Legendre1805">A.-M.&nbsp;Legendre, <em>Nouvelles méthodes pour la détermination des
+  orbites des comètes</em>, Courcier, Paris, 1805 (appendix: &ldquo;Sur la méthode des moindres quarrés&rdquo;).
+</li><li id="bib-Stigler">S.&nbsp;M.&nbsp;Stigler, <em>The History of Statistics: The Measurement of Uncertainty
+  before 1900</em>, Harvard University Press, 1986.
+</li><li id="bib-Zadeh1956">L.&nbsp;A.&nbsp;Zadeh, &ldquo;On the identification problem&rdquo;, <em>IRE Trans. Circuit
+  Theory</em>, 3(4):277&ndash;281, 1956.
+</li><li id="bib-Kalman1960">R.&nbsp;E.&nbsp;Kalman, &ldquo;A new approach to linear filtering and prediction
+  problems&rdquo;, <em>Trans. ASME, J. Basic Engineering</em>, 82:35&ndash;45, 1960.
+</li><li id="bib-AstromBohlin">K.&nbsp;J.&nbsp;&Aring; ström and T.&nbsp;Bohlin, &ldquo;Numerical identification of linear
+  dynamic systems from normal operating records&rdquo;, <em>Proc. IFAC Symposium on Self-Adaptive
+  Systems</em>, Teddington, 1965.
+</li><li id="bib-AstromEykhoff">K.&nbsp;J.&nbsp;&Aring; ström and P.&nbsp;Eykhoff, &ldquo;System identification&mdash;a survey&rdquo;,
+  <em>Automatica</em>, 7(2):123&ndash;162, 1971.
+</li><li id="bib-BoxJenkins">G.&nbsp;E.&nbsp;P.&nbsp;Box and G.&nbsp;M.&nbsp;Jenkins, <em>Time Series Analysis: Forecasting and
+  Control</em>, Holden-Day, 1970.
+</li><li id="bib-Akaike1974">H.&nbsp;Akaike, &ldquo;A new look at the statistical model identification&rdquo;,
+  <em>IEEE Trans. Automatic Control</em>, 19(6):716&ndash;723, 1974.
+</li></ol>
+</article>
+<nav class="pagenav"><a class="pn prev" href="appB.html"><span>&larr; Previous</span><b>Polynomial input–output models</b></a><span></span></nav>
+<footer class="foot">Lecture notes by Vittorio De Iuliis · University of L'Aquila · a.y. 2024–2025 · interactive web edition generated from the LaTeX sources</footer>
+</main>
+<div id="searchbox" class="searchbox" hidden>
+  <div class="searchpanel"><input id="searchinput" type="search" placeholder="Search the notes (e.g. Hankel, PSNR, Gauss–Markov)…" autocomplete="off">
+  <div id="searchres" class="searchres"></div></div>
+</div>
+</body>
+</html>

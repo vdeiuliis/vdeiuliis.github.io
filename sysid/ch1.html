@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ch. 1: Introduction · System Identification</title>
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem('sid-theme');if(t)document.documentElement.setAttribute('data-theme',t);var f=localStorage.getItem('sid-font');if(f)document.documentElement.style.setProperty('--fs',f+'px');}catch(e){}</script>
+
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']],
+    processEscapes: false, processEnvironments: true,
+    packages: ['base','ams','newcommand','noundefined','configmacros','textmacros','boldsymbol','mathtools','html','color','cancel','unicode'],
+    macros: {
+      R: '\\mathbb{R}', C: '\\mathbb{C}', N: '\\mathbb{N}', E: '\\mathbb{E}',
+      Im: '\\operatorname{Im}', Ker: '\\operatorname{Ker}', rank: '\\operatorname{rank}',
+      spn: '\\operatorname{span}', col: '\\operatorname{col}', row: '\\operatorname{row}',
+      tr: '\\operatorname{tr}', diag: '\\operatorname{diag}', vect: '\\operatorname{vec}',
+      argmin: '\\operatorname*{arg\\,min}', argmax: '\\operatorname*{arg\\,max}',
+      T: '^{\\mathsf{T}}', pinvsym: '^{\\dagger}',
+      norm: ['\\left\\lVert #1\\right\\rVert', 1], abs: ['\\left\\lvert #1\\right\\rvert', 1],
+      ip: ['\\langle #1,#2\\rangle', 2],
+      Obs: '\\mathcal{O}', Rch: '\\mathcal{R}', Toe: '\\mathcal{T}', Hk: '\\mathcal{H}', Z: '\\mathcal{Z}',
+      Pip: '\\Pi^{\\perp}', bmat: ['\\begin{bmatrix}#1\\end{bmatrix}', 1], pmat: ['\\begin{pmatrix}#1\\end{pmatrix}', 1],
+      up: '\\uparrow', dn: '\\downarrow', hatth: '\\hat{\\theta}', sm: '\\scriptstyle'
+    }
+  },
+  svg: { fontCache: 'global', scale: 1.0 },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code','select','option'],
+             ignoreHtmlClass: 'no-mathjax' },
+  startup: { ready() { MathJax.startup.defaultReady(); MathJax.startup.promise.then(() => document.dispatchEvent(new Event('mathjax-ready'))); } }
+};
+</script>
+<script src="vendor/tex-svg-full.js" defer></script>
+
+<script src="assets/refs.js" defer></script>
+<script src="assets/la.js" defer></script>
+<script src="assets/plot.js" defer></script>
+<script src="assets/widgets.js" defer></script>
+<script src="assets/app.js" defer></script>
+</head>
+<body data-page="ch1">
+<header class="topbar">
+  <button class="iconbtn" id="navtoggle" aria-label="Contents"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html">System Identification <span>&amp; Data Analysis</span></a>
+  <div class="topsp"></div>
+  <a class="iconbtn labsbtn" href="index.html#labs" title="List of the interactive laboratories">Labs</a>
+  <button class="iconbtn" id="searchbtn" aria-label="Search" title="Search (/)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></button>
+  <button class="iconbtn" id="fontminus" title="Smaller text">A&minus;</button>
+  <button class="iconbtn" id="fontplus" title="Larger text">A+</button>
+  <button class="iconbtn" id="themebtn" title="Light / dark theme"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button>
+</header>
+<nav class="sidebar" id="sidebar"><div class="navhead"><a href="index.html">Contents</a></div><ol class="navlist"><li><a href="notation.html"><span class="navnum"></span>Notation</a></li><li class="cur"><a href="ch1.html"><span class="navnum">1</span>Introduction</a><ol class="navsec"><li><a href="#sec-intro-old" data-sec="sec-intro-old"><span class="navnum">1.1</span>Models from data: an old problem</a></li><li><a href="#sec-intro-ceres" data-sec="sec-intro-ceres"><span class="navnum">1.2</span>The lost planet and the invention of least squares</a></li><li><a href="#sec-intro-dynamic" data-sec="sec-intro-dynamic"><span class="navnum">1.3</span>From curves to dynamical systems</a></li><li><a href="#sec-intro-control" data-sec="sec-intro-control"><span class="navnum">1.4</span>Why models matter in systems and control</a></li><li><a href="#sec-intro-structure" data-sec="sec-intro-structure"><span class="navnum">1.5</span>Content and structure of these notes</a></li></ol></li><li><a href="ch2.html"><span class="navnum">2</span>Fundamentals of linear algebra</a></li><li><a href="ch3.html"><span class="navnum">3</span>The singular value decomposition</a></li><li><a href="ch4.html"><span class="navnum">4</span>Least squares</a></li><li><a href="ch5.html"><span class="navnum">5</span>Introduction to system identification</a></li><li><a href="ch6.html"><span class="navnum">6</span>Prediction-error methods for polynomial models</a></li><li><a href="ch7.html"><span class="navnum">7</span>Towards subspace identification: the Ho–Kalman realization</a></li><li><a href="ch8.html"><span class="navnum">8</span>Subspace identification: the MOESP method</a></li><li><a href="appA.html"><span class="navnum">A</span>Discrete-time LTI systems in state space</a></li><li><a href="appB.html"><span class="navnum">B</span>Polynomial input–output models</a></li><li><a href="references.html"><span class="navnum"></span>Bibliography</a></li></ol></nav>
+<div class="scrim" id="scrim"></div>
+<main class="content" id="content">
+<article class="chapter">
+<h1 class="chap" id="top"><span class="chapnum">Chapter 1</span><span class="chaptitle">Introduction</span></h1>
+<blockquote><p>Given a finite record of measurements collected on a real phenomenon, how can we compute a
+mathematical model that not only explains the data we have seen, but also predicts the
+data we have not seen yet?</p></blockquote>
+<p>This is the question of <em>model identification</em>, and it is much older than the
+discipline that today bears the name <em>system identification</em>. This chapter sketches
+its history, from the determination of planetary orbits to the identification of dynamical
+systems for control, and then describes the content and the structure of these notes.</p>
+<h2 id="sec-intro-old" class="sec"><span class="secnum">1.1</span> Models from data: an old problem</h2>
+<p>Every quantitative science lives on models: compact mathematical descriptions of a
+phenomenon, depending on a few parameters, that summarize a large amount of observations
+and allow one to reason about situations that have not been observed. A model is useful
+precisely because it <em>generalizes</em>: it makes predictions.</p>
+<p>Astronomy offered the first great examples. Between 1600 and 1609 Johannes Kepler, working
+on the very accurate observations of the planet Mars collected by Tycho Brahe over two
+decades, abandoned the circles and epicycles of the Ptolemaic and Copernican tradition and
+found that the orbit is an <em>ellipse</em> with the Sun in one focus (<em>Astronomia nova</em>,
+1609). In modern language, Kepler chose a <em>model class</em> (conic sections), estimated its
+<em>parameters</em> from the data, and <em>validated</em> the result by checking that the residual
+discrepancies were compatible with the accuracy of the observations: the famous eight
+arc-minutes of disagreement between Tycho&rsquo;s data and the best circular model were too large
+to be attributed to measurement errors, and this is what forced him to change model class.
+Some decades later Newton&rsquo;s theory of gravitation explained <em>why</em> the orbits are conic
+sections, turning a data-driven model into a physical law.</p>
+<p>Two features of these problems are worth stressing, because they will accompany us for the
+whole course. First, the data are always <em>more numerous</em> than the parameters, and they
+are affected by <em>errors</em>: no model passes exactly through all the observations, so one
+needs a principled way of combining redundant, inconsistent data. Second, the goal is not merely
+to describe the past but to <em>predict</em>: the quality of a model is ultimately judged on
+observations that were not used to build it.</p>
+<h2 id="sec-intro-ceres" class="sec"><span class="secnum">1.2</span> The lost planet and the invention of least squares</h2>
+<p>On the night of 1 January 1801, the astronomer Giuseppe Piazzi, at the observatory of
+Palermo, noticed a faint star that was not in the catalogues and that moved slightly from
+night to night. He followed it for about six weeks, until 11 February, when an illness interrupted his
+work: a couple of dozen positions, covering an arc of only about three degrees of the sky.
+During those weeks Ceres was an evening object, well away from the Sun (between about \(130^\circ\)
+and \(95^\circ\) of angular distance), but the Earth, which moves along its orbit much faster than
+Ceres, was steadily &ldquo;overtaking&rdquo; it, so that the planet was drifting towards the direction
+of the Sun. By the time the news of the discovery had reached the other astronomers, Ceres was
+too close to the Sun in the sky to be observed: in July 1801 it passed behind the Sun
+(conjunction) and remained lost in its glare for months (Figure&nbsp;<a class="xref" href="#fig-ceres" data-ref="fig:ceres">1.1</a>). It was the first
+minor planet ever discovered. The problem was now to find it again: in the autumn Ceres would
+reappear in the morning sky, on the other side of the Sun, after having travelled some
+\(70^\circ\) along its orbit, but <em>where</em>? Determining a complete orbit (six
+orbital elements) from such a short arc of noisy angular measurements was considered by
+many astronomers of the time to be practically impossible, and the first attempts, based on
+simplifying assumptions such as circular orbits, did not lead to a reliable prediction.</p>
+<p>The 24-year-old Carl Friedrich Gauss took up the problem in the autumn of 1801. He developed
+a new method to determine an elliptic orbit from a few observations, refined the solution
+by using <em>all</em> of Piazzi&rsquo;s measurements, and published a prediction of the position of
+Ceres for the end of the year. On 31 December 1801 Franz Xaver von Zach found the planet
+very close to the predicted position, and Heinrich Olbers confirmed the observation the
+following night. The rediscovery made Gauss famous overnight.</p>
+<figure class="fig" id="fig-ceres"><div class="fig-img"><img src="figures/fig-ceres.svg" alt="Figure 1.1" loading="lazy" style="width:505px"></div><figcaption><span class="fig-name">Figure 1.1:</span> Positions of the Earth and of Ceres in 1801, seen from the north ecliptic pole
+		(circular coplanar orbits, radii to scale). Piazzi observed Ceres from 1 January to 11
+		February (1&ndash;2), when it was still far from the direction of the Sun; the faster Earth then
+		overtook it, and around July (3) Ceres was behind the Sun. From the short observed arc an
+		entire orbit had to be estimated with enough accuracy to predict where the planet would be
+		found months later, after it had moved about \(70^\circ\) along its orbit (4). The Earth
+		positions at 1 and 4 almost coincide because they are one year apart.</figcaption></figure>
+<div class="widget" id="w-ceresanim" data-widget="ceresanim"></div>
+<p>In his treatise <em>Theoria motus corporum coelestium in sectionibus conicis solem
+	ambientium</em> (1809) [<a class="cite" href="references.html#bib-Gauss1809" data-cite="Gauss1809">24</a>], Gauss explained that the best way of combining redundant observations
+affected by errors is to choose the parameters that minimize the <em>sum of the squares
+	of the residuals</em>, and stated that he had been using this principle since 1795. The method
+had however already been published by Adrien-Marie Legendre in 1805, in an appendix to his
+<em>Nouvelles méthodes pour la détermination des orbites des comètes</em> [<a class="cite" href="references.html#bib-Legendre1805" data-cite="Legendre1805">25</a>], where it was
+introduced with the name <em>méthode des moindres quarrés</em>, as a practical and elegant
+rule to solve overdetermined systems of equations. The ensuing priority dispute is one of
+the most famous in the history of mathematics; historians still discuss to what extent the
+Ceres computation of 1801 actually relied on least squares [<a class="cite" href="references.html#bib-Stigler" data-cite="Stigler">26</a>]. What is certain
+is that the two contributions are complementary: Legendre gave the method its name and its
+first clear algebraic statement; Gauss gave it a <em>probabilistic justification</em>, showing
+that least squares yields the most probable parameters when the errors follow what we now
+call the Gaussian (normal) distribution, and later (1821&ndash;1823) proved that, among all linear
+unbiased combinations of the observations, least squares has the smallest variance, whatever
+the distribution of the errors. This last result, rediscovered by Andrey Markov at the
+beginning of the twentieth century, is the <em>Gauss&ndash;Markov theorem</em> of Section&nbsp;<a class="xref" href="ch4.html#sec-ls-stat" data-ref="sec:ls-stat">4.5</a>.</p>
+<p>It is instructive to reread the story of Ceres with the vocabulary of this course. The
+<em>model class</em> was given by physics (Keplerian orbits, i.e. conic sections with the Sun
+in a focus, parametrized by six orbital elements); the <em>data</em> were a set of noisy
+measurements, more numerous than the unknowns; the <em>estimation</em> step combined all of
+them by minimizing a quadratic measure of the residuals; and the <em>validation</em> was the
+most demanding one can imagine: a prediction on future, unseen data, confirmed by an
+independent observer. The determination of the orbit of Ceres can be regarded as the first
+great problem of identification of a model (a curve, an orbit) from experimental
+measurements, and least squares, the tool invented to solve it, is still the backbone of
+the whole discipline: it will be studied in Chapter&nbsp;<a class="xref" href="ch4.html" data-ref="ch:ls">4</a> and it will reappear in every
+subsequent chapter, from the estimation of ARX models (Chapter&nbsp;<a class="xref" href="ch6.html" data-ref="ch:pem">6</a>) to the computation of
+the matrices \(B\), \(D\) and of the initial state in subspace identification (Chapter&nbsp;<a class="xref" href="ch8.html" data-ref="ch:moesp">8</a>).</p>
+<h2 id="sec-intro-dynamic" class="sec"><span class="secnum">1.3</span> From curves to dynamical systems</h2>
+<p>Orbits and curves are <em>static</em> models: a relation \(y=f(t;\theta)\) between variables,
+parametrized by \(\theta\), in which the value of \(y\) is determined by the current value of the
+independent variable only. Many engineering problems lead to static models as well: the
+calibration of a sensor, the characteristic curve of a component, the fitting of a
+polynomial to experimental data, the reduction of the dimension of a dataset (principal
+component analysis). A <em>dynamical</em> system, instead, has <em>memory</em>: its output at time
+\(k\) depends on the whole past history of its inputs, through an internal <em>state</em>. The
+models of interest are then difference (or differential) equations, and the problem of
+identification becomes: from a record of input and output signals, find the equations that
+generated them.</p>
+<p>The statistical foundations of this extension were laid in the nineteenth and early
+twentieth centuries: Francis Galton introduced <em>regression</em> (1886); Karl Pearson
+formulated the fitting of lines and planes of closest (orthogonal) distance to points in
+space (1901), the ancestor of principal component analysis and of total least squares;
+Ronald A. Fisher developed the theory of maximum-likelihood estimation (1912&ndash;1922); George
+Udny Yule introduced autoregressive models to study the periodicity of sunspot numbers
+(1927), the first models of the kind \(y(k)=a_1y(k-1)+a_2y(k-2)+e(k)\) that we shall meet in
+Chapter&nbsp;<a class="xref" href="ch6.html" data-ref="ch:pem">6</a>. In the 1940s Norbert Wiener and Andrey Kolmogorov founded the theory of
+optimal prediction and filtering of stationary random signals.</p>
+<p>The decisive step came with the <em>state-space</em> revolution of the 1960s. Rudolf E. Kalman introduced the concepts of reachability and observability and the Kalman filter
+(1960) [<a class="cite" href="references.html#bib-Kalman1960" data-cite="Kalman1960">28</a>], and with B.&nbsp;L.&nbsp;Ho [<a class="cite" href="references.html#bib-HoKalman" data-cite="HoKalman">9</a>] gave the first algorithm to construct a state-space model from the
+impulse response of a system (1966, Chapter&nbsp;<a class="xref" href="ch7.html" data-ref="ch:hokalman">7</a>). The very term <em>identification</em>
+had been introduced a few years earlier by Lotfi Zadeh (1956) [<a class="cite" href="references.html#bib-Zadeh1956" data-cite="Zadeh1956">27</a>], who later
+(1962) defined it as the determination, on the basis of input and output data, of a system
+within a specified class to which the system under test is equivalent. In 1965 Karl Johan &Aring; ström and Torsten
+Bohlin presented the maximum-likelihood identification of ARMAX models from normal operating
+records [<a class="cite" href="references.html#bib-AstromBohlin" data-cite="AstromBohlin">29</a>], a milestone of the <em>prediction-error</em> approach; the first IFAC Symposium on
+Identification was held in Prague in 1967, and the survey by &Aring; ström and Eykhoff
+(1971) [<a class="cite" href="references.html#bib-AstromEykhoff" data-cite="AstromEykhoff">30</a>] consolidated the new discipline. The book by Box and Jenkins
+(1970) [<a class="cite" href="references.html#bib-BoxJenkins" data-cite="BoxJenkins">31</a>] popularized time-series models for forecasting and control; Hirotugu
+Akaike introduced information criteria for model-order selection (1974) [<a class="cite" href="references.html#bib-Akaike1974" data-cite="Akaike1974">32</a>]; Lennart Ljung&rsquo;s
+book [<a class="cite" href="references.html#bib-Ljung" data-cite="Ljung">5</a>] (1987) gave the prediction-error framework its definitive form. Around
+1990 the <em>subspace</em> methods (Larimore&rsquo;s CVA, Verhaegen and Dewilde&rsquo;s MOESP, Van
+Overschee and De Moor&rsquo;s N4SID [<a class="cite" href="references.html#bib-VerhaegenDewilde" data-cite="VerhaegenDewilde">11</a>, <a class="cite" href="references.html#bib-VanOverschee" data-cite="VanOverschee">8</a>]) brought back the ideas of Ho and Kalman in a statistical
+setting, relying only on numerically robust tools of linear algebra (Chapter&nbsp;<a class="xref" href="ch8.html" data-ref="ch:moesp">8</a>). More
+recently, Willems&rsquo; fundamental lemma (2005) [<a class="cite" href="references.html#bib-Willems" data-cite="Willems">13</a>] has become the starting point of the
+<em>data-driven control</em> approaches, in which controllers are designed directly from
+data matrices, and the interaction with machine learning (kernel methods, neural
+networks) is one of the most active research fields. Figure&nbsp;<a class="xref" href="#fig-timeline" data-ref="fig:timeline">1.2</a> summarizes some of
+these milestones.</p>
+<figure class="fig" id="fig-timeline"><div class="fig-img"><img src="figures/fig-timeline.svg" alt="Figure 1.2" loading="lazy" style="width:693px"></div><figcaption><span class="fig-name">Figure 1.2:</span> Some milestones in the history of model identification, from planetary orbits to
+the identification and data-driven control of dynamical systems.</figcaption></figure>
+<h2 id="sec-intro-control" class="sec"><span class="secnum">1.4</span> Why models matter in systems and control</h2>
+<p>In engineering, and in particular in systems and control engineering, a model is rarely the final
+goal in itself: it is a <em>tool</em> for a purpose.</p>
+<ul><li><p><em>Control design.</em> Almost all modern control techniques (pole placement, LQ and
+      LQG control, \(\mathcal H_\infty\) design, model predictive control) are <em>model based</em>:
+      the controller is computed from a model of the plant, typically in state-space form.</p></li><li><p><em>State estimation.</em> The Kalman filter (and observers) reconstruct the
+      non-measured state variables of a system from its inputs and outputs, but they
+      require the matrices \(A,B,C,D\) and a description of the noise: identification is the
+      natural companion of filtering.</p></li><li><p><em>Simulation and prediction.</em> Models allow one to test a design in simulation
+      before implementing it, to forecast the future behaviour of a process, and to build
+      the so-called <em>digital twins</em> of complex plants.</p></li><li><p><em>Monitoring and diagnosis.</em> Deviations between measured outputs and those predicted
+      by a model are the basis of fault detection and condition monitoring.</p></li></ul>
+<p>Models can be obtained from first principles (e.g., mass and energy balances, Newton&rsquo;s and
+Kirchhoff&rsquo;s laws, etc.), but for many real systems this is too costly, too inaccurate, or simply
+impossible: parameters are unknown, phenomena are too complex, components age. System
+identification builds models <em>from experimental data</em>, either completely (black-box
+models) or by estimating the unknown parameters of a physically motivated structure
+(grey-box models). In both cases the model is an approximation. George Box&rsquo;s aphorism that
+&ldquo;all models are wrong but some are useful&rdquo; summarizes the right attitude: a model has to be
+judged with respect to its <em>intended use</em>, and a model that is excellent for control
+design may be poor for long-term simulation, and vice versa. This is why identification is
+an iterative procedure, in which experiment design, choice of the model class, estimation
+and validation are repeated until the model is fit for its purpose (Section&nbsp;<a class="xref" href="ch5.html#sec-cycle" data-ref="sec:cycle">5.3</a>).</p>
+<p>Compared with the example of determining the orbit of a planet (or the parameters of a curve), the identification of dynamical systems adds two
+difficulties. The first is that the data are <em>signals</em>, correlated in time, and the
+experiment itself (the choice of the input) determines how much information they carry
+about the system: the notion of persistency of excitation (Section&nbsp;<a class="xref" href="ch5.html#sec-pe" data-ref="sec:pe">5.5</a>) will play a major role. The second is that the
+unknowns are not a few numbers with a clear physical meaning, but matrices defined only up
+to a change of coordinates of the state space: only input&ndash;output properties can be
+identified, and only the reachable and observable part of a system can be seen from data
+(Section&nbsp;<a class="xref" href="ch5.html#sec-what-ident" data-ref="sec:what-ident">5.2</a>).</p>
+<h2 id="sec-intro-structure" class="sec"><span class="secnum">1.5</span> Content and structure of these notes</h2>
+<p>These notes are an extended version of the lectures given by the author for the model-identification part (30 hours) of the course
+<em>System Identification and Data Analysis</em>, offered to Control Systems and Automation Engineering students.</p>
+<p>The final problem addressed in the course is the following:
+given a finite record \(\{u(k),y(k)\}_{k=0}^{N-1}\) of input&ndash;output data collected on a real
+system, compute a linear time-invariant model</p>
+<div class="eq">\[ \begin{aligned}
+  x(k+1)&amp;=Ax(k)+Bu(k),\\ y(k)&amp;=Cx(k)+Du(k)\;(+v(k)), \end{aligned}
+\]</div>
+<p>that is, the matrices \(\{A,B,C,D,x(0)\}\), up to a change of state coordinates, or an
+equivalent input&ndash;output model. In proper system identification techniques, \(v(k)\) is modeled, and is a measurement noise acting on \(y(k)\). Also a process noise \(w(k)\), that accounts for inaccuracies in modeling or different kind of process errors, can be added to the state equation. In deterministic techniques (such as realization ones), no noise is modeled.</p>
+<p>The route followed in this notes is inspired from some insightful textbooks on the topic. Among these, the book by Verhaegen
+and Verdult [<a class="cite" href="references.html#bib-VerhaegenVerdult" data-cite="VerhaegenVerdult">1</a>] is relevant. We start with a toolbox of numerical linear algebra, then the
+classical prediction-error approach for input&ndash;output polynomial models, and finally,
+through the Ho&ndash;Kalman realization algorithm, the subspace identification methods, which
+deliver state-space models directly using only SVDs, QR factorizations and least squares.</p>
+<ul><li><p>Chapter&nbsp;<a class="xref" href="ch2.html" data-ref="ch:linalg">2</a> reviews the fundamentals of linear algebra: matrices as linear maps,
+      the four fundamental subspaces, eigenvalues and eigenvectors, the QR decomposition and
+      some rank results used later.</p></li><li><p>Chapter&nbsp;<a class="xref" href="ch3.html" data-ref="ch:svd">3</a> is devoted to the singular value decomposition, the numerical rank,
+      low-rank approximation (Eckart&ndash;Young&ndash;Mirsky theorem) and principal component
+      analysis.</p></li><li><p>Chapter&nbsp;<a class="xref" href="ch4.html" data-ref="ch:ls">4</a> studies least squares: overdetermined and underdetermined systems,
+      projections, statistical properties, curve fitting, the pseudo-inverse, total and
+      regularized least squares, numerical aspects.</p></li><li><p>Chapter&nbsp;<a class="xref" href="ch5.html" data-ref="ch:ident">5</a> introduces the identification of dynamical models: what can be
+      identified, the identification cycle, validation measures, persistency of excitation.</p></li><li><p>Chapter&nbsp;<a class="xref" href="ch6.html" data-ref="ch:pem">6</a> presents polynomial models (ARX, ARMAX, OE, Box&ndash;Jenkins) and
+      prediction-error methods, with the least-squares estimation of ARX models and the
+      reasons for going beyond it.</p></li><li><p>Chapter&nbsp;<a class="xref" href="ch7.html" data-ref="ch:hokalman">7</a> describes the Ho&ndash;Kalman realization algorithm, first for SISO and
+      then for MIMO systems, its use with noisy data and with general inputs.</p></li><li><p>Chapter&nbsp;<a class="xref" href="ch8.html" data-ref="ch:moesp">8</a> derives the MOESP subspace method, from special cases (autonomous
+      system, impulse response) to the general deterministic case and to the case of white
+      output noise, with its efficient LQ implementation.</p></li><li><p>Appendices&nbsp;<a class="xref" href="appA.html" data-ref="app:systems">A</a> and <a class="xref" href="appB.html" data-ref="app:polynomial">B</a> recall the notions of systems theory used
+      throughout: state-space models, \(\Z\)-transform, stability, reachability and
+      observability, zero&ndash;pole cancellations; polynomial models and their relation with
+      transfer functions and state-space models.</p></li></ul>
+<p>The main text follows the content of the lectures, including the worked examples, and
+complements it (QR decomposition, principal
+component analysis, total least squares, numerical aspects, simulations). Each
+chapter ends with <em>exercises</em>, a section on the <em>implementation</em> in MATLAB and
+Python and, where useful, some <em>advanced topics</em> (framed in violet), which can be skipped at a first reading, and are intended for an in-depth study. All MATLAB listings have been tested
+(they use only core functions, apart from the clearly marked System Identification Toolbox
+snippets, and also run in GNU Octave); the Python code uses <code>numpy</code> and
+<code>scipy</code>. The notation is summarized at the beginning of the
+notes.</p>
+<p><strong class="runin">What is left out.</strong>  These notes are for a short introductory course in System Identification and Data Analysis. Thus, many significant topics are only mentioned in the advanced
+sections, or not treated at all, and are left to more specialized courses: the
+identification of systems with process noise and colored noise through instrumental
+variables (PI/PO-MOESP), N4SID and CVA and the stochastic realization theory behind them;
+closed-loop identification; frequency-domain identification; the asymptotic statistical
+theory of prediction-error methods; optimal experiment design and identification for
+control; regularization and kernel-based methods; errors-in-variables problems; the
+identification of nonlinear systems (Volterra, Wiener and Hammerstein models, NARX and
+neural-network models, sparse regression) and of linear parameter-varying systems;
+data-driven control based on Willems&rsquo; fundamental lemma.</p>
+<p><strong class="runin">Companion notes.</strong>  These notes cover the <em>identification of models</em>. They are
+ideally complemented by notes on <em>estimation theory for random variables</em> (maximum
+likelihood, Bayesian, minimum mean-square-error and linear estimators, the Cramér&ndash;Rao
+bound) and on <em>state filtering of dynamical systems</em> (the Kalman filter and smoother,
+and their extensions to nonlinear systems), which constitute the other fundamental topics
+of a course on system identification: the former provides the statistical foundations of
+the estimators used here, the latter uses the models identified here to reconstruct the
+state of a system from noisy measurements.</p>
+</article>
+<nav class="pagenav"><a class="pn prev" href="notation.html"><span>&larr; Previous</span><b>Notation</b></a><a class="pn next" href="ch2.html"><span>Next &rarr;</span><b>Fundamentals of linear algebra</b></a></nav>
+<footer class="foot">Lecture notes by Vittorio De Iuliis · University of L'Aquila · a.y. 2024–2025 · interactive web edition generated from the LaTeX sources</footer>
+</main>
+<div id="searchbox" class="searchbox" hidden>
+  <div class="searchpanel"><input id="searchinput" type="search" placeholder="Search the notes (e.g. Hankel, PSNR, Gauss–Markov)…" autocomplete="off">
+  <div id="searchres" class="searchres"></div></div>
+</div>
+</body>
+</html>

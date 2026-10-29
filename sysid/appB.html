@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Appendix B: Polynomial input–output models · System Identification</title>
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem('sid-theme');if(t)document.documentElement.setAttribute('data-theme',t);var f=localStorage.getItem('sid-font');if(f)document.documentElement.style.setProperty('--fs',f+'px');}catch(e){}</script>
+
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']],
+    processEscapes: false, processEnvironments: true,
+    packages: ['base','ams','newcommand','noundefined','configmacros','textmacros','boldsymbol','mathtools','html','color','cancel','unicode'],
+    macros: {
+      R: '\\mathbb{R}', C: '\\mathbb{C}', N: '\\mathbb{N}', E: '\\mathbb{E}',
+      Im: '\\operatorname{Im}', Ker: '\\operatorname{Ker}', rank: '\\operatorname{rank}',
+      spn: '\\operatorname{span}', col: '\\operatorname{col}', row: '\\operatorname{row}',
+      tr: '\\operatorname{tr}', diag: '\\operatorname{diag}', vect: '\\operatorname{vec}',
+      argmin: '\\operatorname*{arg\\,min}', argmax: '\\operatorname*{arg\\,max}',
+      T: '^{\\mathsf{T}}', pinvsym: '^{\\dagger}',
+      norm: ['\\left\\lVert #1\\right\\rVert', 1], abs: ['\\left\\lvert #1\\right\\rvert', 1],
+      ip: ['\\langle #1,#2\\rangle', 2],
+      Obs: '\\mathcal{O}', Rch: '\\mathcal{R}', Toe: '\\mathcal{T}', Hk: '\\mathcal{H}', Z: '\\mathcal{Z}',
+      Pip: '\\Pi^{\\perp}', bmat: ['\\begin{bmatrix}#1\\end{bmatrix}', 1], pmat: ['\\begin{pmatrix}#1\\end{pmatrix}', 1],
+      up: '\\uparrow', dn: '\\downarrow', hatth: '\\hat{\\theta}', sm: '\\scriptstyle'
+    }
+  },
+  svg: { fontCache: 'global', scale: 1.0 },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code','select','option'],
+             ignoreHtmlClass: 'no-mathjax' },
+  startup: { ready() { MathJax.startup.defaultReady(); MathJax.startup.promise.then(() => document.dispatchEvent(new Event('mathjax-ready'))); } }
+};
+</script>
+<script src="vendor/tex-svg-full.js" defer></script>
+
+<script src="assets/refs.js" defer></script>
+<script src="assets/la.js" defer></script>
+<script src="assets/plot.js" defer></script>
+<script src="assets/widgets.js" defer></script>
+<script src="assets/app.js" defer></script>
+</head>
+<body data-page="appB">
+<header class="topbar">
+  <button class="iconbtn" id="navtoggle" aria-label="Contents"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html">System Identification <span>&amp; Data Analysis</span></a>
+  <div class="topsp"></div>
+  <a class="iconbtn labsbtn" href="index.html#labs" title="List of the interactive laboratories">Labs</a>
+  <button class="iconbtn" id="searchbtn" aria-label="Search" title="Search (/)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></button>
+  <button class="iconbtn" id="fontminus" title="Smaller text">A&minus;</button>
+  <button class="iconbtn" id="fontplus" title="Larger text">A+</button>
+  <button class="iconbtn" id="themebtn" title="Light / dark theme"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button>
+</header>
+<nav class="sidebar" id="sidebar"><div class="navhead"><a href="index.html">Contents</a></div><ol class="navlist"><li><a href="notation.html"><span class="navnum"></span>Notation</a></li><li><a href="ch1.html"><span class="navnum">1</span>Introduction</a></li><li><a href="ch2.html"><span class="navnum">2</span>Fundamentals of linear algebra</a></li><li><a href="ch3.html"><span class="navnum">3</span>The singular value decomposition</a></li><li><a href="ch4.html"><span class="navnum">4</span>Least squares</a></li><li><a href="ch5.html"><span class="navnum">5</span>Introduction to system identification</a></li><li><a href="ch6.html"><span class="navnum">6</span>Prediction-error methods for polynomial models</a></li><li><a href="ch7.html"><span class="navnum">7</span>Towards subspace identification: the Ho–Kalman realization</a></li><li><a href="ch8.html"><span class="navnum">8</span>Subspace identification: the MOESP method</a></li><li><a href="appA.html"><span class="navnum">A</span>Discrete-time LTI systems in state space</a></li><li class="cur"><a href="appB.html"><span class="navnum">B</span>Polynomial input–output models</a><ol class="navsec"><li><a href="#sec-app-shift" data-sec="sec-app-shift"><span class="navnum">B.1</span>The shift operator</a></li><li><a href="#sec-app-structures" data-sec="sec-app-structures"><span class="navnum">B.2</span>The model structures</a></li><li><a href="#sec-app-tf" data-sec="sec-app-tf"><span class="navnum">B.3</span>Relation with transfer functions</a></li><li><a href="#sec-app-ss-poly" data-sec="sec-app-ss-poly"><span class="navnum">B.4</span>Relation with state-space models</a></li><li><a href="#s-B-5" data-sec="s-B-5"><span class="navnum">B.5</span>Exercises</a></li></ol></li><li><a href="references.html"><span class="navnum"></span>Bibliography</a></li></ol></nav>
+<div class="scrim" id="scrim"></div>
+<main class="content" id="content">
+<article class="chapter">
+<h1 class="chap" id="top"><span class="chapnum">Appendix B</span><span class="chaptitle">Polynomial input&ndash;output models</span></h1>
+<p>This appendix collects the facts about input&ndash;output (polynomial) models of discrete-time
+LTI systems used in Chapter&nbsp;<a class="xref" href="ch6.html" data-ref="ch:pem">6</a>: the shift operator and its relation with the complex
+variable \(z\), the model structures FIR, ARX, ARMAX, OE and Box&ndash;Jenkins written in the time
+domain and in the operator and \(\Z\) domains, and their relation with transfer functions and
+with state-space models.</p>
+<h2 id="sec-app-shift" class="sec"><span class="secnum">B.1</span> The shift operator</h2>
+<p>The <em>forward shift</em> operator \(q\) and the <em>backward shift</em> (delay) operator \(q^{-1}\)
+act on a signal \(f(k)\) as</p>
+<div class="eq">\[
+  q\,f(k)=f(k+1),\qquad q^{-1}f(k)=f(k-1),\qquad q^{-\tau}f(k)=f(k-\tau).
+\]</div>
+<p>They are linear and time invariant, and compositions of shifts behave like powers:
+\(q^{-i}q^{-j}=q^{-(i+j)}\). A <em>polynomial operator</em> such as
+\(A(q)=1-a_1q^{-1}-\cdots-a_nq^{-n}\) acts as \(A(q)y(k)=y(k)-a_1y(k-1)-\cdots-a_ny(k-n)\); products of
+polynomial operators commute and follow the rules of polynomial algebra. A <em>rational
+operator</em> \(G(q)=B(q)/A(q)\) is defined through the difference equation it represents:</p>
+<div class="eq">\[
+  y(k)=\frac{B(q)}{A(q)}u(k)\quad\overset{\text{def}}{\iff}\quad A(q)y(k)=B(q)u(k),
+\]</div>
+<p>with zero initial conditions (or, for asymptotically stable \(A\), with the effect of the
+initial conditions vanishing), so that \(y(k)=\sum_{j\ge0}g(j)u(k-j)\), where
+\(G(q)=\sum_jg(j)q^{-j}\) is the expansion of \(B/A\) in powers of \(q^{-1}\) (the impulse response).</p>
+<div class="box keybox"><p><strong>\(q\) versus \(z\).</strong> \(q^{-1}\) is an operator acting on time sequences; \(z\) is a complex
+variable. If \(y(k)=G(q)u(k)\) with zero initial conditions, then, by the delay property of the
+\(\Z\)-transform (\(\Z\{f(k-\tau)\}=z^{-\tau}F(z)\)),</p>
+<div class="eq">\[
+  Y(z)=G(z)U(z),
+\]</div>
+<p>where \(G(z)\) is obtained from \(G(q)\) by replacing \(q^{-1}\) with \(z^{-1}\). Formulas written in
+\(q\) and in \(z\) are therefore formally identical, but \(y(k)=G(z)u(k)\) mixes the two domains and
+should be avoided (Chapter&nbsp;<a class="xref" href="ch6.html" data-ref="ch:pem">6</a>).</p></div>
+<div class="thm thm-remark" id="remark-B-1"><p><span class="thm-head"><span class="thm-name">Remark B.1</span> <span class="thm-title">(Alternative conventions)</span>.</span> Some textbooks (especially in the Italian tradition of identification and time-series
+analysis) use the <em>same</em> letter for the delay, writing \(q\,f(k)=f(k-1)\) (or
+\(z^{-1}\) as an operator, or \(L\) and \(B\) for the <em>lag</em>/<em>backshift</em> operator). In
+these notes, as in the lecture notes, in Ljung [<a class="cite" href="references.html#bib-Ljung" data-cite="Ljung">5</a>], Söderström&ndash;Stoica
+[<a class="cite" href="references.html#bib-SoderstromStoica" data-cite="SoderstromStoica">6</a>] and MATLAB, the delay is \(q^{-1}\), so that \(q^{-1}\leftrightarrow z^{-1}\).
+When reading other sources, always check which convention is adopted: with the
+alternative one, a polynomial &ldquo;\(A(q)=1-a_1q\)&rdquo; is our \(A(q)=1-a_1q^{-1}\).</p></div>
+<h2 id="sec-app-structures" class="sec"><span class="secnum">B.2</span> The model structures</h2>
+<p>All the structures are special cases of the general family (Ljung)</p>
+<div class="eq" id="eq-app-general">\[A(q)\,y(k)=\frac{B(q)}{F(q)}\,u(k-n_k)+\frac{C(q)}{D(q)}\,e(k), \tag{B.1}\]</div>
+<p>where \(e(k)\) is white noise with zero mean and variance \(\lambda_e\), \(n_k\ge0\) is the input
+delay, and (with the sign convention of the lecture notes for \(A\))</p>
+<div class="eq">\[
+\begin{aligned}
+  A(q)&amp;=1-a_1q^{-1}-\cdots-a_{n_a}q^{-n_a}, &amp; B(q)&amp;=b_0+b_1q^{-1}+\cdots+b_{n_b-1}q^{-n_b+1},\\
+  C(q)&amp;=1+c_1q^{-1}+\cdots+c_{n_c}q^{-n_c}, &amp; D(q)&amp;=1+d_1q^{-1}+\cdots+d_{n_d}q^{-n_d},\\
+  F(q)&amp;=1+f_1q^{-1}+\cdots+f_{n_f}q^{-n_f}.
+\end{aligned}
+\]</div>
+<p>In the notes the delay is embedded in \(B\) (e.g. \(B(q)=b_1q^{-1}+b_2q^{-2}\) when \(n_k=1\)). The
+block diagrams are in Figure&nbsp;<a class="xref" href="ch6.html#fig-polymodels" data-ref="fig:polymodels">6.1</a> and the summary in Table&nbsp;<a class="xref" href="ch6.html#tab-polymodels" data-ref="tab:polymodels">6.1</a>. For
+each structure we give the operator form, the difference equation and the \(\Z\)-domain
+description \(Y(z)=W(z)U(z)+H(z)E(z)\) (zero initial conditions).</p>
+<p><strong class="runin">FIR (finite impulse response).</strong>  \(y(k)=B(q)u(k)+e(k)\):</p>
+<div class="eq">\[
+  y(k)=b_0u(k)+b_1u(k-1)+\cdots+b_{m}u(k-m)+e(k),
+\]</div>
+<div class="eq">\[
+  W(z)=B(z)=\frac{b_0z^m+b_1z^{m-1}+\cdots+b_m}{z^m},\quad H(z)=1 .
+\]</div>
+<p>All the poles are in \(z=0\); the parameters are the first samples of the impulse response
+(Section&nbsp;<a class="xref" href="ch7.html#sec-hk-general" data-ref="sec:hk-general">7.4</a>).</p>
+<p><strong class="runin">ARX.</strong>  \(A(q)y(k)=B(q)u(k)+e(k)\):</p>
+<div class="eq">\[
+  y(k)=\sum_{i=1}^{n_a}a_iy(k-i)+\sum_{j=0}^{m}b_ju(k-j)+e(k),\qquad
+  W(z)=\frac{B(z)}{A(z)},\quad H(z)=\frac1{A(z)} .
+\]</div>
+<p>Plant and noise share the denominator: the noise enters &ldquo;at the input of the dynamics&rdquo;
+(the <em>equation error</em> \(e(k)\) is white).</p>
+<p><strong class="runin">ARMAX.</strong>  \(A(q)y(k)=B(q)u(k)+C(q)e(k)\):</p>
+<div class="eq">\[
+  y(k)=\sum_{i=1}^{n_a}a_iy(k-i)+\sum_{j=0}^{m}b_ju(k-j)+e(k)+\sum_{i=1}^{n_c}c_ie(k-i),\qquad
+  W(z)=\frac{B(z)}{A(z)},\quad H(z)=\frac{C(z)}{A(z)} .
+\]</div>
+<p>The equation error is a moving average of the white noise.</p>
+<p><strong class="runin">Output error (OE).</strong>  \(y(k)=\frac{B(q)}{F(q)}u(k)+e(k)\): introducing the noise-free
+output \(w(k)=\frac{B(q)}{F(q)}u(k)\),</p>
+<div class="eq">\[
+  w(k)=-\sum_{i=1}^{n_f}f_iw(k-i)+\sum_{j=0}^{m}b_ju(k-j),\qquad y(k)=w(k)+e(k),\qquad
+  W(z)=\frac{B(z)}{F(z)},\quad H(z)=1 .
+\]</div>
+<p>The noise is white measurement noise on the output; this is the input&ndash;output counterpart of
+the state-space model <a class="xref" href="ch8.html#eq-moesp-model" data-ref="eq:moesp-model">(8.1)</a> used by MOESP.</p>
+<p><strong class="runin">Box&ndash;Jenkins (BJ).</strong>  \(y(k)=\frac{B(q)}{F(q)}u(k)+\frac{C(q)}{D(q)}e(k)\):</p>
+<div class="eq">\[
+  W(z)=\frac{B(z)}{F(z)},\qquad H(z)=\frac{C(z)}{D(z)},
+\]</div>
+<p>with independently parametrized plant and noise dynamics. In the notes the plant
+denominator of BJ is called \(A(q)\); with \(F=D=A\) one recovers ARMAX, with \(C=D=1\) one
+recovers OE, and with \(C=1\), \(F=D=A\) one recovers ARX.</p>
+<p><strong class="runin">Positive powers of \(z\).</strong>  To find poles and zeros, multiply numerator and
+denominator by the appropriate power of \(z\). For instance, for the ARX model of
+Example&nbsp;<a class="xref" href="ch6.html#ex-arx" data-ref="ex:arx">6.2</a>,</p>
+<div class="eq">\[
+  W(z)=\frac{z^{-1}+0.5z^{-2}}{1-1.5z^{-1}+0.7z^{-2}}=\frac{z+0.5}{z^2-1.5z+0.7},\qquad
+  H(z)=\frac{z^2}{z^2-1.5z+0.7}:
+\]</div>
+<p>poles \(0.75\pm0.37j\) (shared by \(W\) and \(H\)), a zero of \(W\) in \(-0.5\), and a double zero of
+\(H\) in \(0\). The relative degree of \(W\) (\(2-1=1\)) equals the input delay \(n_k=1\).</p>
+<h2 id="sec-app-tf" class="sec"><span class="secnum">B.3</span> Relation with transfer functions</h2>
+<p>For a SISO system with \(x(0)=0\), \(Y(z)=W(z)U(z)\) and (Appendix&nbsp;<a class="xref" href="appA.html" data-ref="app:systems">A</a>)</p>
+<div class="eq">\[
+  W(z)=\frac{\beta_mz^m+\cdots+\beta_0}{z^n+\alpha_{n-1}z^{n-1}+\cdots+\alpha_0},\qquad m\le n .
+\]</div>
+<p>Dividing by \(z^n\),</p>
+<div class="eq">\[
+  W(z)=\frac{z^{-(n-m)}\bigl(\beta_m+\beta_{m-1}z^{-1}+\cdots+\beta_0z^{-m}\bigr)}{1+\alpha_{n-1}z^{-1}+\cdots+\alpha_0z^{-n}}=\frac{B(z)}{A(z)},
+\]</div>
+<p>so every proper rational transfer function is the \(W\) of an ARX (or ARMAX, OE) model with
+\(n_a=n\), \(a_i=-\alpha_{n-i}\) (convention of the notes; \(a_i=+\alpha_{n-i}\) with the MATLAB
+sign), \(n_k=n-m\) and \(b_j=\beta_{m-j}\). Conversely \(A(q)y(k)=B(q)u(k)\) describes the forced
+response of every system with transfer function \(B(z)/A(z)\). Note that:</p>
+<ul><li><p>\(W\) is strictly proper (\(D=0\)) iff \(b_0=0\), i.e. \(n_k\ge1\);</p></li><li><p>common roots of \(A(z)\) and \(B(z)\) cancel: a polynomial model with non-coprime \(A,B\) has a
+      lower-order transfer function, and its parameters are not identifiable (a whole
+      family of \((A,B)\) gives the same \(W\)): model orders should not be over-estimated;</p></li><li><p>for MIMO systems the same construction works with <em>matrix polynomials</em>,
+      e.g. \(A(q)=I-A_1q^{-1}-\cdots-A_{n_a}q^{-n_a}\) with \(A_i\in\R^{q\times q}\) and
+      \(B(q)=B_0+B_1q^{-1}+\cdots\) with \(B_j\in\R^{q\times p}\) (MIMO ARX models, still estimated by
+      least squares), but their parametrization is less straightforward than that of
+      state-space models.</p></li></ul>
+<h2 id="sec-app-ss-poly" class="sec"><span class="secnum">B.4</span> Relation with state-space models</h2>
+<p><strong class="runin">From ARX to state space.</strong>  Consider the (SISO) ARX model
+\(y(k)=\sum_{i=1}^na_iy(k-i)+\sum_{j=0}^nb_ju(k-j)+e(k)\) (pad with zero coefficients if
+\(n_a\neq n_b-1\)). Define the state components recursively by</p>
+<div class="eq">\[
+\begin{aligned}
+  x_1(k)&amp;=y(k)-b_0u(k)-e(k),\\
+  x_i(k+1)&amp;=a_iy(k)+x_{i+1}(k)+b_iu(k),\quad i=1,\dots,n-1,\qquad x_n(k+1)=a_ny(k)+b_nu(k).
+\end{aligned}
+\]</div>
+<p>Unrolling the recursion reproduces the difference equation. Substituting \(y(k)=x_1(k)+b_0u(k)+e(k)\)
+one obtains the <em>observer canonical form</em> with noise:</p>
+<div class="eq" id="eq-app-arx-ss">\[\left\{\begin{aligned}
+  x(k+1)&amp;=\underbrace{\bmat{a_1&amp;1&amp;0&amp;\cdots&amp;0\\ a_2&amp;0&amp;1&amp;\cdots&amp;0\\ \vdots&amp;&amp;&amp;\ddots&amp;\vdots\\ a_{n-1}&amp;0&amp;\cdots&amp;0&amp;1\\ a_n&amp;0&amp;\cdots&amp;0&amp;0}}_{A_o}x(k)
+   +\underbrace{\bmat{b_1+a_1b_0\\ b_2+a_2b_0\\ \vdots\\ b_n+a_nb_0}}_{B_o}u(k)
+   +\underbrace{\bmat{a_1\\ a_2\\ \vdots\\ a_n}}_{K}e(k),\\
+  y(k)&amp;=\underbrace{\bmat{1&amp;0&amp;\cdots&amp;0}}_{C_o}x(k)+b_0u(k)+e(k).
+\end{aligned}\right. \tag{B.2}\]</div>
+<p>Without the noise terms this is a realization of \(W(z)=B(z)/A(z)\) (always observable,
+\(\det(zI-A_o)=z^n-a_1z^{n-1}-\cdots-a_n\), reachable iff \(A\) and \(B\) are coprime).</p>
+<p><strong class="runin">The innovation form.</strong>  Model <a class="xref" href="#eq-app-arx-ss" data-ref="eq:app-arx-ss">(B.2)</a> is a special case of the
+<em>innovation form</em></p>
+<div class="eq" id="eq-app-innov">\[x(k+1)=Ax(k)+Bu(k)+Ke(k),\qquad y(k)=Cx(k)+Du(k)+e(k), \tag{B.3}\]</div>
+<p>the most general stationary LTI model with white innovation \(e\) (\(K\) is the steady-state
+Kalman gain). Eliminating \(e(k)=y(k)-Cx(k)-Du(k)\) gives the <em>predictor form</em></p>
+<div class="eq">\[
+  x(k+1)=(A-KC)x(k)+(B-KD)u(k)+Ky(k),\qquad \hat y(k|k-1)=Cx(k)+Du(k),
+\]</div>
+<p>and, by the matrix determinant lemma, the SISO noise transfer function is</p>
+<div class="eq">\[
+  H(z)=1+C(zI-A)^{-1}K=\frac{\det(zI-A+KC)}{\det(zI-A)} .
+\]</div>
+<p>Therefore, in the SISO case, every innovation model is an ARMAX model with
+\(A(z)\leftrightarrow\det(zI-A)\) and \(C(z)\leftrightarrow\det(zI-A+KC)\) (both divided by \(z^n\)), and</p>
+<ul><li><p><strong>ARX</strong> corresponds to \(A-KC\) <em>nilpotent</em> (all eigenvalues in \(0\), i.e.       \(C(q)=1\)): in <a class="xref" href="#eq-app-arx-ss" data-ref="eq:app-arx-ss">(B.2)</a>, \(A_o-KC_o\) is the shift matrix with ones on the
+      superdiagonal. The predictor \(\hat y(k|k-1)=[1-A(q)]y(k)+B(q)u(k)\) is then a finite
+      (deadbeat) filter of the data, which is why it is linear in the parameters;</p></li><li><p><strong>ARMAX</strong> corresponds to a general \(K\): in observer form, \(K=(a_1+c_1,\dots,a_n+c_n)\T\);</p></li><li><p><strong>OE</strong> corresponds to \(K=0\) in the state equation (the noise only enters the output
+      equation), i.e. the model \(x(k+1)=Ax+Bu\), \(y=Cx+Du+e\) of Chapter&nbsp;<a class="xref" href="ch8.html" data-ref="ch:moesp">8</a>;</p></li><li><p><strong>BJ</strong> requires an augmented state of dimension \(n_f+n_d\) (plant and noise
+      dynamics are distinct), with a block-diagonal \(A\).</p></li></ul>
+<p><strong class="runin">From state space to polynomial models.</strong>  Given \(\{A,B,C,D\}\) (SISO),
+\(W(z)=C(zI-A)^{-1}B+D=\frac{C\operatorname{adj}(zI-A)B+D\det(zI-A)}{\det(zI-A)}\): the
+denominator gives \(A(z)\) (after division by \(z^n\) and, if the realization is not minimal,
+after cancelling common factors, Section&nbsp;<a class="xref" href="appA.html#sec-app-cancel" data-ref="sec:app-cancel">A.6</a>), the numerator gives \(B(z)\). In MATLAB:
+<code>[num,den] = ss2tf(A,B,C,D)</code> and <code>tf2ss</code> for the converse (Control System
+Toolbox also <code>idpoly</code>/<code>idss</code> conversions in the System Identification Toolbox).</p>
+<div class="box example" id="example-B-1"><div class="box-title">Example B.1: ARX model in state space</div><div class="box-body"><p>For \(y(k)=1.5y(k-1)-0.7y(k-2)+u(k-1)+0.5u(k-2)+e(k)\) (\(b_0=0\)), <a class="xref" href="#eq-app-arx-ss" data-ref="eq:app-arx-ss">(B.2)</a> gives</p>
+<div class="eq">\[
+  A_o=\bmat{1.5&amp;1\\-0.7&amp;0},\quad B_o=\bmat{1\\0.5},\quad C_o=\bmat{1&amp;0},\quad D=0,\quad K=\bmat{1.5\\-0.7},
+\]</div>
+<p>and \(A_o-KC_o=\bmat{0&amp;1\\0&amp;0}\) is nilpotent.
+One checks that \(C_o(zI-A_o)^{-1}B_o=\frac{z+0.5}{z^2-1.5z+0.7}\) and that the simulation of
+<a class="xref" href="#eq-app-arx-ss" data-ref="eq:app-arx-ss">(B.2)</a> coincides with the ARX difference equation for any sequences \(u\) and
+\(e\) (verified numerically to \(10^{-15}\)).</p></div></div>
+<h2 id="s-B-5" class="sec"><span class="secnum">B.5</span> Exercises</h2>
+<div class="exercise" id="exercise-B-1"><p><span class="thm-head"><span class="ex-name">Exercise B.1</span>.</span> Write the ARMAX model \(y(k)=0.7y(k-1)+u(k-1)+e(k)+0.4e(k-1)\) in innovation form, and verify
+that the eigenvalue of \(A-KC\) is the root of \(C(z)\).</p></div>
+<div class="exercise" id="exercise-B-2"><p><span class="thm-head"><span class="ex-name">Exercise B.2</span>.</span> Show that an OE model \(y=\frac{B}{F}u+e\) can be written as an ARMAX model with \(A=C=F\). Why is
+it nevertheless not convenient to estimate it as an ARMAX model?</p></div>
+<div class="exercise" id="exercise-B-3"><p><span class="thm-head"><span class="ex-name">Exercise B.3</span>.</span> Using the controllable canonical form, find a state-space realization of the ARX model
+of Example&nbsp;<a class="xref" href="ch6.html#ex-arx" data-ref="ex:arx">6.2</a> and the change of coordinates relating it to <a class="xref" href="#eq-app-arx-ss" data-ref="eq:app-arx-ss">(B.2)</a>.</p></div>
+<div class="exercise" id="exercise-B-4"><p><span class="thm-head"><span class="ex-name">Exercise B.4</span>.</span> A MIMO ARX model with \(q=2\), \(p=1\), \(n_a=1\) has \(A(q)=I_2-A_1q^{-1}\) and \(B(q)=b_1q^{-1}\).
+Write the least-squares problem for \((A_1,b_1)\) and a state-space realization of order \(2\).</p></div>
+</article>
+<nav class="pagenav"><a class="pn prev" href="appA.html"><span>&larr; Previous</span><b>Discrete-time LTI systems in state space</b></a><a class="pn next" href="references.html"><span>Next &rarr;</span><b>Bibliography</b></a></nav>
+<footer class="foot">Lecture notes by Vittorio De Iuliis · University of L'Aquila · a.y. 2024–2025 · interactive web edition generated from the LaTeX sources</footer>
+</main>
+<div id="searchbox" class="searchbox" hidden>
+  <div class="searchpanel"><input id="searchinput" type="search" placeholder="Search the notes (e.g. Hankel, PSNR, Gauss–Markov)…" autocomplete="off">
+  <div id="searchres" class="searchres"></div></div>
+</div>
+</body>
+</html>

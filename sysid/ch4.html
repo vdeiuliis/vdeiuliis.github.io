@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ch. 4: Least squares · System Identification</title>
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem('sid-theme');if(t)document.documentElement.setAttribute('data-theme',t);var f=localStorage.getItem('sid-font');if(f)document.documentElement.style.setProperty('--fs',f+'px');}catch(e){}</script>
+
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']],
+    processEscapes: false, processEnvironments: true,
+    packages: ['base','ams','newcommand','noundefined','configmacros','textmacros','boldsymbol','mathtools','html','color','cancel','unicode'],
+    macros: {
+      R: '\\mathbb{R}', C: '\\mathbb{C}', N: '\\mathbb{N}', E: '\\mathbb{E}',
+      Im: '\\operatorname{Im}', Ker: '\\operatorname{Ker}', rank: '\\operatorname{rank}',
+      spn: '\\operatorname{span}', col: '\\operatorname{col}', row: '\\operatorname{row}',
+      tr: '\\operatorname{tr}', diag: '\\operatorname{diag}', vect: '\\operatorname{vec}',
+      argmin: '\\operatorname*{arg\\,min}', argmax: '\\operatorname*{arg\\,max}',
+      T: '^{\\mathsf{T}}', pinvsym: '^{\\dagger}',
+      norm: ['\\left\\lVert #1\\right\\rVert', 1], abs: ['\\left\\lvert #1\\right\\rvert', 1],
+      ip: ['\\langle #1,#2\\rangle', 2],
+      Obs: '\\mathcal{O}', Rch: '\\mathcal{R}', Toe: '\\mathcal{T}', Hk: '\\mathcal{H}', Z: '\\mathcal{Z}',
+      Pip: '\\Pi^{\\perp}', bmat: ['\\begin{bmatrix}#1\\end{bmatrix}', 1], pmat: ['\\begin{pmatrix}#1\\end{pmatrix}', 1],
+      up: '\\uparrow', dn: '\\downarrow', hatth: '\\hat{\\theta}', sm: '\\scriptstyle'
+    }
+  },
+  svg: { fontCache: 'global', scale: 1.0 },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code','select','option'],
+             ignoreHtmlClass: 'no-mathjax' },
+  startup: { ready() { MathJax.startup.defaultReady(); MathJax.startup.promise.then(() => document.dispatchEvent(new Event('mathjax-ready'))); } }
+};
+</script>
+<script src="vendor/tex-svg-full.js" defer></script>
+
+<script src="assets/refs.js" defer></script>
+<script src="assets/la.js" defer></script>
+<script src="assets/plot.js" defer></script>
+<script src="assets/widgets.js" defer></script>
+<script src="assets/app.js" defer></script>
+</head>
+<body data-page="ch4">
+<header class="topbar">
+  <button class="iconbtn" id="navtoggle" aria-label="Contents"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="index.html">System Identification <span>&amp; Data Analysis</span></a>
+  <div class="topsp"></div>
+  <a class="iconbtn labsbtn" href="index.html#labs" title="List of the interactive laboratories">Labs</a>
+  <button class="iconbtn" id="searchbtn" aria-label="Search" title="Search (/)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></button>
+  <button class="iconbtn" id="fontminus" title="Smaller text">A&minus;</button>
+  <button class="iconbtn" id="fontplus" title="Larger text">A+</button>
+  <button class="iconbtn" id="themebtn" title="Light / dark theme"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button>
+</header>
+<nav class="sidebar" id="sidebar"><div class="navhead"><a href="index.html">Contents</a></div><ol class="navlist"><li><a href="notation.html"><span class="navnum"></span>Notation</a></li><li><a href="ch1.html"><span class="navnum">1</span>Introduction</a></li><li><a href="ch2.html"><span class="navnum">2</span>Fundamentals of linear algebra</a></li><li><a href="ch3.html"><span class="navnum">3</span>The singular value decomposition</a></li><li class="cur"><a href="ch4.html"><span class="navnum">4</span>Least squares</a><ol class="navsec"><li><a href="#sec-linsys" data-sec="sec-linsys"><span class="navnum">4.1</span>Linear systems of equations</a></li><li><a href="#sec-linefit" data-sec="sec-linefit"><span class="navnum">4.2</span>A motivating example: fitting a straight line</a></li><li><a href="#s-4-3" data-sec="s-4-3"><span class="navnum">4.3</span>The least-squares solution</a></li><li><a href="#sec-projectors" data-sec="sec-projectors"><span class="navnum">4.4</span>Orthogonal projections</a></li><li><a href="#sec-ls-stat" data-sec="sec-ls-stat"><span class="navnum">4.5</span>Statistical properties</a></li><li><a href="#sec-curvefit" data-sec="sec-curvefit"><span class="navnum">4.6</span>An application: straight-line and polynomial fitting</a></li><li><a href="#sec-pinv" data-sec="sec-pinv"><span class="navnum">4.7</span>Rank-deficient problems and the pseudo-inverse</a></li><li><a href="#sec-leastnorm" data-sec="sec-leastnorm"><span class="navnum">4.8</span>Underdetermined systems and least-norm solutions</a></li><li><a href="#sec-tls" data-sec="sec-tls"><span class="navnum">4.9</span>Errors in the regressors: total least squares</a></li><li><a href="#sec-ridge" data-sec="sec-ridge"><span class="navnum">4.10</span>Regularized least squares</a></li><li><a href="#sec-ls-numerics" data-sec="sec-ls-numerics"><span class="navnum">4.11</span>Numerical aspects</a></li><li><a href="#s-4-12" data-sec="s-4-12"><span class="navnum">4.12</span>Exercises</a></li><li><a href="#s-4-13" data-sec="s-4-13"><span class="navnum">4.13</span>Implementation in MATLAB and Python</a></li></ol></li><li><a href="ch5.html"><span class="navnum">5</span>Introduction to system identification</a></li><li><a href="ch6.html"><span class="navnum">6</span>Prediction-error methods for polynomial models</a></li><li><a href="ch7.html"><span class="navnum">7</span>Towards subspace identification: the Ho–Kalman realization</a></li><li><a href="ch8.html"><span class="navnum">8</span>Subspace identification: the MOESP method</a></li><li><a href="appA.html"><span class="navnum">A</span>Discrete-time LTI systems in state space</a></li><li><a href="appB.html"><span class="navnum">B</span>Polynomial input–output models</a></li><li><a href="references.html"><span class="navnum"></span>Bibliography</a></li></ol></nav>
+<div class="scrim" id="scrim"></div>
+<main class="content" id="content">
+<article class="chapter">
+<h1 class="chap" id="top"><span class="chapnum">Chapter 4</span><span class="chaptitle">Least squares</span></h1>
+<p>This section will introduce one of the pinnacles of model estimation: the least squares method. We will introduce it in the framework of finding approximate solutions to overdetermined linear systems of equations, but we will also discuss other applications. As discussed in Section <a class="xref" href="ch1.html#sec-intro-ceres" data-ref="sec:intro-ceres">1.2</a>, the methodology was introduced by Gauss and Legendre to solve problems related to orbit determination. It is still used today for many different applications in estimation and data analysis. In this sense, it will be largely used in the following chapters for its impact on linear system identification.</p>
+<h2 id="sec-linsys" class="sec"><span class="secnum">4.1</span> Linear systems of equations</h2>
+<p>Consider the linear system of \(m\) equations in the \(n\) unknowns \(x_1, \dots, x_n\):</p>
+<div class="eq">\[\begin{aligned}
+ y_1&amp;=a_{11}x_1+a_{12}x_2+\cdots+a_{1n}x_n\\
+ y_2&amp;=a_{21}x_1+a_{22}x_2+\cdots+a_{2n}x_n\\
+ &amp;\;\;\vdots\\
+ y_m&amp;=a_{m1}x_1+a_{m2}x_2+\cdots+a_{mn}x_n
+ \end{aligned}
+\qquad\iff\qquad
+y = Ax \tag{4.1}\]</div>
+<p>with \(y \in \mathbb{R}^m\), \(A \in \mathbb{R}^{m \times n}, x \in \mathbb{R}^n\). By interpreting the product \(Ax\) as in  <a class="xref" href="ch2.html#eq-colcomb" data-ref="eq:colcomb">(2.1)</a>, solving \(y=Ax\) means finding coefficients \(x_1,\dots,x_n\) that
+combine the columns of \(A=[a_1\cdots a_n]\) to obtain \(y=a_1x_1+\cdots+a_nx_n\). Hence:</p>
+<div class="box keybox"><ul><li><p>a solution <em>exists</em> if and only if \(y\in\Im(A)\);</p></li><li><p>if \(x_p\) is a solution, the set of all solutions is
+      \(\mathcal S=\{x_p+x_0:\ x_0\in\Ker(A)\}\); the solution is <em>unique</em> iff
+      \(\Ker(A)=\{0\}\), i.e. \(\rank(A)=n\); otherwise there are \(\infty^{\,n-\rank(A)}\) solutions.</p></li></ul></div>
+<p>We now discuss the three possible shapes of \(A\).</p>
+<p><strong class="runin">Square systems, \(m=n\).</strong>  A solution exists iff \(y\in\Im(A)\). If \(\rank(A)=n\)
+then \(\Im(A)=\R^n\) and \(\Ker(A)=\{0\}\), so there is exactly one solution \(x=A^{-1}y\) for
+every \(y\). If \(\rank(A)&lt;n\), there are either no solutions or infinitely many.</p>
+<p><strong class="runin">Underdetermined systems, \(n&gt;m\)</strong>  (more unknowns than equations, \(A\) fat).
+Solutions exist provided that \(y\in\Im(A)\), and they are never unique since
+\(\dim\Ker(A)=n-\rank(A)\ge n-m&gt;0\). See Example&nbsp;<a class="xref" href="#ex-underdet" data-ref="ex:underdet">4.1</a>.</p>
+<div class="box example" id="ex-underdet"><div class="box-title">Example 4.1: a rank-deficient underdetermined system</div><div class="box-body"><p>Consider \(y=Ax\) with</p>
+<div class="eq">\[
+  A=\bmat{1&amp;0&amp;0&amp;0\\0&amp;1&amp;0&amp;0\\0&amp;0&amp;0&amp;0},\qquad \rank(A)=2&lt;m=3,
+\]</div>
+<p>so that \(\Im(A)=\spn\{e_1,e_2\}\subset\R^3\) and \(\Ker(A)=\spn\{e_3,e_4\}\), with
+\(\dim\Ker(A)=n-\rank(A)=2\).</p>
+<ul><li><p>If \(y=(1,1,0)\T\), then \(y\in\Im(A)\). A particular solution is \(x_p=(1,1,0,0)\T\), and</p>
+<div class="eq">\[
+        \mathcal S=\{x_p+x_0:\ x_0\in\Ker(A)\}=\bigl\{(1,1,\alpha,\beta)\T:\ \alpha,\beta\in\R\bigr\}:
+      \]</div>
+<p>there are \(\infty^{n-\rank(A)}=\infty^2\) solutions.</p></li><li><p>If \(y=(1,1,1)\T\), then \(y\notin\Im(A)\) (the third equation reads \(0=1\)) and there is
+      no solution.</p></li></ul>
+<p>Whether solutions exist depends on \(y\) because \(A\) is not full row rank; with independent
+rows this cannot happen (Example&nbsp;<a class="xref" href="#ex-underdet-fullrow" data-ref="ex:underdet-fullrow">4.3</a>).</p></div></div>
+<p><strong class="runin">Overdetermined systems, \(m&gt;n\)</strong>  (more equations than unknowns, \(A\) tall). Now
+\(\Im(A)\) is a proper subspace of \(\R^m\) (of dimension at most \(n&lt;m\)): there is <em>no
+solution at all</em> whenever \(y\notin\Im(A)\), and an exact solution only if \(y\in\Im(A)\).
+This is the case we are facing in data fitting.</p>
+<h2 id="sec-linefit" class="sec"><span class="secnum">4.2</span> A motivating example: fitting a straight line</h2>
+<p>Assume that an exact linear model \(y=mt+q\) underlies some physical experiment, and that
+\(m\) measurements \((t_i,y_i)\) are collected. If the points lie on the same line,
+\(y_i=mt_i+q\) for all \(i\), i.e.</p>
+<div class="eq">\[
+  \underbrace{\bmat{y_1\\ \vdots\\ y_m}}_{y}=\underbrace{\bmat{t_1&amp;1\\ \vdots&amp;\vdots\\ t_m&amp;1}}_{A}
+  \underbrace{\bmat{m\\ q}}_{x},
+\]</div>
+<p>and, if the measurements are exact and the underlying model is linear, \(y\in\Im(A)\)
+<em>exactly</em> (Figure&nbsp;<a class="xref" href="#fig-linefit-cases" data-ref="fig:linefit-cases">4.1</a>(a)). As soon as we account for errors in the
+measurements \(y_i\), it is clear that \(y\notin\Im(A)\) anymore (Figure&nbsp;<a class="xref" href="#fig-linefit-cases" data-ref="fig:linefit-cases">4.1</a>(b)):
+no straight line passes through all the points. Still, what is the best approximation \(\hat x=(\hat m,\hat q)\T\) we can compute?
+Defining the <em>residual</em></p>
+<div class="eq">\[
+  \varepsilon=y-Ax,\qquad
+  \bmat{\varepsilon_1\\ \vdots\\ \varepsilon_m}=\bmat{y_1\\ \vdots\\ y_m}-\bmat{t_1&amp;1\\ \vdots&amp;\vdots\\ t_m&amp;1}\bmat{m\\ q},
+\]</div>
+<p>it makes sense to look for the \(x\) that makes the residual as small as possible.</p>
+<figure class="fig" id="fig-linefit-cases"><div class="fig-img"><img src="figures/fig-linefit-cases.svg" alt="Figure 4.1" loading="lazy" style="width:698px"></div><figcaption><span class="fig-name">Figure 4.1:</span> Straight-line model \(y=0.8\,t+1.2\). (a) With exact measurements all the points lie
+on the line, i.e. \(y\in\Im(A)\). (b) With errors on the measurements \(y_i\) (here the data
+of Example&nbsp;<a class="xref" href="#ex-linefit" data-ref="ex:linefit">4.2</a>) no straight line passes through all the points: \(y\notin\Im(A)\).</figcaption></figure>
+<figure class="fig" id="fig-linefit"><div class="fig-img"><img src="figures/fig-linefit.svg" alt="Figure 4.2" loading="lazy" style="width:465px"></div><figcaption><span class="fig-name">Figure 4.2:</span> Straight-line fitting of the data of Example&nbsp;<a class="xref" href="#ex-linefit" data-ref="ex:linefit">4.2</a>: the least-squares line
+minimizes the sum of the squared vertical residuals \(\varepsilon_i=y_i-\hat mt_i-\hat q\).</figcaption></figure>
+<div class="widget" id="w-linefit" data-widget="linefit"></div>
+<p>From now on, keeping in mind that the straight-line fitting is only a motivating example,
+we solve the general problem of finding an approximate solution (&ldquo;the best&rdquo; in some
+sense) to \(y=Ax\) whenever \(y\notin\Im(A)\), \(m&gt;n\).</p>
+<h2 id="s-4-3" class="sec"><span class="secnum">4.3</span> The least-squares solution</h2>
+<p>We focus on the overdetermined case (\(m&gt;n\)) and assume that \(A\) is full column rank (independent columns, \(\rank(A)=n\)). It makes
+sense to find the best approximate \(x\) such that \(\norm{\varepsilon}_2^2\) is minimized:
+<em>least squares</em> (of the error/residual). This is the standard way of doing it:</p>
+<div class="eq" id="eq-lsproblem">\[\hat x=\argmin_x\norm{\varepsilon}_2^2=\argmin_x\varepsilon\T\varepsilon
+        =\argmin_x\,\underbrace{(y-Ax)\T(y-Ax)}_{J(x)} . \tag{4.2}\]</div>
+<p><strong class="runin">Analytical derivation.</strong>  Expanding the cost,</p>
+<div class="eq">\[
+  J(x)=(y-Ax)\T(y-Ax)=y\T y-x\T A\T y-y\T Ax+x\T A\T Ax=y\T y-2y\T Ax+x\T A\T Ax .
+\]</div>
+<p>Setting the gradient to zero,</p>
+<div class="eq">\[
+  \frac{\partial J(x)}{\partial x}=2A\T Ax-2A\T y=0\iff A\T Ax=A\T y
+  \qquad\text{(normal equations)}.
+\]</div>
+<p>Since \(A\) has independent columns, \(A\T A\succ0\) is invertible, and</p>
+<div class="eq" id="eq-lssol">\[\boxed{\hat x=(A\T A)^{-1}A\T y .} \tag{4.3}\]</div>
+<p>The Hessian \(\partial^2J/\partial x^2=2A\T A\succ0\) (positive definite whenever \(A\) has
+independent columns), so \(J\) is strictly convex and \(\hat x\) is its unique minimizer. The
+matrix</p>
+<div class="eq">\[
+  A\pinvsym=(A\T A)^{-1}A\T
+\]</div>
+<p>is a <em>left inverse</em> of \(A\), because \(A\pinvsym A=(A\T A)^{-1}A\T A=I_n\). Note that
+\(AA\pinvsym\neq I_m\): it is not the identity anymore, but an important matrix nevertheless
+(Section&nbsp;<a class="xref" href="#sec-projectors" data-ref="sec:projectors">4.4</a>).</p>
+<p><strong class="runin">Geometric derivation.</strong>  If \(y\in\Im(A)\), solving the system means to find \(x_1,x_2,\dots, x_n\) such that
+\(a_1 x_1+a_2 x_2+\dots+a_n x_n=y\). Consider, just for ease of visualization the case \(n=2\), depicted in Figure&nbsp;<a class="xref" href="#fig-ls-geometry" data-ref="fig:ls-geometry">4.3</a>, where \(A=[a_1\;a_2]\). If \(y\notin\Im(A)\) there are no \(x_1,x_2\) with
+\(y=a_1x_1+a_2x_2\); an approximate solution \(\tilde x\) will be such that
+\(y=a_1\tilde x_1+a_2\tilde x_2+\tilde\varepsilon=\tilde y+\tilde\varepsilon\), with \(\tilde
+y\in\Im(A)\). <em>Intuition</em>: the shortest residual \(\hat\varepsilon\) will correspond to
+the best approximate solution \(\hat x\), the one for which \(\hat y=A\hat x\in\Im(A)\)
+minimizes the distance from \(y\). The minimum residual corresponds to the <em>orthogonal
+projection</em> of \(y\) onto \(\Im(A)\) (Figure&nbsp;<a class="xref" href="#fig-ls-geometry" data-ref="fig:ls-geometry">4.3</a>), hence
+\(\hat\varepsilon=y-A\hat x\perp\Im(A)\). From Theorem&nbsp;<a class="xref" href="ch2.html#thm-foursub" data-ref="thm:foursub">2.5</a>,
+\(\Im(A)\perp\Ker(A\T)\), so</p>
+<div class="eq">\[
+  \hat\varepsilon\in\Ker(A\T)\iff A\T\hat\varepsilon=0\iff A\T(y-A\hat x)=0
+  \iff A\T A\hat x=A\T y\implies \hat x=(A\T A)^{-1}A\T y ,
+\]</div>
+<p>which is again <a class="xref" href="#eq-lssol" data-ref="eq:lssol">(4.3)</a>.</p>
+<figure class="fig" id="fig-ls-geometry"><div class="fig-img"><img src="figures/fig-ls-geometry.svg" alt="Figure 4.3" loading="lazy" style="width:403px"></div><figcaption><span class="fig-name">Figure 4.3:</span> Geometry of least squares: \(\hat y\) is the orthogonal projection of \(y\) onto
+\(\Im(A)\), i.e. the combination \(\hat y=a_1\hat x_1+a_2\hat x_2\) of the columns of \(A\)
+(dashed) closest to \(y\), and the optimal residual is orthogonal to \(\Im(A)\).</figcaption></figure>
+<div class="widget" id="w-lsgeom3d" data-widget="lsgeom3d"></div>
+<h2 id="sec-projectors" class="sec"><span class="secnum">4.4</span> Orthogonal projections</h2>
+<p>We already established that \(A\pinvsym A=I_n\). On the other hand
+\(\hat\varepsilon=y-\hat y=y-A\hat x\), and \(\hat y\) is the orthogonal projection of \(y\) onto
+\(\Im(A)\):</p>
+<div class="eq">\[
+ \hat y =A\hat x=A(A\T A)^{-1}A\T y.
+\]</div>
+<p>The matrix \(A(A\T A)^{-1}A\T=AA\pinvsym\) is the <em>orthogonal projection matrix onto
+\(\Im(A)\)</em>, and we denote it by</p>
+<div class="eq">\[
+  \Pi_{\Im(A)}=AA\pinvsym=A(A\T A)^{-1}A\T\in\R^{m\times m}.
+\]</div>
+<p><strong class="runin">Properties of \(\Pi_{\Im(A)}\).</strong></p>
+<ul><li><p>\(\Pi_{\Im(A)}\Pi_{\Im(A)}=AA\pinvsym AA\pinvsym=AA\pinvsym=\Pi_{\Im(A)}\) (idempotent: projecting twice changes nothing);</p></li><li><p>\(\Pi_{\Im(A)}\T=\Pi_{\Im(A)}\) (symmetric: this is what makes the projection <em>orthogonal</em>);</p></li><li><p>\(\Pi_{\Im(A)}A=AA\pinvsym A=A\);</p></li><li><p>for every \(z\in\R^m\), \(\norm{\Pi_{\Im(A)}z}\le\norm{z}\) (e.g. \(\norm{\hat y}\le\norm{y}\));</p></li><li><p>if \(z\in\Im(A)\) then \(\Pi_{\Im(A)}z=z\).</p></li></ul>
+<p>Since \(y-\hat y=\hat\varepsilon\in\Ker(A\T)\perp\Im(A)\), it is easy to understand that</p>
+<div class="eq">\[
+  I_m-\Pi_{\Im(A)}=\Pi_{\Ker(A\T)}
+\]</div>
+<p>projects onto the orthogonal complement of \(\Im(A)\), which is \(\Ker(A\T)\).</p>
+<div class="thm thm-remark" id="remark-4-1"><p><span class="thm-head"><span class="thm-name">Remark 4.1</span>.</span> In general, a
+matrix \(P\) is an orthogonal projector iff \(P^2=P\) and \(P\T=P\); if the columns of \(Q\) are an
+orthonormal basis of a subspace \(\mathcal V\), then \(\Pi_{\mathcal V}=QQ\T\). With the thin QR
+decomposition \(A=Q_1R_1\) one gets \(\Pi_{\Im(A)}=Q_1Q_1\T\), and with the SVD
+\(\Pi_{\Im(A)}=U_rU_r\T\).</p></div>
+<h2 id="sec-ls-stat" class="sec"><span class="secnum">4.5</span> Statistical properties</h2>
+<p>Assume that the data are generated by \(y=Ax_0+\varepsilon\), where \(x_0\) is the &ldquo;true&rdquo;
+parameter, \(A\) is deterministic with independent columns and \(\varepsilon\) is a random
+vector with \(\E(\varepsilon)=0\) and \(\E(\varepsilon\varepsilon\T)=\sigma^2I_m\) (a white
+sequence of residuals with zero mean and equal variance). Then:</p>
+<ul><li><p>\(\hat x=A\pinvsym y=x_0+A\pinvsym\varepsilon\) is <em>unbiased</em>: \(\E(\hat x)=x_0\);</p></li><li><p>its covariance is \(\operatorname{cov}(\hat x)=\sigma^2(A\T A)^{-1}\); moreover, an
+      unbiased estimate of the noise variance \(\sigma^2\) is \(\hat\sigma^2=\norm{y-A\hat x}^2/(m-n)\);</p></li><li><p>(Gauss&ndash;Markov theorem) \(\hat x\) is the <em>best linear unbiased estimator</em>
+      (BLUE): every other linear unbiased estimator \(\tilde x=Ky\) has
+      \(\operatorname{cov}(\tilde x)\succeq\operatorname{cov}(\hat x)\);</p></li><li><p>if also \(\varepsilon\sim\mathcal N(0,\sigma^2I)\), then \(\hat x\) is the maximum-likelihood
+      estimator and has minimum variance among <em>all</em> unbiased estimators (not only
+      linear ones): &ldquo;best linear = best overall&rdquo;.</p></li></ul>
+<p>If \(\E(\varepsilon)=0\) and \(\E(\varepsilon\varepsilon\T)=\Psi\succ0\) (correlated or
+non-uniform errors), the above remarks generalize to <em>generalized</em> (weighted) least
+squares,</p>
+<div class="eq">\[
+  \hat x=\argmin_x(y-Ax)\T\Psi^{-1}(y-Ax)=\underbrace{(A\T\Psi^{-1}A)^{-1}A\T\Psi^{-1}}_{\text{weighted left inverse}}y ,
+\]</div>
+<p>which is the BLUE in this case. (It is ordinary LS applied to the &ldquo;whitened&rdquo; data
+\(\Psi^{-1/2}y=\Psi^{-1/2}Ax+\Psi^{-1/2}\varepsilon\).)</p>
+<h2 id="sec-curvefit" class="sec"><span class="secnum">4.6</span> An application: straight-line and polynomial fitting</h2>
+<p>We now have a way to derive the solution for the straight-line fitting problem described in Section&nbsp;<a class="xref" href="#sec-linefit" data-ref="sec:linefit">4.2</a>: the
+&ldquo;best fitting&rdquo; straight line (first-order polynomial) to the data
+\(\{(t_1,y_1),\dots,(t_m,y_m)\}\) is \(y=\hat mt+\hat q\) with</p>
+<div class="eq">\[
+  \bmat{\hat m\\ \hat q}=\bmat{t_1&amp;1\\ t_2 &amp;1 \\ \vdots&amp;\vdots\\ t_m&amp;1}\pinvsym\bmat{y_1\\y_2 \\ \vdots\\ y_m}.
+\]</div>
+<p>Writing out the normal equations one finds the equivalent formulations</p>
+<div class="eq">\[\hat m=\frac{\sum_i(t_i-\bar t)(y_i-\bar y)}{\sum_i(t_i-\bar t)^2}, \quad  \text{and } \hat q=\bar y-\hat m\bar t, \tag{4.4}\]</div>
+<p>where \(\bar t,\bar y\) are the sample means. Such explicit formulation in terms of \(t_i\), \(y_i\) and of the sample means \(\bar t, \bar y\), are standard in regression analysis.</p>
+<div class="box example" id="ex-linefit"><div class="box-title">Example 4.2: least-squares line</div><div class="box-body"><p>For \(t=(-1,1,1.5,3,3.5)\T\) and \(y=(0.4,2.2,2.3,3.9,4.0)\T\) we get \(\bar t=1.6\), \(\bar y=2.56\),
+\(\hat m=0.8244\), \(\hat q=1.2409\) and \(\norm{\hat\varepsilon}^2=0.1004\); one checks
+numerically that \(A\T\hat\varepsilon=0\) (Figure&nbsp;<a class="xref" href="#fig-linefit" data-ref="fig:linefit">4.2</a>).</p></div></div>
+<p>What about the case in which we are not happy with a first-order polynomial? For the model
+\(y=a_nt^n+a_{n-1}t^{n-1}+\cdots+a_1t+a_0\),</p>
+<div class="eq">\[
+\underbrace{\bmat{y_1\\y_2\\ \vdots\\ y_m}}_{y}=
+\underbrace{\bmat{t_1^n&amp;t_1^{n-1}&amp;\cdots&amp;t_1&amp;1\\ t_2^n&amp;t_2^{n-1}&amp;\cdots&amp;t_2&amp;1\\
+ \vdots&amp;\vdots&amp;&amp;\vdots&amp;\vdots\\ t_m^n&amp;t_m^{n-1}&amp;\cdots&amp;t_m&amp;1}}_{A\ (\text{Vandermonde form})}
+\underbrace{\bmat{a_n\\a_{n-1}\\ \vdots\\ a_1\\ a_0}}_{x}
+\]</div>
+<p>and, as long as \(n+1\le m\) and the \(t_i\) are distinct (so that \(A\) has independent
+columns), the \(n\)-th order polynomial that best fits the data is still given by
+\(\hat x=A\pinvsym y\). The model is <em>nonlinear in \(t\) but linear in the parameters</em>,
+which is all that least squares requires. We are faced with an interesting question: is it smart to fit a high-order polynomial to
+data that might be corrupted by errors? This leads to the problem of <em>model selection
+and validation</em>, discussed in Section&nbsp;<a class="xref" href="ch5.html#sec-validation" data-ref="sec:validation">5.4</a>.</p>
+<h2 id="sec-pinv" class="sec"><span class="secnum">4.7</span> Rank-deficient problems and the pseudo-inverse</h2>
+<p>Revisit the overdetermined system \(y=Ax\), \(y\in\R^m\), \(A\in\R^{m\times n}\), \(x\in\R^n\),
+now with \(m&gt;n\) and \(\rank(A)=r&lt;n\). In this case \(A\T A\) is singular, \((A\T A)^{-1}\) does not
+exist, and neither does \((A\T A)^{-1}A\T\). To see what to do, imagine first that \(A\) is full
+rank (\(\rank(A)=n\)) and check how <a class="xref" href="#eq-lssol" data-ref="eq:lssol">(4.3)</a> can be written resorting to the SVD
+\(A=U\Sigma V\T=\sum_{i=1}^n\sigma_iu_iv_i\T\). With \(U\T U=I\),</p>
+<div class="eq">\[
+  A\pinvsym=(A\T A)^{-1}A\T=(V\Sigma\T U\T U\Sigma V\T)^{-1}V\Sigma\T U\T
+           =(\underbrace{V}_{M}\underbrace{\Sigma\T\Sigma}_{N}\underbrace{V\T}_{P})^{-1}V\Sigma\T U\T .
+\]</div>
+<p>Whenever \(M,N,P\) are invertible, \((MNP)^{-1}=P^{-1}N^{-1}M^{-1}\); with \(V^{-1}=V\T\),
+\((V\T)^{-1}=V\):</p>
+<div class="eq">\[
+  A\pinvsym=V(\Sigma\T\Sigma)^{-1}V\T V\Sigma\T U\T=V\underbrace{(\Sigma\T\Sigma)^{-1}\Sigma\T}_{\Sigma\pinvsym}U\T
+           =V\Sigma\pinvsym U\T ,
+\]</div>
+<p>with \(\Sigma\pinvsym=\bmat{\diag(1/\sigma_1,\dots,1/\sigma_n) &amp; 0}\in\R^{n\times m}\).
+We guess that, when \(A\) has dependent columns so that \(\rank(A)=r&lt;n\), we could use the
+full-rank part of the SVD of \(A\), \(A=U_r\Sigma_rV_r\T=\sum_{i=1}^r\sigma_iu_iv_i\T\)
+(Eq.&nbsp;<a class="xref" href="ch3.html#eq-svd-part" data-ref="eq:svd-part">(3.3)</a>), and define</p>
+<div class="eq" id="eq-pinv">\[\boxed{A\pinvsym=V_r\Sigma_r^{-1}U_r\T=\sum_{i=1}^r\frac1{\sigma_i}\,v_iu_i\T ,} \tag{4.5}\]</div>
+<p>which reduces to \(V\Sigma\pinvsym U\T\) if \(A\) is full rank. One should check that
+<a class="xref" href="#eq-pinv" data-ref="eq:pinv">(4.5)</a> satisfies the definition of the <em>Moore&ndash;Penrose pseudo-inverse</em>, i.e. the four conditions</p>
+<div class="eq">\[
+  AA\pinvsym A=A,\qquad A\pinvsym AA\pinvsym=A\pinvsym,\qquad (AA\pinvsym)\T=AA\pinvsym,\qquad (A\pinvsym A)\T=A\pinvsym A,
+\]</div>
+<p>which define \(A\pinvsym\) uniquely. Let us just check the first one, using \(u_i\T u_j=\delta_{ij}\)
+and \(v_i\T v_j=\delta_{ij}\):</p>
+<div class="eq">\[
+  AA\pinvsym A=\sum_{i,j,k=1}^r\sigma_i\frac1{\sigma_j}\sigma_k\,u_i(v_i\T v_j)(u_j\T u_k)v_k\T
+             =\sum_{i=1}^r\frac{\sigma_i\sigma_i}{\sigma_i}u_iv_i\T=\sum_{i=1}^r\sigma_iu_iv_i\T=A .
+\]</div>
+<div class="thm thm-theorem" id="thm-minnormls"><p><span class="thm-head"><span class="thm-name">Theorem 4.2</span> <span class="thm-title">(Minimum-norm least-squares solution)</span>.</span> For every \(A\in\R^{m\times n}\) and \(y\in\R^m\), the set of minimizers of \(\norm{y-Ax}_2\) is
+\(\hat x+\Ker(A)\) with \(\hat x=A\pinvsym y\), and \(\hat x\) is the minimizer with the
+smallest norm.</p></div>
+<details class="proof" open><summary>Proof.</summary><div class="proof-body"><p>With \(z=V\T x\) and \(c=U\T y\), \(\norm{y-Ax}^2=\norm{c-\Sigma z}^2=\sum_{i\le r}(c_i-\sigma_iz_i)^2+\sum_{i&gt;r}c_i^2\).
+It is minimized by \(z_i=c_i/\sigma_i\), \(i\le r\), with \(z_{r+1},\dots,z_n\) arbitrary; the norm
+\(\norm x=\norm z\) is smallest when these are zero, which gives \(x=V_r\Sigma_r^{-1}U_r\T y\).</p><span class="qed">&#8718;</span></div></details>
+<p><strong><em>To sum up</em></strong>: in the overdetermined case (\(m &gt; n\)), with \(A\) full column rank, there exists a unique least-squares solution \(\hat x = A^\dagger y = (A\T A)^{-1} A\T y\) (which coincides with the unique exact solution if \(y \in \Im(A)\)). If \(A\) has dependent columns, there are infinitely many least-squares solutions; the unique one of minimum norm is given by</p>
+<div class="eq">\[
+  \hat x=A\pinvsym y,\qquad A\pinvsym=\sum_{i=1}^r\frac1{\sigma_i}v_iu_i\T,\qquad r=\rank(A).
+\]</div>
+<p>In MATLAB, the pseudo-inverse can be computed with <code>pinv(A)</code>. Still, if the goal is just solving \(y=Ax\) with \(A\) full column
+rank, use <code>x = A\ y</code>, which relies on a QR factorization and is cheaper
+and more accurate than forming the pseudo-inverse.</p>
+<h2 id="sec-leastnorm" class="sec"><span class="secnum">4.8</span> Underdetermined systems and least-norm solutions</h2>
+<p>Consider now underdetermined systems (more unknowns than available data, e.g. fewer
+observations than model parameters, \(m&lt;n\)): in \(y=Ax\) the matrix \(A\) is fat. As seen in
+Section&nbsp;<a class="xref" href="#sec-linsys" data-ref="sec:linsys">4.1</a>, whenever solutions exist they form the set</p>
+<div class="eq">\[
+  \mathcal S=\{x_p+x_0:\ x_0\in\Ker(A)\},
+\]</div>
+<p>where \(x_p\) is any particular solution and \(x_0\) is an arbitrary vector of the kernel. Since
+\(\dim\Ker(A)=n-\rank(A)\ge n-m&gt;0\), the solution is never unique. As for existence:</p>
+<ul><li><p>if \(A\) is <em>full row rank</em> (independent rows, \(\rank(A)=m\)), then \(\Im(A)=\R^m\):
+      every \(y\) belongs to \(\Im(A)\), and there are always infinitely many solutions;</p></li><li><p>if \(\rank(A)&lt;m\), exact solutions exist if and only if \(y\in\Im(A)\)
+      (Example&nbsp;<a class="xref" href="#ex-underdet" data-ref="ex:underdet">4.1</a>).</p></li></ul>
+<div class="box example" id="ex-underdet-fullrow"><div class="box-title">Example 4.3: a full-row-rank underdetermined system</div><div class="box-body"><p>Consider</p>
+<div class="eq">\[
+  \bmat{y_1\\y_2}=\bmat{1&amp;1&amp;0\\0&amp;1&amp;1}\bmat{x_1\\x_2\\x_3},\qquad \rank(A)=2=m .
+\]</div>
+<p>The two rows are independent, so \(\Im(A)=\R^2\) and a solution exists for every \(y\). For
+instance, for \(y=(2,2)\T\) the equations \(x_1+x_2=2\) and \(x_2+x_3=2\) give \(x_1=x_3=2-x_2\).
+Choosing \(x_2=0\) yields the particular solution \(x_p=(2,0,2)\T\); moreover
+\(\Ker(A)=\spn\{(1,-1,1)\T\}\), with \(\dim\Ker(A)=n-\rank(A)=1\). Hence</p>
+<div class="eq">\[
+  \mathcal S=\bigl\{(2,0,2)\T+\alpha\,(1,-1,1)\T:\ \alpha\in\R\bigr\}
+            =\bigl\{(2+\alpha,\,-\alpha,\,2+\alpha)\T:\ \alpha\in\R\bigr\},
+\]</div>
+<p>a line of solutions in \(\R^3\). Unlike in Example&nbsp;<a class="xref" href="#ex-underdet" data-ref="ex:underdet">4.1</a>, no choice of \(y\) makes the
+system inconsistent.</p></div></div>
+<p>Whenever \(A\) is full row rank, it makes sense in some applications to select, among the
+infinitely many solutions, the one with minimum norm:</p>
+<div class="eq" id="eq-leastnorm">\[x_{\mathrm{ln}}=\argmin_{x:\ y=Ax}\norm x\qquad\implies\qquad
+  \boxed{x_{\mathrm{ln}}=A\T(AA\T)^{-1}y .} \tag{4.6}\]</div>
+<p>The form of this solution can be guessed as follows. A component of \(x\) along \(\Ker(A)\)
+does not change \(Ax\), but it increases \(\norm x\); hence the minimizer should have no such
+component, i.e. it should lie in \(\Ker(A)^\perp=\Im(A\T)\) (Theorem&nbsp;<a class="xref" href="ch2.html#thm-foursub" data-ref="thm:foursub">2.5</a>):
+\(x=A\T\lambda\) for some \(\lambda\in\R^m\). The constraint \(y=Ax\) then becomes
+\(AA\T\lambda=y\), which gives \(\lambda=(AA\T)^{-1}y\). We now prove that this candidate is
+indeed the unique solution of the minimum-norm problem.</p>
+<div class="thm thm-theorem" id="thm-leastnorm"><p><span class="thm-head"><span class="thm-name">Theorem 4.3</span> <span class="thm-title">(Least-norm solution)</span>.</span> Let \(A\in\R^{m\times n}\) be full row rank. Then \(AA\T\) is nonsingular,
+\(x_{\mathrm{ln}}=A\T(AA\T)^{-1}y\) satisfies \(Ax_{\mathrm{ln}}=y\), and every other solution
+\(x\neq x_{\mathrm{ln}}\) of \(y=Ax\) has \(\norm x&gt;\norm{x_{\mathrm{ln}}}\).</p></div>
+<details class="proof" open><summary>Proof.</summary><div class="proof-body"><p><em>\(AA\T\) is nonsingular.</em> If \(AA\T z=0\) for some \(z\in\R^m\), then
+\(0=z\T AA\T z=\norm{A\T z}^2\), so \(A\T z=0\). The columns of \(A\T\) (the rows of \(A\)) are
+linearly independent, hence \(z=0\): the square matrix \(AA\T\) has trivial kernel.</p>
+<p><em>\(x_{\mathrm{ln}}\) is a solution.</em> \(Ax_{\mathrm{ln}}=AA\T(AA\T)^{-1}y=y\).</p>
+<p><em>\(x_{\mathrm{ln}}\) has minimum norm.</em> Let \(x\) be any solution and \(d=x-x_{\mathrm{ln}}\).
+Then \(Ad=y-y=0\), i.e. \(d\in\Ker(A)\). Since \((AA\T)^{-1}\) is symmetric,</p>
+<div class="eq">\[
+  x_{\mathrm{ln}}\T d=y\T(AA\T)^{-1}Ad=0 ,
+\]</div>
+<p>that is, \(x_{\mathrm{ln}}\perp d\). Therefore</p>
+<div class="eq">\[
+  \norm x^2=\norm{x_{\mathrm{ln}}+d}^2=\norm{x_{\mathrm{ln}}}^2+2\,x_{\mathrm{ln}}\T d+\norm d^2
+  =\norm{x_{\mathrm{ln}}}^2+\norm d^2\ \ge\ \norm{x_{\mathrm{ln}}}^2 ,
+\]</div>
+<p>with equality if and only if \(d=0\), i.e. \(x=x_{\mathrm{ln}}\).</p><span class="qed">&#8718;</span></div></details>
+<p>We say that
+\(A\pinvsym=A\T(AA\T)^{-1}\) is now a <em>right inverse</em>, since</p>
+<div class="eq">\[
+  AA\pinvsym=AA\T(AA\T)^{-1}=I_m,\qquad A\pinvsym A=A\T(AA\T)^{-1}A=\Pi_{\Im(A\T)} .
+\]</div>
+<p>Also \(\Pi_{\Im(A\T)}\) shows properties similar to those discussed for \(\Pi_{\Im(A)}\):</p>
+<ul><li><p>\(\Pi_{\Im(A\T)}\Pi_{\Im(A\T)}=A\T(AA\T)^{-1}AA\T(AA\T)^{-1}A=A\T(AA\T)^{-1}A=\Pi_{\Im(A\T)}\);</p></li><li><p>\(A\,\Pi_{\Im(A\T)}=AA\T(AA\T)^{-1}A=A\);</p></li><li><p>the orthogonal projector onto \(\Ker(A)\) is \(\Pi_{\Ker(A)}=I_n-\Pi_{\Im(A\T)}\), because
+      \(\Im(A\T)\perp\Ker(A)\).</p></li></ul>
+<div class="thm thm-remark" id="rem-ln-particular"><p><span class="thm-head"><span class="thm-name">Remark 4.4</span> <span class="thm-title">(Least-norm and particular solutions)</span>.</span> The least-norm solution is not, in general, the particular solution \(x_p\) used to describe
+the set \(\mathcal S\). All the solutions share the same component in \(\Im(A\T)\) and differ
+only in their component in \(\Ker(A)\), hence \(x_{\mathrm{ln}}=\Pi_{\Im(A\T)}x_p\) for any
+particular solution \(x_p\), and \(x_{\mathrm{ln}}=x_p\) only if \(x_p\perp\Ker(A)\). In
+Example&nbsp;<a class="xref" href="#ex-underdet-fullrow" data-ref="ex:underdet-fullrow">4.3</a>, \(x_p=(2,0,2)\T\) is not orthogonal to
+\(\Ker(A)=\spn\{(1,-1,1)\T\}\), since \((2,0,2)(1,-1,1)\T=4\). With \(AA\T=\bmat{2&amp;1\\1&amp;2}\) one
+finds \((AA\T)^{-1}y=\tfrac13(2,2)\T\) and</p>
+<div class="eq">\[
+  x_{\mathrm{ln}}=A\T(AA\T)^{-1}y=\tfrac13(2,4,2)\T ,
+\]</div>
+<p>which is orthogonal to \((1,-1,1)\T\) and corresponds to \(\alpha=-\tfrac43\) in \(\mathcal S\).
+Its norm \(\sqrt{8/3}\approx1.63\) is smaller than \(\norm{x_p}=\sqrt8\approx2.83\); indeed
+\(x_p=x_{\mathrm{ln}}+\tfrac43(1,-1,1)\T\), with \(\tfrac43(1,-1,1)\T\in\Ker(A)\).</p></div>
+<p>The projector \(\Pi_{\Ker(A)}=I-A\T(AA\T)^{-1}A\) will play a central role in the MOESP
+algorithm (Chapter&nbsp;<a class="xref" href="ch8.html" data-ref="ch:moesp">8</a>), where it is used to &ldquo;remove&rdquo; the effect of the input from
+the output data.</p>
+<p><strong class="runin">What happens if \(A\) is not full row rank?</strong>  Using the SVD, with \(U^{-1}=U\T\),</p>
+<div class="eq">\[
+  A\T(AA\T)^{-1}=V\Sigma\T U\T(U\Sigma\Sigma\T U\T)^{-1}=V\Sigma\T(\Sigma\Sigma\T)^{-1}U\T=V\Sigma\pinvsym U\T
+\]</div>
+<p>when \(A\) is full row rank, and in the case \(\rank(A)=r&lt;m\) the same argument as in
+Section&nbsp;<a class="xref" href="#sec-pinv" data-ref="sec:pinv">4.7</a> gives again</p>
+<div class="eq">\[
+  A\pinvsym=V_r\Sigma_r^{-1}U_r\T=\sum_{i=1}^r\frac1{\sigma_i}v_iu_i\T .
+\]</div>
+<p>Then: if \(y\in\Im(A)\), \(\hat x=A\pinvsym y\) gives the least-norm <em>exact</em> solution; if
+\(y\notin\Im(A)\), \(\hat x=A\pinvsym y\) gives the <em>minimum-norm least-squares</em> solution
+(Theorem&nbsp;<a class="xref" href="#thm-minnormls" data-ref="thm:minnormls">4.2</a>).</p>
+<div class="box keybox"><p><strong>Summary of the pseudo-inverse.</strong></p>
+<div class="center"><div class="tablewrap"><table class="tbl"><thead><tr><th class="al">case</th><th class="al">\(A\pinvsym\)</th><th class="al">\(\hat x=A\pinvsym y\) is&hellip;</th></tr></thead><tbody><tr><td class="al">full column rank (\(m\ge n=r\))</td><td class="al">\((A\T A)^{-1}A\T\) (left inv.)</td><td class="al">the unique LS solution</td></tr><tr><td class="al">full row rank (\(n\ge m=r\))</td><td class="al">\(A\T(AA\T)^{-1}\) (right inv.)</td><td class="al">the least-norm exact solution</td></tr><tr><td class="al">any rank \(r\)</td><td class="al">\(V_r\Sigma_r^{-1}U_r\T\)</td><td class="al">the minimum-norm LS solution</td></tr></tbody></table></div></div></div>
+<h2 id="sec-tls" class="sec"><span class="secnum">4.9</span> Errors in the regressors: total least squares</h2>
+<p>If also the times \(t_i\) in the straight-line example are affected by errors, i.e. there
+are errors in the coefficients of \(A\) for the general \(y=Ax\) problem, ordinary LS (which
+only corrects \(y\)) is no longer the natural choice. <em>Total least squares</em> (TLS) looks
+for the smallest perturbation of <em>both</em> \(A\) and \(y\) that makes the system consistent:</p>
+<div class="eq">\[
+  \min_{\Delta A,\Delta y,x}\norm{\bmat{\Delta A&amp;\Delta y}}_F\quad\text{s.t.}\quad (A+\Delta A)x=y+\Delta y .
+\]</div>
+<p>The constraint says that \([A+\Delta A\;\;y+\Delta y]\) has the non-zero vector \((x,-1)\) in its
+kernel, i.e. it is rank deficient. By Theorem&nbsp;<a class="xref" href="ch3.html#thm-eym" data-ref="thm:eym">3.2</a> the closest rank-deficient matrix to
+\([A\;y]\in\R^{m\times(n+1)}\) is obtained by removing its smallest singular triplet. Hence,
+if \([A\;y]=\sum_{i=1}^{n+1}\sigma_iu_iv_i\T\) and \(v_{n+1}=(\bar v,\gamma)\) with
+\(\bar v\in\R^n\), \(\gamma\in\R\),</p>
+<div class="eq">\[
+  \boxed{x_{\mathrm{TLS}}=-\frac{\bar v}{\gamma}},\qquad \bmat{\Delta A&amp;\Delta y}=-\sigma_{n+1}u_{n+1}v_{n+1}\T ,
+\]</div>
+<p>provided that \(\gamma\ne0\) (a sufficient condition is \(\sigma_n(A)&gt;\sigma_{n+1}([A\;y])\),
+which also guarantees uniqueness). Equivalently, \(x_{\mathrm{TLS}}=(A\T A-\sigma_{n+1}^2I)^{-1}A\T y\).</p>
+<div class="thm thm-remark" id="rem-orthreg"><p><span class="thm-head"><span class="thm-name">Remark 4.5</span>.</span> In line fitting the column of ones in \(A\) is exact and must not be perturbed. The
+corresponding (&ldquo;mixed LS&ndash;TLS&rdquo;) problem minimizes the sum of squared <em>orthogonal</em>
+distances of the points \((t_i,y_i)\) from the line, and its solution is the first principal
+direction of the centred data (Section&nbsp;<a class="xref" href="ch3.html#sec-pca" data-ref="sec:pca">3.7</a>): the line passes through \((\bar t,\bar y)\)
+with the direction of \(v_1\). For the data of Example&nbsp;<a class="xref" href="#ex-linefit" data-ref="ex:linefit">4.2</a> this gives slope \(0.8283\) and
+intercept \(1.2347\), very close to LS because the errors are small
+(plain TLS on \([A\;y]\), which also perturbs the column of ones, gives \((0.8215,1.2534)\)). Figure&nbsp;<a class="xref" href="#fig-ls-tls" data-ref="fig:ls-tls">4.4</a> shows the geometry of the two criteria on data
+with larger errors, for which the difference between them is visible.</p></div>
+<figure class="fig" id="fig-ls-tls"><div class="fig-img"><img src="figures/fig-ls-tls.svg" alt="Figure 4.4" loading="lazy" style="width:528px"></div><figcaption><span class="fig-name">Figure 4.4:</span> Orthogonal regression on data with larger errors than in Example&nbsp;<a class="xref" href="#ex-linefit" data-ref="ex:linefit">4.2</a>: it
+minimizes the orthogonal distances (green) of the points from the line, whereas ordinary LS
+(dashed, see also Figure&nbsp;<a class="xref" href="#fig-linefit" data-ref="fig:linefit">4.2</a>) minimizes the vertical ones.</figcaption></figure>
+<h2 id="sec-ridge" class="sec"><span class="secnum">4.10</span> Regularized least squares</h2>
+<p>When \(A\T A\) is singular or ill conditioned, or when we want to prevent parameters from
+becoming too large (which is related to overfitting), a penalty on the norm of \(x\) is
+added to the cost:</p>
+<div class="eq">\[
+  x_\lambda=\argmin_x\ \norm{\varepsilon}_2^2+\lambda\norm x_2^2,\qquad \varepsilon=y-Ax,\qquad \lambda&gt;0 ,
+\]</div>
+<p>where \(\lambda\) is the <em>regularization parameter</em> (&ldquo;penalty&rdquo;), not to be confused with an eigenvalue. This is known as
+ridge regression or Tikhonov regularization. Setting the gradient to zero gives</p>
+<div class="eq">\[
+  \boxed{x_\lambda=(A\T A+\lambda I)^{-1}A\T y=A\T(AA\T+\lambda I)^{-1}y ,}
+\]</div>
+<p>which is well defined for every \(A\) (since \(A\T A+\lambda I\succ0\)). In terms of the SVD,</p>
+<div class="eq">\[
+  x_\lambda=\sum_{i=1}^r\frac{\sigma_i}{\sigma_i^2+\lambda}\,v_i\,(u_i\T y):
+\]</div>
+<p>each component of the pseudo-inverse solution is multiplied by the <em>filter factor</em>
+\(\sigma_i^2/(\sigma_i^2+\lambda)\), which damps the directions associated with small singular
+values (those most sensitive to noise). Consequently:</p>
+<div class="eq">\[
+  \lambda\to0^+:\quad x_\lambda\to A\pinvsym y\ \ (\text{for full row rank: }A\T(AA\T)^{-1}y=x_{\mathrm{ln}}),
+  \qquad \lambda\to\infty:\quad x_\lambda\to0 .
+\]</div>
+<p>\(\lambda\) trades bias for variance: \(x_\lambda\) is biased, but can have a much smaller mean
+squared error than \(A\pinvsym y\). It is usually selected with validation data
+(Section&nbsp;<a class="xref" href="ch5.html#sec-validation" data-ref="sec:validation">5.4</a>). For the data of Example&nbsp;<a class="xref" href="#ex-linefit" data-ref="ex:linefit">4.2</a>: \(\lambda=0.01\) gives
+\((0.8253,1.2370)\), \(\lambda=1\) gives \((0.8768,0.9642)\), \(\lambda=10\) gives \((0.7724,0.4414)\).</p>
+<h2 id="sec-ls-numerics" class="sec"><span class="secnum">4.11</span> Numerical aspects</h2>
+<p>There are three standard ways of computing a LS solution with \(A\) of full column rank:</p>
+<ol><li><p><em>normal equations</em>: solve \(A\T Ax=A\T y\) (e.g. with a Cholesky factorization);
+      cheapest, but the condition number is squared, \(\kappa(A\T A)=\kappa(A)^2\);</p></li><li><p><em>QR</em>: with \(A=Q_1R_1\), \(\norm{y-Ax}^2=\norm{Q_1\T y-R_1x}^2+\norm{Q_2\T y}^2\), so
+      \(\hat x=R_1^{-1}Q_1\T y\) (back substitution) and \(\norm{\hat\varepsilon}=\norm{Q_2\T y}\);
+      this is what MATLAB&rsquo;s <code>A\ y</code> does;</p></li><li><p><em>SVD</em>: \(\hat x=V_r\Sigma_r^{-1}U_r\T y\); the most expensive but the most robust,
+      and the only one that handles rank deficiency transparently (with a tolerance on the
+      singular values).</p></li></ol>
+<p>As a rule of thumb, never compute <code>inv(A'*A)*A'*y</code> in practice.</p>
+<h2 id="s-4-12" class="sec"><span class="secnum">4.12</span> Exercises</h2>
+<div class="exercise" id="ex-homework-poly"><p><span class="thm-head"><span class="ex-name">Exercise 4.1</span>.</span> Write a script that, starting from some data, learns a polynomial that approximates such
+data, e.g. generated as \(y_i=a_3t_i^3+a_2t_i^2+a_1t_i+a_0+\varepsilon_i\). Build the training
+dataset</p>
+<div class="eq">\[
+  \bmat{y_1\\ \vdots\\ y_m}=\bmat{t_1^3&amp;t_1^2&amp;t_1&amp;1\\ \vdots&amp;\vdots&amp;\vdots&amp;\vdots\\ t_m^3&amp;t_m^2&amp;t_m&amp;1}\bmat{a_3\\a_2\\a_1\\a_0}
+\]</div>
+<p>and learn the model either (a) fixing the order of the model to be learnt a priori, or (b)
+figuring out a way to correctly determine the most fitting model order <em>without
+overfitting</em> (see Section&nbsp;<a class="xref" href="ch5.html#sec-validation" data-ref="sec:validation">5.4</a> and Example&nbsp;<a class="xref" href="ch5.html#ex-poly-order" data-ref="ex:poly-order">5.1</a>).</p><div class="ex-links"><a class="ex-link" href="ch5.html#w-polyorder">Open the model-order selection lab (Chapter 5)</a></div></div>
+<div class="exercise" id="exercise-4-2"><p><span class="thm-head"><span class="ex-name">Exercise 4.2</span>.</span> Show that the LS residual satisfies \(\sum_i\hat\varepsilon_i=0\) whenever \(A\) contains a
+column of ones. Interpret the result for line fitting.</p></div>
+<div class="exercise" id="exercise-4-3"><p><span class="thm-head"><span class="ex-name">Exercise 4.3</span>.</span> Prove the identity \((A\T A+\lambda I)^{-1}A\T=A\T(AA\T+\lambda I)^{-1}\). (<em>Hint</em>:
+multiply on the left by \(A\T A+\lambda I\) and on the right by \(AA\T+\lambda I\).)</p></div>
+<div class="exercise" id="exercise-4-4"><p><span class="thm-head"><span class="ex-name">Exercise 4.4</span>.</span> Derive <a class="xref" href="#eq-leastnorm" data-ref="eq:leastnorm">(4.6)</a> with Lagrange multipliers.</p></div>
+<div class="exercise" id="exercise-4-5"><p><span class="thm-head"><span class="ex-name">Exercise 4.5</span>.</span> Fit a model \(y=c\,e^{-\alpha t}\) to data by transforming it into a linear LS problem. Why
+is the resulting estimate not the LS estimate of the original problem? Which weighting
+would partially compensate for this?</p></div>
+<div class="exercise" id="exercise-4-6"><p><span class="thm-head"><span class="ex-name">Exercise 4.6</span>.</span> Generate \(A\in\R^{100\times10}\) with \(\kappa(A)=10^7\) (use Theorem&nbsp;<a class="xref" href="ch3.html#thm-svd" data-ref="thm:svd">3.1</a>), a vector \(x_0\) and
+\(y=Ax_0\). Compare the relative errors of the solutions obtained with the normal equations,
+with <code>A\ y</code> and with <code>pinv</code>.</p></div>
+<h2 id="s-4-13" class="sec"><span class="secnum">4.13</span> Implementation in MATLAB and Python</h2>
+<p>The following script collects the computations of this chapter: line fitting with the three
+methods, projectors, least-norm and minimum-norm solutions, ridge regression, TLS and a
+solution of the homework with model-order selection on training/testing data. The helper
+<code>vander_d(t,d)</code> returns the regressor matrix of a degree-\(d\) polynomial (a separate
+file, so that the script also runs in GNU Octave).</p>
+<div class="code" data-lang="matlab"><div class="code-head"><span class="code-lang">MATLAB</span><span class="code-title">ch4_least_squares.m</span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button><a class="code-btn" href="code/matlab/ch4_least_squares.m" download>Download</a></span></div><pre><code class="hl"><span class="c">%% Chapter 4 - Least squares</span>
+<span class="n">t</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mf">1.5</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="mf">3.5</span><span class="p">]</span><span class="o">'</span><span class="p">;</span><span class="w">  </span><span class="n">y</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mf">0.4</span><span class="w"> </span><span class="mf">2.2</span><span class="w"> </span><span class="mf">2.3</span><span class="w"> </span><span class="mf">3.9</span><span class="w"> </span><span class="mf">4.0</span><span class="p">]</span><span class="o">'</span><span class="p">;</span>
+<span class="n">A</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">t</span><span class="w"> </span><span class="nb">ones</span><span class="p">(</span><span class="nb">size</span><span class="p">(</span><span class="n">t</span><span class="p">))];</span>
+<span class="n">x_ne</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="p">(</span><span class="n">A</span><span class="o">'*</span><span class="n">A</span><span class="p">)</span><span class="w"> </span><span class="o">\</span><span class="w"> </span><span class="p">(</span><span class="n">A</span><span class="o">'*</span><span class="n">y</span><span class="p">);</span><span class="w">               </span><span class="c">% normal equations (avoid if ill-conditioned)</span>
+<span class="n">x_pinv</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">pinv</span><span class="p">(</span><span class="n">A</span><span class="p">)</span><span class="o">*</span><span class="n">y</span><span class="p">;</span><span class="w">                     </span><span class="c">% pseudo-inverse (SVD based)</span>
+<span class="n">x_bs</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="o">\</span><span class="w"> </span><span class="n">y</span><span class="p">;</span><span class="w">                         </span><span class="c">% QR based: preferred in practice</span>
+<span class="p">[</span><span class="n">Q</span><span class="p">,</span><span class="w"> </span><span class="n">R</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">qr</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">  </span><span class="n">x_qr</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">R</span><span class="w"> </span><span class="o">\</span><span class="w"> </span><span class="p">(</span><span class="n">Q</span><span class="o">'*</span><span class="n">y</span><span class="p">);</span><span class="w">  </span><span class="c">% explicit QR solution</span>
+<span class="nb">disp</span><span class="p">([</span><span class="n">x_ne</span><span class="w"> </span><span class="n">x_pinv</span><span class="w"> </span><span class="n">x_bs</span><span class="w"> </span><span class="n">x_qr</span><span class="p">])</span><span class="w">           </span><span class="c">% all equal: m = 0.8244, q = 1.2409</span>
+<span class="n">r</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">A</span><span class="o">*</span><span class="n">x_bs</span><span class="p">;</span><span class="w">  </span><span class="nb">disp</span><span class="p">(</span><span class="n">A</span><span class="o">'*</span><span class="n">r</span><span class="p">)</span><span class="w">             </span><span class="c">% residual orthogonal to Im(A)</span>
+<span class="n">P</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">A</span><span class="o">*</span><span class="nb">pinv</span><span class="p">(</span><span class="n">A</span><span class="p">);</span><span class="w">                          </span><span class="c">% orthogonal projector onto Im(A)</span>
+<span class="nb">disp</span><span class="p">(</span><span class="nb">norm</span><span class="p">(</span><span class="n">P</span><span class="o">*</span><span class="n">P</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">P</span><span class="p">));</span><span class="w"> </span><span class="nb">disp</span><span class="p">(</span><span class="nb">norm</span><span class="p">(</span><span class="n">P</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">P</span><span class="o">'</span><span class="p">))</span>
+
+<span class="c">%% Rank-deficient / underdetermined problems: minimum-norm solutions</span>
+<span class="n">Af</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="s">1</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0</span><span class="p">;</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">1</span><span class="w"> </span><span class="s">0]</span><span class="p">;</span><span class="w">  </span><span class="n">yf</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"> </span><span class="mi">3</span><span class="p">];</span>
+<span class="n">x_ln</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">Af</span><span class="o">'*</span><span class="p">((</span><span class="n">Af</span><span class="o">*</span><span class="n">Af</span><span class="o">'</span><span class="p">)</span><span class="w"> </span><span class="o">\</span><span class="w"> </span><span class="n">yf</span><span class="p">)</span><span class="w">              </span><span class="c">% least-norm solution (full row rank)</span>
+<span class="nb">disp</span><span class="p">(</span><span class="nb">norm</span><span class="p">(</span><span class="n">x_ln</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">pinv</span><span class="p">(</span><span class="n">Af</span><span class="p">)</span><span class="o">*</span><span class="n">yf</span><span class="p">))</span>
+<span class="n">Ad</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="s">1</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0</span><span class="p">;</span><span class="w"> </span><span class="n">0</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0</span><span class="w"> </span><span class="s">0]</span><span class="p">;</span><span class="w">  </span><span class="n">yd</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="mi">1</span><span class="p">];</span><span class="w">   </span><span class="c">% y not in Im(Ad)</span>
+<span class="n">x_mn</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">pinv</span><span class="p">(</span><span class="n">Ad</span><span class="p">)</span><span class="o">*</span><span class="n">yd</span><span class="w">                      </span><span class="c">% minimum-norm LS solution: [1 1 0 0]'</span>
+<span class="c">% NB: Ad\yd returns *a* LS solution (with a rank warning), not necessarily</span>
+<span class="c">% the minimum-norm one; use pinv or lsqminnorm in that case.</span>
+
+<span class="c">%% Regularized (ridge / Tikhonov) least squares</span>
+<span class="n">lambda</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mf">1e-2</span><span class="p">;</span>
+<span class="n">x_ridge</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">(</span><span class="n">A</span><span class="o">'*</span><span class="n">A</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">lambda</span><span class="o">*</span><span class="nb">eye</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span><span class="w"> </span><span class="o">\</span><span class="w"> </span><span class="p">(</span><span class="n">A</span><span class="o">'*</span><span class="n">y</span><span class="p">);</span>
+
+<span class="c">%% Total least squares (errors in both A and y) via the SVD of [A y]</span>
+<span class="p">[</span><span class="o">~</span><span class="p">,</span><span class="w"> </span><span class="o">~</span><span class="p">,</span><span class="w"> </span><span class="n">V</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">svd</span><span class="p">([</span><span class="n">A</span><span class="w"> </span><span class="n">y</span><span class="p">],</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="n">v</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">V</span><span class="p">(:,</span><span class="w"> </span><span class="k">end</span><span class="p">);</span><span class="w">                          </span><span class="c">% right singular vector of sigma_min</span>
+<span class="n">x_tls</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="o">-</span><span class="n">v</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="k">end</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">v</span><span class="p">(</span><span class="k">end</span><span class="p">)</span>
+
+<span class="c">%% Polynomial fitting with model-order selection (training / testing data)</span>
+<span class="n">f</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">@(</span><span class="n">t</span><span class="p">)</span><span class="w"> </span><span class="mf">0.5</span><span class="o">*</span><span class="n">t</span><span class="o">.^</span><span class="mi">3</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t</span><span class="o">.^</span><span class="mi">2</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="nb">randn</span><span class="p">(</span><span class="s">'seed'</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">);</span><span class="w"> </span><span class="nb">rand</span><span class="p">(</span><span class="s">'seed'</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">);</span>
+<span class="n">ttr</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">sort</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">5</span><span class="o">*</span><span class="nb">rand</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">));</span><span class="w">  </span><span class="n">ytr</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="n">ttr</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">0.6</span><span class="o">*</span><span class="nb">randn</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="n">tte</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">sort</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">5</span><span class="o">*</span><span class="nb">rand</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">));</span><span class="w">  </span><span class="n">yte</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="n">tte</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">0.6</span><span class="o">*</span><span class="nb">randn</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="n">orders</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span><span class="mi">12</span><span class="p">;</span><span class="w">  </span><span class="n">Etr</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">zeros</span><span class="p">(</span><span class="nb">size</span><span class="p">(</span><span class="n">orders</span><span class="p">));</span><span class="w">  </span><span class="n">Ete</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">Etr</span><span class="p">;</span>
+<span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="nb">numel</span><span class="p">(</span><span class="n">orders</span><span class="p">)</span>
+<span class="w">    </span><span class="n">d</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">orders</span><span class="p">(</span><span class="nb">i</span><span class="p">);</span>
+<span class="w">    </span><span class="n">th</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">vander_d</span><span class="p">(</span><span class="n">ttr</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="p">)</span><span class="w"> </span><span class="o">\</span><span class="w"> </span><span class="n">ytr</span><span class="p">;</span><span class="w">        </span><span class="c">% LS fit of a degree-d polynomial</span>
+<span class="w">    </span><span class="n">Etr</span><span class="p">(</span><span class="nb">i</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">sqrt</span><span class="p">(</span><span class="nb">mean</span><span class="p">((</span><span class="n">ytr</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">vander_d</span><span class="p">(</span><span class="n">ttr</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="p">)</span><span class="o">*</span><span class="n">th</span><span class="p">)</span><span class="o">.^</span><span class="mi">2</span><span class="p">));</span>
+<span class="w">    </span><span class="n">Ete</span><span class="p">(</span><span class="nb">i</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">sqrt</span><span class="p">(</span><span class="nb">mean</span><span class="p">((</span><span class="n">yte</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">vander_d</span><span class="p">(</span><span class="n">tte</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="p">)</span><span class="o">*</span><span class="n">th</span><span class="p">)</span><span class="o">.^</span><span class="mi">2</span><span class="p">));</span>
+<span class="k">end</span>
+<span class="nb">disp</span><span class="p">([</span><span class="n">orders</span><span class="o">'</span><span class="w"> </span><span class="n">Etr</span><span class="o">'</span><span class="w"> </span><span class="n">Ete</span><span class="o">'</span><span class="p">])</span><span class="w">               </span><span class="c">% training RMSE decreases, testing does not</span>
+</code></pre><textarea class="code-src" hidden>%% Chapter 4 - Least squares
+t = [-1 1 1.5 3 3.5]';  y = [0.4 2.2 2.3 3.9 4.0]';
+A = [t ones(size(t))];
+x_ne   = (A'*A) \ (A'*y);               % normal equations (avoid if ill-conditioned)
+x_pinv = pinv(A)*y;                     % pseudo-inverse (SVD based)
+x_bs   = A \ y;                         % QR based: preferred in practice
+[Q, R] = qr(A, 0);  x_qr = R \ (Q'*y);  % explicit QR solution
+disp([x_ne x_pinv x_bs x_qr])           % all equal: m = 0.8244, q = 1.2409
+r = y - A*x_bs;  disp(A'*r)             % residual orthogonal to Im(A)
+P = A*pinv(A);                          % orthogonal projector onto Im(A)
+disp(norm(P*P - P)); disp(norm(P - P'))
+
+%% Rank-deficient / underdetermined problems: minimum-norm solutions
+Af = [1 0 0 0; 0 1 0 0; 0 0 1 0];  yf = [1; 2; 3];
+x_ln = Af'*((Af*Af') \ yf)              % least-norm solution (full row rank)
+disp(norm(x_ln - pinv(Af)*yf))
+Ad = [1 0 0 0; 0 1 0 0; 0 0 0 0];  yd = [1; 1; 1];   % y not in Im(Ad)
+x_mn = pinv(Ad)*yd                      % minimum-norm LS solution: [1 1 0 0]'
+% NB: Ad\yd returns *a* LS solution (with a rank warning), not necessarily
+% the minimum-norm one; use pinv or lsqminnorm in that case.
+
+%% Regularized (ridge / Tikhonov) least squares
+lambda = 1e-2;
+x_ridge = (A'*A + lambda*eye(2)) \ (A'*y);
+
+%% Total least squares (errors in both A and y) via the SVD of [A y]
+[~, ~, V] = svd([A y], 0);
+v = V(:, end);                          % right singular vector of sigma_min
+x_tls = -v(1:end-1)/v(end)
+
+%% Polynomial fitting with model-order selection (training / testing data)
+f = @(t) 0.5*t.^3 - t.^2 - t + 1;
+randn('seed', 7); rand('seed', 7);
+ttr = sort(-2 + 5*rand(30, 1));  ytr = f(ttr) + 0.6*randn(30, 1);
+tte = sort(-2 + 5*rand(30, 1));  yte = f(tte) + 0.6*randn(30, 1);
+orders = 0:12;  Etr = zeros(size(orders));  Ete = Etr;
+for i = 1:numel(orders)
+    d  = orders(i);
+    th = vander_d(ttr, d) \ ytr;        % LS fit of a degree-d polynomial
+    Etr(i) = sqrt(mean((ytr - vander_d(ttr, d)*th).^2));
+    Ete(i) = sqrt(mean((yte - vander_d(tte, d)*th).^2));
+end
+disp([orders' Etr' Ete'])               % training RMSE decreases, testing does not</textarea></div>
+<p>In MATLAB, <code>polyfit(t,y,d)</code> and <code>polyval</code> implement polynomial LS fitting
+directly, and <code>lsqminnorm</code> returns minimum-norm solutions. In Python:</p>
+<div class="code" data-lang="python"><div class="code-head"><span class="code-lang">Python</span><span class="code-title"></span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button></span></div><pre><code class="hl"><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">]);</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">,</span> <span class="mf">2.3</span><span class="p">,</span> <span class="mf">3.9</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">])</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">t</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">t</span><span class="p">)])</span>
+<span class="n">x</span><span class="p">,</span> <span class="n">res</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">sv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">rcond</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>   <span class="c1"># SVD-based LS / min-norm</span>
+<span class="n">x_pinv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="o">@</span> <span class="n">y</span>
+<span class="n">Q</span><span class="p">,</span> <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">qr</span><span class="p">(</span><span class="n">A</span><span class="p">);</span> <span class="n">x_qr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">Q</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">lam</span> <span class="o">=</span> <span class="mf">1e-2</span><span class="p">;</span> <span class="n">x_ridge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">A</span> <span class="o">+</span> <span class="n">lam</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">A</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">Vt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">A</span><span class="p">,</span> <span class="n">y</span><span class="p">]));</span> <span class="n">v</span> <span class="o">=</span> <span class="n">Vt</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">x_tls</span> <span class="o">=</span> <span class="o">-</span><span class="n">v</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">v</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">coef</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>                              <span class="c1"># [m, q]</span>
+</code></pre><textarea class="code-src" hidden>import numpy as np
+t = np.array([-1, 1, 1.5, 3, 3.5]); y = np.array([0.4, 2.2, 2.3, 3.9, 4.0])
+A = np.column_stack([t, np.ones_like(t)])
+x, res, rank, sv = np.linalg.lstsq(A, y, rcond=None)   # SVD-based LS / min-norm
+x_pinv = np.linalg.pinv(A) @ y
+Q, R = np.linalg.qr(A); x_qr = np.linalg.solve(R, Q.T @ y)
+lam = 1e-2; x_ridge = np.linalg.solve(A.T @ A + lam*np.eye(2), A.T @ y)
+_, _, Vt = np.linalg.svd(np.column_stack([A, y])); v = Vt[-1]
+x_tls = -v[:-1] / v[-1]
+coef = np.polyfit(t, y, 1)                              # [m, q]</textarea></div>
+<details class="box advanced"><summary><span class="adv-label">Further Study:</span> Gauss&ndash;Markov, recursive least squares, bias&ndash;variance</summary><div class="box-body"><p><em>Proof of the Gauss&ndash;Markov theorem.</em> Let \(\tilde x=Ky\) be unbiased: \(\E(Ky)=KAx_0=x_0\)
+for all \(x_0\), i.e. \(KA=I\). Write \(K=A\pinvsym+\Delta\) with \(\Delta A=0\). Then
+\(\operatorname{cov}(\tilde x)=\sigma^2KK\T=\sigma^2(A\pinvsym A^{\dagger\mathsf T}+\Delta\Delta\T)\)
+(the cross terms vanish because \(\Delta A^{\dagger\mathsf T}=\Delta A(A\T A)^{-1}=0\)), hence
+\(\operatorname{cov}(\tilde x)-\operatorname{cov}(\hat x)=\sigma^2\Delta\Delta\T\succeq0\).</p>
+<p><em>Recursive least squares (RLS).</em> When data arrive sequentially,
+\(y(k)=\varphi\T(k)\theta+e(k)\), the LS estimate can be updated without recomputing it:
+with \(P(k)=(\sum_{i\le k}\varphi(i)\varphi\T(i))^{-1}\),</p>
+<div class="eq">\[
+  \begin{aligned}
+  K(k)&amp;=\frac{P(k-1)\varphi(k)}{1+\varphi\T(k)P(k-1)\varphi(k)},\\
+  \hat\theta(k)&amp;=\hat\theta(k-1)+K(k)\bigl(y(k)-\varphi\T(k)\hat\theta(k-1)\bigr),\\
+  P(k)&amp;=\bigl(I-K(k)\varphi\T(k)\bigr)P(k-1),
+  \end{aligned}
+\]</div>
+<p>a consequence of the matrix inversion lemma. A forgetting factor \(\lambda_f\in(0,1)\)
+(replacing \(P(k-1)\) by \(P(k-1)/\lambda_f\)) gives an estimator able to track slowly varying
+parameters. RLS is a special case of the Kalman filter [<a class="cite" href="references.html#bib-VerhaegenVerdult" data-cite="VerhaegenVerdult">1</a>].</p>
+<p><em>Bias&ndash;variance decomposition.</em> For an estimator \(\tilde x\) of \(x_0\),
+\(\E\norm{\tilde x-x_0}^2=\norm{\E\tilde x-x_0}^2+\tr\operatorname{cov}(\tilde x)\). For ridge
+regression the bias grows and the variance decreases with \(\lambda\); there always exists a
+\(\lambda&gt;0\) with a smaller mean squared error than ordinary LS (Hoerl and Kennard, 1970).
+This is the prototype of the <em>regularization</em> approach to system identification
+(kernel-based methods), an active research field.</p></div></details>
+</article>
+<nav class="pagenav"><a class="pn prev" href="ch3.html"><span>&larr; Previous</span><b>The singular value decomposition</b></a><a class="pn next" href="ch5.html"><span>Next &rarr;</span><b>Introduction to system identification</b></a></nav>
+<footer class="foot">Lecture notes by Vittorio De Iuliis · University of L'Aquila · a.y. 2024–2025 · interactive web edition generated from the LaTeX sources</footer>
+</main>
+<div id="searchbox" class="searchbox" hidden>
+  <div class="searchpanel"><input id="searchinput" type="search" placeholder="Search the notes (e.g. Hankel, PSNR, Gauss–Markov)…" autocomplete="off">
+  <div id="searchres" class="searchres"></div></div>
+</div>
+</body>
+</html>
