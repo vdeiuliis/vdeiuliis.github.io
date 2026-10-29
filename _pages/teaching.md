@@ -28,8 +28,6 @@ An introductory course on control theory and on machine learning and system iden
 
 Filtering theory for linear and nonlinear systems, parameter estimation, stochastic realization, an introduction to subspace methods for linear systems, and machine learning for control.
 
-See the [web version of the lecture notes](/sysid/) — an interactive draft, still a work in progress.
-
 ### Robotica industriale (Industrial Robotics)
 *University of L'Aquila*  
 20 hours (2 CFU) out of 90 — A.Y. 2025/2026; 30 hours (3 CFU) out of 90 — A.Y. 2024/2025
