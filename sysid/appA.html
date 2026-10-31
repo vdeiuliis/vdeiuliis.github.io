@@ -60,8 +60,8 @@ window.MathJax = {
 <p>This appendix recalls the notions of systems theory used throughout the notes. Notation is
 fixed once and for all: \(n\) is the number of state variables, \(p\) the number of inputs and
 \(q\) the number of outputs. Standard references are, in English,
-[<a class="cite" href="references.html#bib-Antsaklis" data-cite="Antsaklis">18</a>, <a class="cite" href="references.html#bib-Kailath" data-cite="Kailath">19</a>, <a class="cite" href="references.html#bib-FranklinPowellWorkman" data-cite="FranklinPowellWorkman">20</a>] and, in Italian,
-[<a class="cite" href="references.html#bib-RubertiIsidori" data-cite="RubertiIsidori">21</a>, <a class="cite" href="references.html#bib-GrasselliMeniniGaleani" data-cite="GrasselliMeniniGaleani">22</a>, <a class="cite" href="references.html#bib-MonacoCalifano" data-cite="MonacoCalifano">23</a>].</p>
+[<a class="cite" href="references.html#bib-Antsaklis" data-cite="Antsaklis">19</a>, <a class="cite" href="references.html#bib-Kailath" data-cite="Kailath">20</a>, <a class="cite" href="references.html#bib-FranklinPowellWorkman" data-cite="FranklinPowellWorkman">21</a>] and, in Italian,
+[<a class="cite" href="references.html#bib-RubertiIsidori" data-cite="RubertiIsidori">22</a>, <a class="cite" href="references.html#bib-GrasselliMeniniGaleani" data-cite="GrasselliMeniniGaleani">23</a>, <a class="cite" href="references.html#bib-MonacoCalifano" data-cite="MonacoCalifano">24</a>].</p>
 <h2 id="sec-app-ss" class="sec"><span class="secnum">A.1</span> State-space equations and their solution</h2>
 <p>A discrete-time, linear, time-invariant (LTI) system in state-space form is</p>
 <div class="eq" id="eq-app-ss">\[\left\{\begin{aligned}
@@ -104,10 +104,47 @@ is</p>
 <p>whose entry \(w_{ij}(k)\) is the response of output \(i\) to an impulse applied at input \(j\)
 (all other inputs being zero), and \(y(k)=\sum_{\tau=0}^kW(k-\tau)u(\tau)\). The matrices
 \(W(k)\), \(k\ge1\), are called <em>Markov parameters</em>.</p>
-<p><strong class="runin">Changes of coordinates.</strong>  With \(x=T\tilde x\), \(T\) nonsingular, the system becomes
-\(\{\tilde A,\tilde B,\tilde C,\tilde D\}=\{T^{-1}AT,T^{-1}B,CT,D\}\); since
-\(\tilde C\tilde A^{k-1}\tilde B=CA^{k-1}B\), the impulse response matrix (and the transfer
-matrix below) are invariant with respect to change of coordinates on the state variable. Two such systems are called <em>algebraically equivalent</em>.</p>
+<p><strong class="runin">Changes of coordinates.</strong>  Let \(T\in\R^{n\times n}\) be nonsingular and define the
+new state variables \(\tilde x(k)=T^{-1}x(k)\), i.e. \(x(k)=T\tilde x(k)\): the columns of \(T\)
+are the new basis vectors of the state space, expressed in the old coordinates.
+Substituting \(x(k)=T\tilde x(k)\) in <a class="xref" href="#eq-app-ss" data-ref="eq:app-ss">(A.1)</a> gives</p>
+<div class="eq">\[
+  T\tilde x(k+1)=AT\tilde x(k)+Bu(k),\qquad y(k)=CT\tilde x(k)+Du(k),
+\]</div>
+<p>and premultiplying the first equation by \(T^{-1}\),</p>
+<div class="eq" id="eq-app-coord">\[\left\{\begin{aligned}
+  \tilde x(k+1)&amp;=\tilde A\tilde x(k)+\tilde Bu(k),\qquad \tilde x(0)=T^{-1}x_0,\\
+  y(k)&amp;=\tilde C\tilde x(k)+\tilde Du(k),
+\end{aligned}\right. \tag{A.3}\]</div>
+<p>with</p>
+<div class="eq">\[
+  \tilde A=T^{-1}AT,\qquad \tilde B=T^{-1}B,\qquad \tilde C=CT,\qquad \tilde D=D .
+\]</div>
+<p>The systems \(\{A,B,C,D\}\) and \(\{\tilde A,\tilde B,\tilde C,\tilde D\}\) are called
+<em>algebraically equivalent</em>. They have the same input&ndash;output behaviour:</p>
+<ol><li><p><em>Powers of \(\tilde A\).</em> For every \(k\ge1\),</p>
+<div class="eq">\[
+        \tilde A^k=(T^{-1}AT)(T^{-1}AT)\cdots(T^{-1}AT)=T^{-1}A^kT,
+      \]</div>
+<p>since all the inner products \(TT^{-1}\) equal \(I\); the identity also holds for \(k=0\)
+      (\(\tilde A^0=I=T^{-1}T\)).</p></li><li><p><em>Free response.</em> \(\tilde C\tilde A^k\tilde x(0)=CT\,T^{-1}A^kT\,T^{-1}x_0=CA^kx_0\).</p></li><li><p><em>Impulse response.</em> For \(k\ge1\),
+      \(\tilde C\tilde A^{k-1}\tilde B=CT\,T^{-1}A^{k-1}T\,T^{-1}B=CA^{k-1}B\), and
+      \(\tilde D=D\): hence \(\tilde W(k)=W(k)\) for all \(k\ge0\). By <a class="xref" href="#eq-app-sol" data-ref="eq:app-sol">(A.2)</a>, the two
+      systems produce the same output \(y(k)\) for every input sequence, provided that their
+      initial states correspond (\(\tilde x(0)=T^{-1}x_0\)).</p></li><li><p><em>Transfer matrix</em> (defined in <a class="xref" href="#eq-app-W" data-ref="eq:app-W">(A.6)</a> below). Since
+      \(zI-T^{-1}AT=T^{-1}(zI-A)T\),</p>
+<div class="eq">\[
+        \tilde W(z)=\tilde C(zI-\tilde A)^{-1}\tilde B+\tilde D
+        =CT\,T^{-1}(zI-A)^{-1}T\,T^{-1}B+D=C(zI-A)^{-1}B+D=W(z).
+      \]</div></li><li><p><em>Eigenvalues.</em> Since</p>
+<div class="eq">\[
+        \det(\lambda I-\tilde A)=\det\bigl(T^{-1}(\lambda I-A)T\bigr)
+        =\det(T^{-1})\det(\lambda I-A)\det(T)=\det(\lambda I-A),
+      \]</div>
+<p>\(\tilde A\) and \(A\) have the same characteristic polynomial, hence the same eigenvalues (and the same natural modes
+      and stability properties, Section&nbsp;<a class="xref" href="#sec-app-stab" data-ref="sec:app-stab">A.3</a>).</p></li></ol>
+<p>On the contrary, the state \(x(k)\) and the matrices \(A\), \(B\), \(C\) themselves depend on the
+choice of \(T\): they are not determined by the input&ndash;output behaviour.</p>
 <h2 id="sec-app-z" class="sec"><span class="secnum">A.2</span> The \(\Z\)-transform</h2>
 <p>For a sequence \(f(k)\), \(k\ge0\) (vector- or matrix-valued sequences are transformed entry by
 entry), the (unilateral) \(\Z\)-transform is</p>
@@ -119,12 +156,12 @@ entry), the (unilateral) \(\Z\)-transform is</p>
 <p><strong class="runin">State-space equations in the \(\Z\) domain.</strong>  Transforming <a class="xref" href="#eq-app-ss" data-ref="eq:app-ss">(A.1)</a> with the
 advance property, \(zX(z)-zx_0=AX(z)+BU(z)\), hence</p>
 <div class="eq" id="eq-app-Xz"><span class="anchor" id="eq-app-Yz"></span>\begin{align*}
-  X(z)&amp;=z(zI-A)^{-1}x_0+(zI-A)^{-1}BU(z), \tag{A.3} \\
+  X(z)&amp;=z(zI-A)^{-1}x_0+(zI-A)^{-1}BU(z), \tag{A.4} \\
 
-  Y(z)&amp;=\underbrace{zC(zI-A)^{-1}x_0}_{\text{free response}}+\underbrace{\bigl[C(zI-A)^{-1}B+D\bigr]U(z)}_{\text{forced response}} . \tag{A.4}\end{align*}</div>
+  Y(z)&amp;=\underbrace{zC(zI-A)^{-1}x_0}_{\text{free response}}+\underbrace{\bigl[C(zI-A)^{-1}B+D\bigr]U(z)}_{\text{forced response}} . \tag{A.5}\end{align*}</div>
 <p>These are the \(\Z\)-transforms of <a class="xref" href="#eq-app-sol" data-ref="eq:app-sol">(A.2)</a> (compare with \(\Z\{A^k\}=z(zI-A)^{-1}\)).</p>
 <p><strong class="runin">Transfer function and transfer matrix.</strong>  The <em>transfer matrix</em> is</p>
-<div class="eq" id="eq-app-W">\[W(z)=C(zI-A)^{-1}B+D=\Z\{W(k)\}\in\C^{q\times p},\qquad Y_f(z)=W(z)U(z), \tag{A.5}\]</div>
+<div class="eq" id="eq-app-W">\[W(z)=C(zI-A)^{-1}B+D=\Z\{W(k)\}\in\C^{q\times p},\qquad Y_f(z)=W(z)U(z), \tag{A.6}\]</div>
 <p>the \(\Z\)-transform of the impulse response matrix; its entry \(W_{ij}(z)\) is the transfer
 function from input \(j\) to output \(i\). Since \((zI-A)^{-1}=\operatorname{adj}(zI-A)/\det(zI-A)\),
 for a SISO system</p>
@@ -210,7 +247,7 @@ some input. It is <em>observable</em> if \(Cr_i\neq0\) (a column vector with \(q
 appears in the free output response \(y(k)=CA^kx_0=\sum_i\lambda_i^k(Cr_i)(l_i\T x_0)\) for some \(x_0\).</p></div>
 <p>Combining the two, the impulse response matrix and the transfer matrix are</p>
 <div class="eq" id="eq-app-W-modal">\[W(k)=\sum_{i=1}^n\lambda_i^{k-1}\,(Cr_i)(l_i\T B),\ k\ge1,\qquad
-  W(z)=D+\sum_{i=1}^n\frac{(Cr_i)(l_i\T B)}{z-\lambda_i}: \tag{A.6}\]</div>
+  W(z)=D+\sum_{i=1}^n\frac{(Cr_i)(l_i\T B)}{z-\lambda_i}: \tag{A.7}\]</div>
 <p><em>only the modes that are both excitable and observable appear in the impulse response
 and in the transfer matrix</em>; the others are invisible from input&ndash;output data.</p>
 <h2 id="sec-app-struct" class="sec"><span class="secnum">A.5</span> Reachability, controllability, observability and related properties</h2>
@@ -282,7 +319,7 @@ exists) iff it is reachable and observable; all minimal realizations of the same
 are algebraically equivalent (related by a unique \(T\)). This is why identification methods
 can only recover the minimal part of a system (Section&nbsp;<a class="xref" href="ch5.html#sec-what-ident" data-ref="sec:what-ident">5.2</a>).</p>
 <h2 id="sec-app-cancel" class="sec"><span class="secnum">A.6</span> Zero&ndash;pole cancellations</h2>
-<p><strong class="runin">SISO systems.</strong>  By <a class="xref" href="#eq-app-W-modal" data-ref="eq:app-W-modal">(A.6)</a>, the eigenvalues \(\lambda_i\) of the modes
+<p><strong class="runin">SISO systems.</strong>  By <a class="xref" href="#eq-app-W-modal" data-ref="eq:app-W-modal">(A.7)</a>, the eigenvalues \(\lambda_i\) of the modes
 that are not excitable or not observable do not appear as poles of \(W(z)\): in the ratio
 \(N(z)/D(z)\) with \(D(z)=\det(zI-A)\), the corresponding factor \((z-\lambda_i)\) cancels. For a SISO
 system:</p>
@@ -319,7 +356,7 @@ and/or non-observable modes.</p></div>
 natural modes and its transfer function.</p></div>
 <div class="exercise" id="exercise-A-2"><p><span class="thm-head"><span class="ex-name">Exercise A.2</span>.</span> Show that a system with \(A\) diagonal with distinct entries is reachable iff all the rows of
 \(B\) are non-zero, and observable iff all the columns of \(C\) are non-zero.</p></div>
-<div class="exercise" id="exercise-A-3"><p><span class="thm-head"><span class="ex-name">Exercise A.3</span>.</span> Prove that \(\Z\{A^k\}=z(zI-A)^{-1}\) and derive <a class="xref" href="#eq-app-Yz" data-ref="eq:app-Yz">(A.4)</a> directly from
+<div class="exercise" id="exercise-A-3"><p><span class="thm-head"><span class="ex-name">Exercise A.3</span>.</span> Prove that \(\Z\{A^k\}=z(zI-A)^{-1}\) and derive <a class="xref" href="#eq-app-Yz" data-ref="eq:app-Yz">(A.5)</a> directly from
 <a class="xref" href="#eq-app-sol" data-ref="eq:app-sol">(A.2)</a> using the convolution property.</p></div>
 <div class="exercise" id="exercise-A-4"><p><span class="thm-head"><span class="ex-name">Exercise A.4</span>.</span> Find a system that is BIBO stable but not asymptotically stable, and one that is
 stabilizable but not reachable.</p></div>

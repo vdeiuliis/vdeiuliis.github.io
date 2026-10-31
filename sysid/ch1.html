@@ -57,9 +57,11 @@ window.MathJax = {
 <main class="content" id="content">
 <article class="chapter">
 <h1 class="chap" id="top"><span class="chapnum">Chapter 1</span><span class="chaptitle">Introduction</span></h1>
-<blockquote><p>Given a finite record of measurements collected on a real phenomenon, how can we compute a
+<blockquote><p><em>
+Given a finite record of measurements collected on a real phenomenon, how can we compute a
 mathematical model that not only explains the data we have seen, but also predicts the
-data we have not seen yet?</p></blockquote>
+data we have not seen yet?
+</em></p></blockquote>
 <p>This is the question of <em>model identification</em>, and it is much older than the
 discipline that today bears the name <em>system identification</em>. This chapter sketches
 its history, from the determination of planetary orbits to the identification of dynamical
@@ -118,15 +120,15 @@ following night. The rediscovery made Gauss famous overnight.</p>
 		positions at 1 and 4 almost coincide because they are one year apart.</figcaption></figure>
 <div class="widget" id="w-ceresanim" data-widget="ceresanim"></div>
 <p>In his treatise <em>Theoria motus corporum coelestium in sectionibus conicis solem
-	ambientium</em> (1809) [<a class="cite" href="references.html#bib-Gauss1809" data-cite="Gauss1809">24</a>], Gauss explained that the best way of combining redundant observations
+	ambientium</em> (1809) [<a class="cite" href="references.html#bib-Gauss1809" data-cite="Gauss1809">25</a>], Gauss explained that the best way of combining redundant observations
 affected by errors is to choose the parameters that minimize the <em>sum of the squares
 	of the residuals</em>, and stated that he had been using this principle since 1795. The method
 had however already been published by Adrien-Marie Legendre in 1805, in an appendix to his
-<em>Nouvelles méthodes pour la détermination des orbites des comètes</em> [<a class="cite" href="references.html#bib-Legendre1805" data-cite="Legendre1805">25</a>], where it was
+<em>Nouvelles méthodes pour la détermination des orbites des comètes</em> [<a class="cite" href="references.html#bib-Legendre1805" data-cite="Legendre1805">26</a>], where it was
 introduced with the name <em>méthode des moindres quarrés</em>, as a practical and elegant
 rule to solve overdetermined systems of equations. The ensuing priority dispute is one of
 the most famous in the history of mathematics; historians still discuss to what extent the
-Ceres computation of 1801 actually relied on least squares [<a class="cite" href="references.html#bib-Stigler" data-cite="Stigler">26</a>]. What is certain
+Ceres computation of 1801 actually relied on least squares [<a class="cite" href="references.html#bib-Stigler" data-cite="Stigler">27</a>]. What is certain
 is that the two contributions are complementary: Legendre gave the method its name and its
 first clear algebraic statement; Gauss gave it a <em>probabilistic justification</em>, showing
 that least squares yields the most probable parameters when the errors follow what we now
@@ -167,22 +169,22 @@ Udny Yule introduced autoregressive models to study the periodicity of sunspot n
 Chapter&nbsp;<a class="xref" href="ch6.html" data-ref="ch:pem">6</a>. In the 1940s Norbert Wiener and Andrey Kolmogorov founded the theory of
 optimal prediction and filtering of stationary random signals.</p>
 <p>The decisive step came with the <em>state-space</em> revolution of the 1960s. Rudolf E. Kalman introduced the concepts of reachability and observability and the Kalman filter
-(1960) [<a class="cite" href="references.html#bib-Kalman1960" data-cite="Kalman1960">28</a>], and with B.&nbsp;L.&nbsp;Ho [<a class="cite" href="references.html#bib-HoKalman" data-cite="HoKalman">9</a>] gave the first algorithm to construct a state-space model from the
+(1960) [<a class="cite" href="references.html#bib-Kalman1960" data-cite="Kalman1960">29</a>], and with B.&nbsp;L.&nbsp;Ho [<a class="cite" href="references.html#bib-HoKalman" data-cite="HoKalman">10</a>] gave the first algorithm to construct a state-space model from the
 impulse response of a system (1966, Chapter&nbsp;<a class="xref" href="ch7.html" data-ref="ch:hokalman">7</a>). The very term <em>identification</em>
-had been introduced a few years earlier by Lotfi Zadeh (1956) [<a class="cite" href="references.html#bib-Zadeh1956" data-cite="Zadeh1956">27</a>], who later
+had been introduced a few years earlier by Lotfi Zadeh (1956) [<a class="cite" href="references.html#bib-Zadeh1956" data-cite="Zadeh1956">28</a>], who later
 (1962) defined it as the determination, on the basis of input and output data, of a system
 within a specified class to which the system under test is equivalent. In 1965 Karl Johan &Aring; ström and Torsten
 Bohlin presented the maximum-likelihood identification of ARMAX models from normal operating
-records [<a class="cite" href="references.html#bib-AstromBohlin" data-cite="AstromBohlin">29</a>], a milestone of the <em>prediction-error</em> approach; the first IFAC Symposium on
+records [<a class="cite" href="references.html#bib-AstromBohlin" data-cite="AstromBohlin">30</a>], a milestone of the <em>prediction-error</em> approach; the first IFAC Symposium on
 Identification was held in Prague in 1967, and the survey by &Aring; ström and Eykhoff
-(1971) [<a class="cite" href="references.html#bib-AstromEykhoff" data-cite="AstromEykhoff">30</a>] consolidated the new discipline. The book by Box and Jenkins
-(1970) [<a class="cite" href="references.html#bib-BoxJenkins" data-cite="BoxJenkins">31</a>] popularized time-series models for forecasting and control; Hirotugu
-Akaike introduced information criteria for model-order selection (1974) [<a class="cite" href="references.html#bib-Akaike1974" data-cite="Akaike1974">32</a>]; Lennart Ljung&rsquo;s
+(1971) [<a class="cite" href="references.html#bib-AstromEykhoff" data-cite="AstromEykhoff">31</a>] consolidated the new discipline. The book by Box and Jenkins
+(1970) [<a class="cite" href="references.html#bib-BoxJenkins" data-cite="BoxJenkins">32</a>] popularized time-series models for forecasting and control; Hirotugu
+Akaike introduced information criteria for model-order selection (1974) [<a class="cite" href="references.html#bib-Akaike1974" data-cite="Akaike1974">33</a>]; Lennart Ljung&rsquo;s
 book [<a class="cite" href="references.html#bib-Ljung" data-cite="Ljung">5</a>] (1987) gave the prediction-error framework its definitive form. Around
 1990 the <em>subspace</em> methods (Larimore&rsquo;s CVA, Verhaegen and Dewilde&rsquo;s MOESP, Van
-Overschee and De Moor&rsquo;s N4SID [<a class="cite" href="references.html#bib-VerhaegenDewilde" data-cite="VerhaegenDewilde">11</a>, <a class="cite" href="references.html#bib-VanOverschee" data-cite="VanOverschee">8</a>]) brought back the ideas of Ho and Kalman in a statistical
+Overschee and De Moor&rsquo;s N4SID [<a class="cite" href="references.html#bib-VerhaegenDewilde" data-cite="VerhaegenDewilde">12</a>, <a class="cite" href="references.html#bib-VanOverschee" data-cite="VanOverschee">9</a>]) brought back the ideas of Ho and Kalman in a statistical
 setting, relying only on numerically robust tools of linear algebra (Chapter&nbsp;<a class="xref" href="ch8.html" data-ref="ch:moesp">8</a>). More
-recently, Willems&rsquo; fundamental lemma (2005) [<a class="cite" href="references.html#bib-Willems" data-cite="Willems">13</a>] has become the starting point of the
+recently, Willems&rsquo; fundamental lemma (2005) [<a class="cite" href="references.html#bib-Willems" data-cite="Willems">14</a>] has become the starting point of the
 <em>data-driven control</em> approaches, in which controllers are designed directly from
 data matrices, and the interaction with machine learning (kernel methods, neural
 networks) is one of the most active research fields. Figure&nbsp;<a class="xref" href="#fig-timeline" data-ref="fig:timeline">1.2</a> summarizes some of

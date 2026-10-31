@@ -57,6 +57,19 @@ window.MathJax = {
 <main class="content" id="content">
 <article class="chapter">
 <h1 class="chap" id="top"><span class="chapnum">Chapter 5</span><span class="chaptitle">Introduction to system identification</span></h1>
+<div class="flushright"><div class="minipage"><p><em> System identification is the art and science of building mathematical models of
+dynamic systems from observed input&ndash;output data.</em></p>
+<p>L.&nbsp;Ljung [<a class="cite" href="references.html#bib-LjungPerspectives" data-cite="LjungPerspectives">6</a>]</p></div></div>
+<p>The previous chapters have provided the tools: linear algebra, the singular value
+decomposition and least squares. In this chapter we turn to the problem that gives the course
+its name. Identifying a system means building a mathematical model of its dynamics from
+measured data, rather than deriving it from first principles (physical laws, balance
+equations), which may be unknown, too complex to be useful, or depend on parameters that
+cannot be measured directly; in practice the two approaches are often combined. We first
+explain how dynamic estimation problems differ from the static ones of Chapter&nbsp;<a class="xref" href="ch4.html" data-ref="ch:ls">4</a> and state
+the identification problem; we then discuss what can (and cannot) be identified from
+input&ndash;output data, the steps of the identification cycle, how to measure the accuracy of a
+model, and which inputs are rich enough to make identification possible.</p>
 <h2 id="s-5-1" class="sec"><span class="secnum">5.1</span> From static to dynamic estimation problems</h2>
 <p>Up to now we have learned how to approximately (or even exactly) solve <em>static</em>
 estimation problems described by</p>
@@ -66,14 +79,29 @@ estimation problems described by</p>
 \]</div>
 <p>where the rows of \(A\) and \(y\) are built from measured data (e.g. \(y_i\) and \(t_i\) in curve
 fitting). We now shift towards estimating <em>dynamic</em> models, in which the current output
-depends on the past history of inputs and outputs. The identification problem we address is</p>
-<div class="eq" id="eq-idproblem">\[\underbrace{\{u(k),y(k)\}_{k=0}^{N-1}}_{\text{training dataset}}
-  \;\longmapsto\;
-  \begin{cases}
-    \text{an input--output model } W(z)\ \text{(its coefficients), or}\\
-    \text{a state-space model }\{\hat A,\hat B,\hat C,\hat D,\hat x(0)\}\\
-    \quad\text{up to a change of coordinates}.
-  \end{cases} \tag{5.1}\]</div>
+depends on the past history of inputs and outputs. The identification problem we address
+can be stated as follows.</p>
+<div class="box keybox"><p><strong>Identification problem.</strong> Given a <em>training dataset</em> of \(N\) input&ndash;output samples</p>
+<div class="eq" id="eq-idproblem">\[\mathcal D_N=\{u(k),\,y(k)\}_{k=0}^{N-1}, \tag{5.1}\]</div>
+<p>find, within the class of <em>linear time-invariant</em> (LTI) discrete-time models,</p>
+<ul><li><p>an <em>input&ndash;output model</em>, i.e. an estimate \(\hat W(z)\) of the transfer matrix,
+      described by the coefficients of its numerator and denominator polynomials
+      (Chapter&nbsp;<a class="xref" href="ch6.html" data-ref="ch:pem">6</a>); or</p></li><li><p>a <em>state-space model</em> \(\{\hat A,\hat B,\hat C,\hat D\}\), together with an
+      estimate \(\hat x(0)\) of the initial state if needed. As shown in
+      Section&nbsp;<a class="xref" href="#sec-what-ident" data-ref="sec:what-ident">5.2</a>, these matrices can only be determined <em>up to a change of
+      coordinates</em> in the state space (Chapters&nbsp;<a class="xref" href="ch7.html" data-ref="ch:hokalman">7</a> and <a class="xref" href="ch8.html" data-ref="ch:moesp">8</a>).</p></li></ul></div>
+<p>Restricting the search to linear and time-invariant models is a <em>choice</em>, not a
+consequence of the data. In general, the problem of associating a dynamic model with the
+measurements \(\{u(k),y(k)\}\) may have solutions only outside the class of linear models,
+if the system that generated \(y(k)\) from \(u(k)\) does not admit a linear description
+(think of saturations, dead zones, hysteresis, or products of signals); in that case
+nonlinear model classes are needed, such as block-oriented (Hammerstein, Wiener),
+nonlinear autoregressive (NARX) or neural-network models, which are beyond the scope of
+these notes. LTI models are nevertheless the standard starting point: many systems behave
+approximately linearly around an operating point, LTI models are well suited to analysis and
+control design, and their identification can be carried out with the tools of linear
+algebra and least squares developed so far. The choice of the model class is one of the
+steps of the identification cycle (Section&nbsp;<a class="xref" href="#sec-cycle" data-ref="sec:cycle">5.3</a>).</p>
 <p>The notions of discrete-time LTI systems needed in the sequel (solution of the state
 equations, impulse response, \(\Z\)-transform and transfer matrices, stability,
 reachability, observability, polynomial models) are recalled in
@@ -81,12 +109,20 @@ Appendices&nbsp;<a class="xref" href="appA.html" data-ref="app:systems">A</a> an
 <h2 id="sec-what-ident" class="sec"><span class="secnum">5.2</span> What can be identified from input&ndash;output data</h2>
 <p>Consider the LTI system</p>
 <div class="eq" id="eq-lti">\[\left\{\begin{aligned}
-  x(k+1)&amp;=Ax(k)+Bu(k)\quad(+\,\text{noise}),\qquad k\ge0,\quad x(0)=x_0\in\R^n,\\
-  y(k)&amp;=Cx(k)+Du(k)\quad(+\,\text{noise}),
+  x(k+1)&amp;=Ax(k)+Bu(k)+\xi(k),\qquad k\ge0,\quad x(0)=x_0\in\R^n,\\
+  y(k)&amp;=Cx(k)+Du(k)+v(k),
 \end{aligned}\right. \tag{5.2}\]</div>
-<p>with \(u(k)\in\R^p\), \(y(k)\in\R^q\), \(x(k)\in\R^n\).
-Its output is (Appendix&nbsp;<a class="xref" href="appA.html" data-ref="app:systems">A</a>)</p>
-<div class="eq" id="eq-output-response">\[y(k)=\underbrace{CA^kx(0)}_{\text{free (unforced) response}}
+<p>with \(u(k)\in\R^p\), \(y(k)\in\R^q\), \(x(k)\in\R^n\). The two noise terms have different
+origins:</p>
+<ul><li><p>\(\xi(k)\in\R^n\) is the <em>process</em> (or <em>state</em>) <em>noise</em>: it accounts for
+      unmeasured disturbances acting on the dynamics and for modelling errors, and it
+      propagates through the state to all future outputs;</p></li><li><p>\(v(k)\in\R^q\) is the <em>measurement</em> (or <em>output</em>) <em>noise</em>: it accounts
+      for sensor errors and affects only the current output sample.</p></li></ul>
+<p>Both are usually modelled as zero-mean random sequences (e.g. white noise). To understand
+what can be identified at all, in this section we consider the noise-free case
+\(\xi(k)\equiv0\), \(v(k)\equiv0\); the effect of noise will be addressed in
+Chapters&nbsp;<a class="xref" href="ch6.html" data-ref="ch:pem">6</a>, <a class="xref" href="ch7.html" data-ref="ch:hokalman">7</a> and <a class="xref" href="ch8.html" data-ref="ch:moesp">8</a>. The output is then (Appendix&nbsp;<a class="xref" href="appA.html" data-ref="app:systems">A</a>)</p>
+<div class="eq" id="eq-output-response">\[y(k)=\underbrace{CA^kx(0)}_{\text{free response}}
       +\underbrace{\sum_{\tau=0}^{k-1}CA^{k-\tau-1}Bu(\tau)+Du(k)}_{\text{forced response}}, \tag{5.3}\]</div>
 <p>and its impulse response matrix and transfer matrix are</p>
 <div class="eq">\[
@@ -107,7 +143,8 @@ Its output is (Appendix&nbsp;<a class="xref" href="appA.html" data-ref="app:syst
 \tilde w(k)=\begin{cases}\tilde C\tilde A^{k-1}\tilde B=CT(T^{-1}AT)^{k-1}T^{-1}B=CA^{k-1}B,&amp;k&gt;0,\\ \tilde D=D,&amp;k=0,\end{cases}
 \]</div>
 <p>so that \(\tilde w(k)=w(k)\) for all \(k\), and \(W(z)\) is not affected by changes of
-coordinates in the state space.</p>
+coordinates in the state space. Further details are
+given in Appendix&nbsp;<a class="xref" href="appA.html" data-ref="app:systems">A</a>, see Section&nbsp;<a class="xref" href="appA.html#sec-app-ss" data-ref="sec:app-ss">A.1</a>.</p>
 <p>Two consequences are fundamental for identification.</p>
 <ol><li><p>The data can at most determine \(\{A,B,C,D\}\) <em>up to a similarity
       transformation</em> \(T\): every identification method returns <em>one</em> realization in
@@ -123,63 +160,92 @@ coordinates in the state space.</p>
 \(\mathcal M\) (a set of candidate models parametrized by a vector \(\theta\) or by matrices):</p>
 <ul><li><p><em>white-box</em> models are derived from physical laws, with all parameters known;
       <em>grey-box</em> models have a physically motivated structure with some unknown
-      parameters; <em>black-box</em> models (the focus of this course) only assume a generic
-      LTI structure;</p></li><li><p><em>input&ndash;output polynomial models</em> (ARX, ARMAX, OE, Box&ndash;Jenkins,
+      parameters; <em>black-box</em> models (the focus of this course) only assume a generic structure. In this notes, as remarked above, we assume a generic LTI structure;</p></li><li><p><em>input&ndash;output polynomial models</em> (ARX, ARMAX, OE, Box&ndash;Jenkins,
       Chapter&nbsp;<a class="xref" href="ch6.html" data-ref="ch:pem">6</a> and Appendix&nbsp;<a class="xref" href="appB.html" data-ref="app:polynomial">B</a>) are parametrized by the coefficients of polynomials in
       the delay operator \(q^{-1}\) and are estimated by <em>prediction-error methods</em>;</p></li><li><p><em>state-space models</em> <a class="xref" href="#eq-lti" data-ref="eq:lti">(5.2)</a> are estimated by <em>realization</em> and
       <em>subspace</em> methods (Chapters&nbsp;<a class="xref" href="ch7.html" data-ref="ch:hokalman">7</a> and <a class="xref" href="ch8.html" data-ref="ch:moesp">8</a>).</p></li></ul>
 <h2 id="sec-cycle" class="sec"><span class="secnum">5.3</span> The system-identification cycle</h2>
-<p>Identification is an iterative procedure (Verhaegen and Verdult [<a class="cite" href="references.html#bib-VerhaegenVerdult" data-cite="VerhaegenVerdult">1</a>],
-Chapter&nbsp;10, &ldquo;The system-identification cycle&rdquo;), summarized in Figure&nbsp;<a class="xref" href="#fig-idcycle" data-ref="fig:idcycle">5.1</a>.</p>
+<p>Identification is an iterative procedure, that can be summarized as follows<sup class="fn"><a class="fnref" id="fnref-1" href="#fn-1">1</a></sup> (see Figure&nbsp;<a class="xref" href="#fig-idcycle" data-ref="fig:idcycle">5.1</a>).</p>
 <ol><li><p><strong>Design and conduct experiments.</strong> Collect data on the system in the most
       appropriate conditions, trying to obtain data that are <em>representative</em> of the
       system behaviour: choice of the sampling time, of the input signal (amplitude,
       frequency content, persistency of excitation, Section&nbsp;<a class="xref" href="#sec-pe" data-ref="sec:pe">5.5</a>), of the duration.</p></li><li><p><strong>Pre-process the data.</strong> The dataset may contain trends, offsets, outliers,
-      drifts, clear noise, missing samples, which you want to remove to obtain clean data
-      to work with (e.g. removal of means and linear trends, filtering, resampling).</p></li><li><p><strong>Choose a model class.</strong> You may know something about the system in the black
-      box which makes you believe that a given model class will be appropriate. Otherwise
-      you start with simple models and see how they work.</p></li><li><p><strong>Build the datasets.</strong> Split the whole dataset into <em>training data</em> (only
+      drifts, clear noise, missing samples, which we may want to remove to obtain clean data
+      to work with (e.g. removal of means and linear trends, filtering, resampling).
+      Steps 1 and 2 must deliver data that are informative and <em>representative</em> of the
+      behaviour of the system in the conditions in which the model will be used: only then
+      can one expect the outcome of the following steps to depend mainly on the modelling
+      choices, rather than on the quality of the data.</p></li><li><p><strong>Build the datasets.</strong> Split the whole dataset into <em>training data</em> (only
       used to learn/estimate the model) and <em>testing data</em> (only used to validate the
       model, i.e. to understand how the model is able to generalize to <em>unseen</em> data).
       A heuristic rule is 70&ndash;80% training, 30&ndash;20% testing (50/50 is also common when
-      data are abundant).</p></li><li><p><strong>Proceed with estimation.</strong> You have data and a model class \(\mathcal M\):
-      choose a technique that estimates models in that class (LS, PEM, subspace methods),
-      and possibly the model order.</p></li><li><p><strong>Validate the model.</strong> After some tests on the training dataset itself, try to
+      data are abundant). The split does not depend on the model class, so it can be done
+      once and for all before any model is estimated. As a practical rule, the
+      pre-processing operations whose parameters are computed from the data (e.g. the mean
+      or the linear trend to be removed) should be computed on the training data only and
+      then applied unchanged to the testing data: otherwise information on the testing data
+      leaks into the model, and the validation becomes optimistic.</p></li><li><p><strong>Choose a model class.</strong> The user may know something about the system in the black
+      box which leads to the assumption that a given model class will be appropriate. Otherwise
+      one should start with simple models and see how they work.</p></li><li><p><strong>Proceed with estimation.</strong> We have training data and a model class
+      \(\mathcal M\): choose a technique that estimates models in that class (LS, PEM,
+      subspace methods). Structural parameters such as the model order are not estimated
+      in this step: models of different orders are estimated and then compared in the
+      validation step (Section&nbsp;<a class="xref" href="#sec-validation" data-ref="sec:validation">5.4</a>).</p></li><li><p><strong>Validate the model.</strong> After some tests on the training dataset itself, try to
       understand if the estimated model works fine with testing (unseen) data, so that,
       according to some measure of error/performance, the error/performance of the model
-      on the testing dataset is similar to the one on the training dataset (this would mean
-      that it has good generalization quality) <em>and</em> is satisfactory for the intended
-      use of the model.</p></li><li><p><strong>If the model is not good</strong>, change model class (or order), or go back to the
-      experiment design and pre-processing steps.</p></li></ol>
-<figure class="fig" id="fig-idcycle"><div class="fig-img"><img src="figures/fig-idcycle.svg" alt="Figure 5.1" loading="lazy" style="width:433px"></div><figcaption><span class="fig-name">Figure 5.1:</span> The system-identification cycle.</figcaption></figure>
+      on the testing dataset is not markedly worse than on the training dataset (a slightly
+      larger testing error is normal, while a marked gap is the symptom of overfitting,
+      i.e. of poor generalization) <em>and</em> is satisfactory for the intended use of the
+      model. The latter is the decisive criterion: a model is good if it is accurate enough
+      on unseen data for the purpose it is built for (simulation, prediction, control
+      design, &hellip;).</p></li><li><p><strong>If the model is not good</strong>, change the model class (or the order), or the
+      estimation method, and repeat estimation and validation. If no reasonable model performs
+      satisfactorily, the problem most likely lies in the data: as a last resort, revise the
+      pre-processing or repeat the experiments with a better design (steps 1&ndash;2).</p></li></ol>
+<figure class="fig" id="fig-idcycle"><div class="fig-img"><img src="figures/fig-idcycle.svg" alt="Figure 5.1" loading="lazy" style="width:334px"></div><figcaption><span class="fig-name">Figure 5.1:</span> The system-identification cycle (simplified from [<a class="cite" href="references.html#bib-VerhaegenVerdult" data-cite="VerhaegenVerdult">1</a>],
+Fig.&nbsp;10.1). The training data are used for estimation and the testing data only for
+validation (step&nbsp;3). The iterations over model class, order and estimation method assume
+informative data; going back to steps 1&ndash;2 is the last resort (step&nbsp;7).</figcaption></figure>
 <h2 id="sec-validation" class="sec"><span class="secnum">5.4</span> Measures of error and accuracy</h2>
+<p>The identification cycle requires <em>comparing</em> models. Different model classes, orders and
+estimation methods lead to different models, and the validation step has to decide whether a
+model is good enough for its purpose and which of several candidates should be preferred.
+Since no model reproduces measured data exactly (because of noise, unmodelled dynamics and
+the finite amount of data), the question is not <em>whether</em> the model output coincides
+with the data, but <em>how large</em> the discrepancy is: on the training data, to assess how
+well the model fits, and above all on the testing data, to assess how well it generalizes.
+This requires quantitative measures of error and accuracy, which we now introduce.</p>
 <p>Let \(y_i\) be the observed values in an experiment and \(\hat y_i\) the values that the model
 would produce (e.g. \(\hat y_i=\hat mt_i+\hat q\) for linear regression, or the simulated or
 predicted output of a dynamic model), \(i=1,\dots,N\), with \(N\) the cardinality of the
-dataset. Common measures are:</p>
+dataset. Common measures of error and accuracy are:</p>
 <div class="eq">\begin{align*}
   \mathrm{MSE}&amp;=\frac1N\sum_{i=1}^N(y_i-\hat y_i)^2 &amp;&amp;\text{mean squared error},\\
-  \mathrm{RMSE}&amp;=\sqrt{\mathrm{MSE}}=\Bigl(\frac1N\sum_{i=1}^N(y_i-\hat y_i)^2\Bigr)^{1/2} &amp;&amp;\text{root mean squared error (units of $y$)},\\
+  \mathrm{RMSE}&amp;=\sqrt{\mathrm{MSE}}=\Bigl(\frac1N\sum_{i=1}^N(y_i-\hat y_i)^2\Bigr)^{1/2} &amp;&amp;\text{root mean squared error},\\
   \mathrm{NRMSE}_{\mathrm{avg}}&amp;=\frac{\mathrm{RMSE}}{\frac1N\sum_{i=1}^Ny_i} &amp;&amp;\text{not suited if the signal has (close to) zero mean},\\
   \mathrm{NRMSE}_{\mathrm{range}}&amp;=\frac{\mathrm{RMSE}}{\max(y)-\min(y)},\\
   \mathrm{FIT}&amp;=100\Bigl(1-\frac{\norm{y-\hat y}}{\norm{y-\bar y}}\Bigr)\ [\%] &amp;&amp;\text{used by MATLAB's \texttt{compare}},
 \end{align*}</div>
-<p>and many others are possible. <em>Rule of thumb</em>: if the model has comparable errors on
-the training and testing datasets, \(\mathrm{RMSE}_{\mathrm{train}}\approx\mathrm{RMSE}_{\mathrm{test}}\),
-it generalizes well.</p>
-<p><strong class="runin">Simulation versus prediction.</strong>  For dynamic models two kinds of \(\hat y\) are
-used. The <em>simulated</em> output \(\hat y_{\mathrm{sim}}(k)\) is computed from the input
-only (for instance \(\hat y=\hat W(q)u\)); the <em>one-step-ahead predicted</em> output
-\(\hat y(k|k-1)\) also uses the measured past outputs (Section&nbsp;<a class="xref" href="ch6.html#sec-arx-predictor" data-ref="sec:arx-predictor">6.3</a>). Prediction
-errors are always smaller and can hide a poor model (for slow systems even
-\(\hat y(k|k-1)=y(k-1)\) looks good); validation in <em>simulation</em> on fresh data is the
-more demanding test.</p>
-<p><strong class="runin">Residual analysis.</strong>  For a model that also describes the noise, the prediction
-errors \(\varepsilon(k)=y(k)-\hat y(k|k-1)\) on validation data should be (i) white, i.e. their sample autocorrelation \(\hat R_\varepsilon(\tau)\) should be negligible for
-\(\tau\neq0\), and (ii) uncorrelated with past inputs, \(\hat R_{\varepsilon u}(\tau)\approx0\).
-Under the whiteness hypothesis, about \(95\%\) of the normalized sample correlations lie in
-\(\pm1.96/\sqrt N\) (MATLAB: <code>resid</code>).</p>
-<div class="box example" id="ex-poly-order"><div class="box-title">Example 5.1: choosing the order of a polynomial (solution of the homework)</div><div class="box-body"><p>Data are generated as \(y_i=0.5t_i^3-t_i^2-t_i+1+\varepsilon_i\), \(\varepsilon_i\sim\mathcal N(0,0.6^2)\),
+<p>and many others are possible. The MSE is measured in the <em>squared</em> units of the output
+(e.g. \(\mathrm{V}^2\) if \(y\) is a voltage), whereas the RMSE has the same physical units as
+\(y\) (volts, metres, degrees Celsius, &hellip;): it can thus be read directly as the typical size
+of the error made by the model on the output. For the same reason, however, the RMSE depends
+on the scale of \(y\) and cannot be used to compare errors on signals of different nature or
+magnitude; the normalized measures \(\mathrm{NRMSE}\) and \(\mathrm{FIT}\) are dimensionless and
+serve this purpose. <em>Rule of thumb</em>: if the error on the testing dataset is not markedly
+larger than on the training dataset, \(\mathrm{RMSE}_{\mathrm{test}}\approx\mathrm{RMSE}_{\mathrm{train}}\)
+(a slightly larger testing error is normal), the model generalizes well, i.e. there is no
+overfitting. This alone does not make the model good: a too simple model has comparable but
+<em>large</em> errors on both datasets (underfitting). As in step&nbsp;6 of the identification
+cycle (Section&nbsp;<a class="xref" href="#sec-cycle" data-ref="sec:cycle">5.3</a>), the decisive criterion is that the testing error be small enough for
+the intended use of the model.</p>
+<p>These notions (training and testing errors, underfitting and overfitting, choice of the
+model order) do not depend on the dynamic nature of the model. The simplest setting in which
+they can be observed is the <em>static</em> polynomial fitting of Chapter&nbsp;<a class="xref" href="ch4.html" data-ref="ch:ls">4</a>, where the role of the model order is played by the degree of the
+polynomial. The aspects that are specific to dynamic models are discussed afterwards.</p>
+<div class="box example" id="ex-poly-order"><div class="box-title">Example 5.1: choosing the order of a polynomial (solution of Exercise&nbsp;<a class="xref" href="ch4.html#ex-homework-poly" data-ref="ex:homework-poly">4.1</a>)</div><div class="box-body"><p>This example solves part (b) of the homework of Exercise&nbsp;<a class="xref" href="ch4.html#ex-homework-poly" data-ref="ex:homework-poly">4.1</a> (Chapter&nbsp;<a class="xref" href="ch4.html" data-ref="ch:ls">4</a>):
+learning a polynomial from data without fixing its order a priori and without overfitting.
+Data are generated as \(y_i=0.5t_i^3-t_i^2-t_i+1+\varepsilon_i\), \(\varepsilon_i\sim\mathcal N(0,0.6^2)\),
 with \(30\) training and \(30\) testing points drawn uniformly in \([-2,3]\). Polynomials of degree
 \(d=0,\dots,12\) are fitted by least squares on the training data. Figure&nbsp;<a class="xref" href="#fig-poly-order" data-ref="fig:poly-order">5.2</a>
 shows that the training RMSE always decreases with \(d\) (the model classes are nested),
@@ -187,7 +253,8 @@ while the testing RMSE drops sharply at \(d=3\) and then stays flat or grows: th
 polynomial chases the noise (<em>overfitting</em>) and oscillates between the samples. The
 testing RMSE is minimal at \(d=5\) (\(0.521\)) but practically identical at \(d=3\) (\(0.540\)): by
 the <em>principle of parsimony</em> the simplest model with comparable performance is
-preferred, i.e. \(d=3\), which is also the order selected by the AIC and MDL criteria of
+preferred, i.e. \(d=3\). This is also the order selected by the AIC and MDL criteria, which
+formalize the trade-off between fit and complexity and will be presented in detail in
 Section&nbsp;<a class="xref" href="ch6.html#sec-ordersel" data-ref="sec:ordersel">6.6</a>. The estimated cubic, \(0.507t^3-1.023t^2-0.970t+0.947\), is close to the
 true one. The RMSE \(\approx0.5\) reached for \(d\ge3\) is of the order of the noise standard
 deviation: no model can do better on unseen data.</p></div></div>
@@ -195,6 +262,37 @@ deviation: no model can do better on unseen data.</p></div></div>
 error decreases monotonically with the degree; the testing error reveals underfitting
 (\(d&lt;3\)) and overfitting (\(d=12\)).</figcaption></figure>
 <div class="widget" id="w-polyorder" data-widget="polyorder"></div>
+<p><strong class="runin">Simulation versus prediction.</strong>  In a dynamic model the output depends on past
+values of the output itself, so the model output \(\hat y(k)\) can be computed in two different
+ways. Consider, for instance, a model in the form of a first-order difference equation
+(Appendix&nbsp;<a class="xref" href="appB.html" data-ref="app:polynomial">B</a>)</p>
+<div class="eq">\[
+  y(k)=a\,y(k-1)+b\,u(k-1),
+\]</div>
+<p>with estimated parameters \(\hat a\), \(\hat b\).</p>
+<ul><li><p>The <em>simulated</em> output uses only the input and the past outputs of the model itself:</p>
+<div class="eq">\[
+        \hat y_{\mathrm{sim}}(k)=\hat a\,\hat y_{\mathrm{sim}}(k-1)+\hat b\,u(k-1),
+      \]</div>
+<p>starting from an initial value \(\hat y_{\mathrm{sim}}(0)\); equivalently,
+      \(\hat y_{\mathrm{sim}}=\hat W(q)u\) with \(\hat W(q)=\hat bq^{-1}/(1-\hat aq^{-1})\).</p></li><li><p>The <em>one-step-ahead predicted</em> output uses the <em>measured</em> past output:</p>
+<div class="eq">\[
+        \hat y(k|k-1)=\hat a\,y(k-1)+\hat b\,u(k-1).
+      \]</div></li></ul>
+<p>In prediction the measured value \(y(k-1)\) &ldquo;resets&rdquo; the model at each step, so that the
+errors do not accumulate; in simulation the error made at one step propagates, through
+\(\hat y_{\mathrm{sim}}(k-1)\), to all the following ones. Prediction errors are therefore
+typically much smaller than simulation errors and can hide a poor model: for a slowly
+varying output, even the trivial predictor \(\hat y(k|k-1)=y(k-1)\) (\(\hat a=1\), \(\hat b=0\)),
+which knows nothing about the system, gives small prediction errors. Validation in
+<em>simulation</em> on fresh data is the more demanding test. The one-step-ahead predictor of
+general polynomial models is derived in Section&nbsp;<a class="xref" href="ch6.html#sec-arx-predictor" data-ref="sec:arx-predictor">6.3</a>, where it is also the basis
+of the estimation method.</p>
+<p><strong class="runin">Residual analysis.</strong>  For a model that also describes the noise, the prediction
+errors \(\varepsilon(k)=y(k)-\hat y(k|k-1)\) on validation data should be (i) white, i.e. their sample autocorrelation \(\hat R_\varepsilon(\tau)\) should be negligible for
+\(\tau\neq0\), and (ii) uncorrelated with past inputs, \(\hat R_{\varepsilon u}(\tau)\approx0\).
+Under the whiteness hypothesis, about \(95\%\) of the normalized sample correlations lie in
+\(\pm1.96/\sqrt N\) (MATLAB: <code>resid</code>).</p>
 <h2 id="sec-pe" class="sec"><span class="secnum">5.5</span> Persistency of excitation</h2>
 <p>Not every input is suitable for identification: a constant input, for instance, cannot
 reveal the dynamic behaviour of a system at all frequencies. The property that an input
@@ -232,7 +330,7 @@ following result, known as <em>Willems&rsquo; fundamental lemma</em> (J.&nbsp;C.
 names in this line of research are I.&nbsp;Markovsky and B.&nbsp;De&nbsp;Moor), is nowadays very used in
 the literature on <em>data-driven control</em> (see e.g. De Persis and Tesi, &ldquo;Formulas for
 data-driven control: stabilization, optimality and robustness&rdquo;, IEEE TAC 2020
-[<a class="cite" href="references.html#bib-DePersisTesi" data-cite="DePersisTesi">14</a>], and [<a class="cite" href="references.html#bib-Willems" data-cite="Willems">13</a>, <a class="cite" href="references.html#bib-Markovsky" data-cite="Markovsky">15</a>]).</p>
+[<a class="cite" href="references.html#bib-DePersisTesi" data-cite="DePersisTesi">15</a>], and [<a class="cite" href="references.html#bib-Willems" data-cite="Willems">14</a>, <a class="cite" href="references.html#bib-Markovsky" data-cite="Markovsky">16</a>]).</p>
 <div class="thm thm-theorem" id="thm-willems"><p><span class="thm-head"><span class="thm-name">Theorem 5.2</span> <span class="thm-title">(Willems&rsquo; fundamental lemma, state-space version)</span>.</span> Let the system <a class="xref" href="#eq-lti" data-ref="eq:lti">(5.2)</a> (noise free) be reachable, let \(u\) be persistently exciting
 of order \(\ell+n\), and let \(X_{0,N}=[x(0)\;x(1)\;\cdots\;x(N-1)]\) be the corresponding state
 sequence. Then</p>
@@ -250,24 +348,25 @@ of rank condition is the enabling assumption of the MOESP algorithm (Lemma&nbsp;
 \(u(k)=\sin(0.3k)+\sin(1.2k)\), and when \(u\) is a realization of white noise. Relate the
 results to the PE order.</p><div class="ex-links"><a class="ex-link" href="#w-pe:ex1">Compute the ranks</a></div></div>
 <div class="exercise" id="exercise-5-2"><p><span class="thm-head"><span class="ex-name">Exercise 5.2</span>.</span> Show that if \(u\) is PE of order \(\ell\), it is PE of every order \(\ell'&lt;\ell\).</p></div>
-<div class="exercise" id="exercise-5-3"><p><span class="thm-head"><span class="ex-name">Exercise 5.3</span>.</span> Repeat Example&nbsp;<a class="xref" href="#ex-poly-order" data-ref="ex:poly-order">5.1</a> \(100\) times with different noise realizations and plot the
-histogram of the orders selected by (a) minimum testing RMSE, (b) AIC, (c) MDL. Which
-criterion is more reliable? What happens with \(N=300\)?</p><div class="ex-links"><a class="ex-link" href="#w-polyorder:mc">Run the Monte Carlo study</a></div></div>
-<div class="exercise" id="exercise-5-4"><p><span class="thm-head"><span class="ex-name">Exercise 5.4</span>.</span> Prove that for a discrete-time LTI model the one-step-ahead prediction error on noise-free
-data is zero, while the simulation error is not zero if \(x(0)\) is unknown. What does this
-imply for the choice of the validation criterion?</p></div>
+<div class="exercise" id="exercise-5-3"><p><span class="thm-head"><span class="ex-name">Exercise 5.3</span>.</span> Consider the first-order model \(y(k)=a\,y(k-1)+b\,u(k-1)\) of Section&nbsp;<a class="xref" href="#sec-validation" data-ref="sec:validation">5.4</a>
+(&ldquo;Simulation versus prediction&rdquo;) with the true parameters, \(\abs a&lt;1\), and noise-free data
+generated by the same equation. Show that the one-step-ahead prediction error
+\(y(k)-\hat y(k|k-1)\) is zero for every \(k\ge1\), whereas the simulation error
+\(y(k)-\hat y_{\mathrm{sim}}(k)\) equals \(a^k\bigl(y(0)-\hat y_{\mathrm{sim}}(0)\bigr)\) when the
+initial value \(y(0)\) is not known (e.g. \(\hat y_{\mathrm{sim}}(0)=0\)). What does this imply
+for the choice of the validation criterion, and for the first samples of a simulation?</p><div class="ex-links"><a class="ex-link" href="#w-polyorder:mc">Run the Monte Carlo study</a></div></div>
 <h2 id="s-5-7" class="sec"><span class="secnum">5.7</span> Implementation in MATLAB and Python</h2>
 <p>The validation measures and a numerical check of persistency of excitation take a few
 lines of core MATLAB:</p>
-<div class="code" data-lang="matlab"><div class="code-head"><span class="code-lang">MATLAB</span><span class="code-title"></span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button></span></div><pre><code class="hl"><span class="n">rmse</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="p">@(</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">yh</span><span class="p">)</span><span class="w"> </span><span class="nb">sqrt</span><span class="p">(</span><span class="nb">mean</span><span class="p">((</span><span class="n">y</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">yh</span><span class="p">)</span><span class="o">.^</span><span class="mi">2</span><span class="p">));</span>
-<span class="n">nrmse</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="p">@(</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">yh</span><span class="p">)</span><span class="w"> </span><span class="n">rmse</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">yh</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">min</span><span class="p">(</span><span class="n">y</span><span class="p">));</span>
-<span class="n">fitpct</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">@(</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">yh</span><span class="p">)</span><span class="w"> </span><span class="mi">100</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">norm</span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">yh</span><span class="p">)</span><span class="o">/</span><span class="nb">norm</span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">mean</span><span class="p">(</span><span class="n">y</span><span class="p">)));</span>
-<span class="c">% persistency of excitation of order l: rank of the block Hankel matrix</span>
-<span class="n">u</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">sin</span><span class="p">(</span><span class="mf">0.3</span><span class="o">*</span><span class="p">(</span><span class="mi">0</span><span class="p">:</span><span class="mi">199</span><span class="p">)</span><span class="o">'</span><span class="p">);</span><span class="w">  </span><span class="n">l</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span><span class="w">  </span><span class="n">N</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">numel</span><span class="p">(</span><span class="n">u</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-<span class="n">H</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">hankel</span><span class="p">(</span><span class="n">u</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">l</span><span class="p">),</span><span class="w"> </span><span class="n">u</span><span class="p">(</span><span class="n">l</span><span class="p">:</span><span class="k">end</span><span class="p">));</span><span class="w">           </span><span class="c">% l x N Hankel matrix (scalar input)</span>
-<span class="nb">fprintf</span><span class="p">(</span><span class="s">'rank = %d (PE of order %d requires %d)\n'</span><span class="p">,</span><span class="w"> </span><span class="nb">rank</span><span class="p">(</span><span class="n">H</span><span class="p">),</span><span class="w"> </span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">);</span>
-<span class="c">% random training/testing split (70/30) of a static dataset</span>
-<span class="n">m</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">randperm</span><span class="p">(</span><span class="n">m</span><span class="p">);</span><span class="w"> </span><span class="n">itr</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">idx</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">70</span><span class="p">);</span><span class="w"> </span><span class="n">ite</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">idx</span><span class="p">(</span><span class="mi">71</span><span class="p">:</span><span class="k">end</span><span class="p">);</span>
+<div class="code" data-lang="matlab"><div class="code-head"><span class="code-lang">MATLAB</span><span class="code-title"></span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button></span></div><pre><code class="hl"><span class="n">rmse</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="p">@(</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">yh</span><span class="p">)</span><span class="w"> </span><span class="nb">sqrt</span><span class="p">(</span><span class="nb">mean</span><span class="p">((</span><span class="n">y</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">yh</span><span class="p">)</span><span class="o">.^</span><span class="mi">2</span><span class="p">));</span><span class="w"></span>
+<span class="n">nrmse</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="p">@(</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">yh</span><span class="p">)</span><span class="w"> </span><span class="n">rmse</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">yh</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">min</span><span class="p">(</span><span class="n">y</span><span class="p">));</span><span class="w"></span>
+<span class="n">fitpct</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">@(</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">yh</span><span class="p">)</span><span class="w"> </span><span class="mi">100</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">norm</span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">yh</span><span class="p">)</span><span class="o">/</span><span class="nb">norm</span><span class="p">(</span><span class="n">y</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">mean</span><span class="p">(</span><span class="n">y</span><span class="p">)));</span><span class="w"></span>
+<span class="c">% persistency of excitation of order l: rank of the block Hankel matrix</span><span class="w"></span>
+<span class="n">u</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">sin</span><span class="p">(</span><span class="mf">0.3</span><span class="o">*</span><span class="p">(</span><span class="mi">0</span><span class="p">:</span><span class="mi">199</span><span class="p">)</span><span class="o">&#39;</span><span class="p">);</span><span class="w">  </span><span class="n">l</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span><span class="w">  </span><span class="n">N</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">numel</span><span class="p">(</span><span class="n">u</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="n">H</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">hankel</span><span class="p">(</span><span class="n">u</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">l</span><span class="p">),</span><span class="w"> </span><span class="n">u</span><span class="p">(</span><span class="n">l</span><span class="p">:</span><span class="k">end</span><span class="p">));</span><span class="w">           </span><span class="c">% l x N Hankel matrix (scalar input)</span><span class="w"></span>
+<span class="nb">fprintf</span><span class="p">(</span><span class="s">&#39;rank = %d (PE of order %d requires %d)\n&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">rank</span><span class="p">(</span><span class="n">H</span><span class="p">),</span><span class="w"> </span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">l</span><span class="p">);</span><span class="w"></span>
+<span class="c">% random training/testing split (70/30) of a static dataset</span><span class="w"></span>
+<span class="n">m</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">randperm</span><span class="p">(</span><span class="n">m</span><span class="p">);</span><span class="w"> </span><span class="n">itr</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">idx</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">70</span><span class="p">);</span><span class="w"> </span><span class="n">ite</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">idx</span><span class="p">(</span><span class="mi">71</span><span class="p">:</span><span class="k">end</span><span class="p">);</span><span class="w"></span>
 </code></pre><textarea class="code-src" hidden>rmse   = @(y, yh) sqrt(mean((y - yh).^2));
 nrmse  = @(y, yh) rmse(y, yh) / (max(y) - min(y));
 fitpct = @(y, yh) 100*(1 - norm(y - yh)/norm(y - mean(y)));
@@ -279,12 +378,12 @@ fprintf('rank = %d (PE of order %d requires %d)\n', rank(H), l, l);
 m = 100; idx = randperm(m); itr = idx(1:70); ite = idx(71:end);</textarea></div>
 <p>With the System Identification Toolbox (not available in GNU Octave), data are handled
 through <code>iddata</code> objects and the cycle of Figure&nbsp;<a class="xref" href="#fig-idcycle" data-ref="fig:idcycle">5.1</a> reads:</p>
-<div class="code" data-lang="matlab"><div class="code-head"><span class="code-lang">MATLAB</span><span class="code-title"></span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button></span></div><pre><code class="hl"><span class="n">data</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">iddata</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">Ts</span><span class="p">);</span><span class="w">                 </span><span class="c">% output, input, sampling time</span>
-<span class="n">data</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">detrend</span><span class="p">(</span><span class="n">data</span><span class="p">);</span><span class="w">                    </span><span class="c">% remove means / linear trends</span>
-<span class="n">ze</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">700</span><span class="p">);</span><span class="w">  </span><span class="n">zv</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">data</span><span class="p">(</span><span class="mi">701</span><span class="p">:</span><span class="k">end</span><span class="p">);</span><span class="w">   </span><span class="c">% training (estimation) / testing (validation)</span>
-<span class="n">m</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">arx</span><span class="p">(</span><span class="n">ze</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">2</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span><span class="w">                   </span><span class="c">% estimation (see the PEM chapter)</span>
-<span class="n">compare</span><span class="p">(</span><span class="n">zv</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">);</span><span class="w">                          </span><span class="c">% simulation fit on validation data</span>
-<span class="n">resid</span><span class="p">(</span><span class="n">zv</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">);</span><span class="w">                            </span><span class="c">% whiteness and independence tests</span>
+<div class="code" data-lang="matlab"><div class="code-head"><span class="code-lang">MATLAB</span><span class="code-title"></span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button></span></div><pre><code class="hl"><span class="n">data</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">iddata</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">Ts</span><span class="p">);</span><span class="w">                 </span><span class="c">% output, input, sampling time</span><span class="w"></span>
+<span class="n">data</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">detrend</span><span class="p">(</span><span class="n">data</span><span class="p">);</span><span class="w">                    </span><span class="c">% remove means / linear trends</span><span class="w"></span>
+<span class="n">ze</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">data</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">700</span><span class="p">);</span><span class="w">  </span><span class="n">zv</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">data</span><span class="p">(</span><span class="mi">701</span><span class="p">:</span><span class="k">end</span><span class="p">);</span><span class="w">   </span><span class="c">% training (estimation) / testing (validation)</span><span class="w"></span>
+<span class="n">m</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">arx</span><span class="p">(</span><span class="n">ze</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">2</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span><span class="w">                   </span><span class="c">% estimation (see the PEM chapter)</span><span class="w"></span>
+<span class="n">compare</span><span class="p">(</span><span class="n">zv</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">);</span><span class="w">                          </span><span class="c">% simulation fit on validation data</span><span class="w"></span>
+<span class="n">resid</span><span class="p">(</span><span class="n">zv</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">);</span><span class="w">                            </span><span class="c">% whiteness and independence tests</span><span class="w"></span>
 </code></pre><textarea class="code-src" hidden>data = iddata(y, u, Ts);                 % output, input, sampling time
 data = detrend(data);                    % remove means / linear trends
 ze = data(1:700);  zv = data(701:end);   % training (estimation) / testing (validation)
@@ -294,7 +393,7 @@ resid(zv, m);                            % whiteness and independence tests</tex
 <p>In Python the same metrics are in <code>code/python/sysid.py</code> (<code>rmse</code>,
 <code>nrmse_range</code>, <code>fit_percent</code>); Figure&nbsp;<a class="xref" href="#fig-poly-order" data-ref="fig:poly-order">5.2</a> is produced by the
 function <code>poly_order_selection</code> of <code>experiments.py</code>:</p>
-<div class="code" data-lang="python"><div class="code-head"><span class="code-lang">Python</span><span class="code-title"></span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button></span></div><pre><code class="hl"><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<div class="code" data-lang="python"><div class="code-head"><span class="code-lang">Python</span><span class="code-title"></span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button></span></div><pre><code class="hl"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="n">f</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">t</span><span class="o">**</span><span class="mi">3</span> <span class="o">-</span> <span class="n">t</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">t</span> <span class="o">+</span> <span class="mi">1</span>
 <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
 <span class="n">ttr</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">30</span><span class="p">);</span> <span class="n">ytr</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">ttr</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.6</span><span class="o">*</span><span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
@@ -320,7 +419,7 @@ for d in range(13):
 wastes information and gives a noisy estimate of the generalization error. In \(K\)-fold
 cross-validation the data are divided into \(K\) blocks; each block is used once for testing
 while the model is trained on the other \(K-1\), and the \(K\) testing errors are averaged
-[<a class="cite" href="references.html#bib-HastieTibshirani" data-cite="HastieTibshirani">17</a>]. For dynamic systems the blocks must be contiguous in time (and
+[<a class="cite" href="references.html#bib-HastieTibshirani" data-cite="HastieTibshirani">18</a>]. For dynamic systems the blocks must be contiguous in time (and
 the initial conditions of each block handled properly), otherwise the correlation between
 neighbouring samples makes the testing data not really &ldquo;unseen&rdquo;.</p>
 <p><em>Informative experiments.</em> A dataset is <em>informative</em> with respect to a model
@@ -333,7 +432,9 @@ difficulties of closed-loop identification.</p>
 <p><em>Willems&rsquo; lemma in its behavioural form</em> states that, for a controllable system with
 lag \(\ell_0\) and an input PE of order \(\ell+n\), the image of the data Hankel matrix equals the
 set of all length-\(\ell\) trajectories. It underlies data-driven predictive control (DeePC)
-and the direct design of controllers from data [<a class="cite" href="references.html#bib-DePersisTesi" data-cite="DePersisTesi">14</a>, <a class="cite" href="references.html#bib-Markovsky" data-cite="Markovsky">15</a>].</p></div></details>
+and the direct design of controllers from data [<a class="cite" href="references.html#bib-DePersisTesi" data-cite="DePersisTesi">15</a>, <a class="cite" href="references.html#bib-Markovsky" data-cite="Markovsky">16</a>].</p></div></details>
+<section class="footnotes"><ol><li id="fn-1">Verhaegen and Verdult [<a class="cite" href="references.html#bib-VerhaegenVerdult" data-cite="VerhaegenVerdult">1</a>],
+	Chapter&nbsp;10, &ldquo;The system-identification cycle&rdquo; <a class="fnback" href="#fnref-1">&#8617;</a></li></ol></section>
 </article>
 <nav class="pagenav"><a class="pn prev" href="ch4.html"><span>&larr; Previous</span><b>Least squares</b></a><a class="pn next" href="ch6.html"><span>Next &rarr;</span><b>Prediction-error methods for polynomial models</b></a></nav>
 <footer class="foot">Lecture notes by Vittorio De Iuliis · University of L'Aquila · a.y. 2024–2025 · interactive web edition generated from the LaTeX sources</footer>

@@ -54,6 +54,7 @@
     let html = '', head = '';
     if (a.dataset.ref && window.REFS && REFS[a.dataset.ref]) { const r = REFS[a.dataset.ref]; head = r[1]; html = r[2]; }
     else if (a.dataset.cite && window.CITES && CITES[a.dataset.cite]) { const c = CITES[a.dataset.cite]; head = '[' + c[0] + ']'; html = c[1]; }
+    else if (a.classList.contains('fnref')) { const li = document.getElementById(a.getAttribute('href').slice(1)); if (li) { head = 'Note ' + a.textContent; html = li.innerHTML.replace(/<a class="fnback"[^>]*>.*?<\/a>/, ''); } }
     if (!html) return;
     hidePop();
     pop = document.createElement('div'); pop.className = 'refpop';
@@ -72,7 +73,7 @@
   };
   const hidePop = () => { if (pop) { pop.remove(); pop = null; } };
   document.addEventListener('mouseover', (e) => {
-    const a = e.target.closest && e.target.closest('a.xref, a.cite');
+    const a = e.target.closest && e.target.closest('a.xref, a.cite, a.fnref');
     if (!a || (pop && pop.contains(a))) return;
     clearTimeout(popTimer); clearTimeout(hideTimer);
     popTimer = setTimeout(() => showPop(a), 280);
