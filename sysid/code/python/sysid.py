@@ -55,8 +55,9 @@ def block_hankel(x, s, l):
 # Least squares and ARX
 # ---------------------------------------------------------------------------
 def arx_ls(u, y, na, nb, nk):
-    """LS estimate of y(k) = sum a_i y(k-i) + sum b_j u(k-nk-j+1) + e(k)
-    (notes' convention A(q) = 1 - a_1 q^-1 - ...). Returns (a, b, Phi, Yv)."""
+    """LS estimate of y(k) = sum_{i=1}^{na} a_i y(k-i) + sum_{j=nk}^{nk+nb-1} b_j u(k-j) + e(k)
+    (notes' convention A(q) = 1 - a_1 q^-1 - ...); b[0] = b_nk, ..., b[nb-1] = b_{nk+nb-1}.
+    Returns (a, b, Phi, Yv)."""
     u = np.asarray(u, dtype=float).ravel()
     y = np.asarray(y, dtype=float).ravel()
     N = len(y)

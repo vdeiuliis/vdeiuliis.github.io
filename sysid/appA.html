@@ -77,7 +77,7 @@ corresponding block diagram, where \(z^{-1}\) denotes a one-step delay.</p>
 <figure class="fig" id="fig-app-block"><div class="fig-img"><img src="figures/fig-app-block.svg" alt="Figure A.1" loading="lazy" style="width:646px"></div><figcaption><span class="fig-name">Figure A.1:</span> Block diagram of the discrete-time LTI system <a class="xref" href="#eq-app-ss" data-ref="eq:app-ss">(A.1)</a>. Following the usual
 convention of block diagrams, the block \(z^{-1}\) denotes a one-step delay, in the \(\mathcal{Z}\)-transform sense. Since it acts on
 time signals, it is more properly described by the backward shift operator \(q^{-1}\),
-\(q^{-1}x(k+1)=x(k)\), introduced in Section&nbsp;<a class="xref" href="appB.html#sec-app-shift" data-ref="sec:app-shift">B.1</a>.</figcaption></figure>
+\(q^{-1}x(k+1)=x(k)\), introduced in Section&nbsp;<a class="xref" href="appB.html#sec-app-shift" data-ref="sec:app-shift">B.2</a>.</figcaption></figure>
 <p><strong class="runin">Solution.</strong>  Iterating the state equation,</p>
 <div class="eq">\[
   x(1)=Ax_0+Bu(0),\quad x(2)=A^2x_0+ABu(0)+Bu(1),\quad\dots
@@ -173,13 +173,9 @@ for a SISO system</p>
 \(n-m\), and \(D\neq0\) iff \(m=n\) (biproper); \(W\) is strictly proper iff \(D=0\). The roots of
 the denominator <em>after</em> cancelling common factors are the <em>poles</em> of \(W(z)\); they
 are a subset of the eigenvalues of \(A\) (Section&nbsp;<a class="xref" href="#sec-app-cancel" data-ref="sec:app-cancel">A.6</a>). Dividing numerator and
-denominator by \(z^n\) one obtains the form in powers of \(z^{-1}\) used in
-Chapter&nbsp;<a class="xref" href="ch6.html" data-ref="ch:pem">6</a> and Appendix&nbsp;<a class="xref" href="appB.html" data-ref="app:polynomial">B</a>:</p>
-<div class="eq">\[
-  W(z)=\frac{\beta_mz^{m-n}+\cdots+\beta_0z^{-n}}{1+\alpha_{n-1}z^{-1}+\cdots+\alpha_0z^{-n}}
-      =z^{-(n-m)}\frac{\beta_m+\beta_{m-1}z^{-1}+\cdots+\beta_0z^{-m}}{1-a_1z^{-1}-\cdots-a_nz^{-n}},\qquad a_i=-\alpha_{n-i},
-\]</div>
-<p>which displays the input&ndash;output delay \(n-m\) (the relative degree). Conversely, every proper
+denominator by \(z^n\) one obtains the form \(W(z)=B(z)/A(z)\) in powers of \(z^{-1}\) used in
+Chapter&nbsp;<a class="xref" href="ch6.html" data-ref="ch:pem">6</a>, which displays the input&ndash;output delay \(n-m\) (the relative degree); the
+derivation and the relation between the coefficients are given in Section&nbsp;<a class="xref" href="appB.html#sec-app-tf-de" data-ref="sec:app-tf-de">B.1</a>. Conversely, every proper
 rational \(W(z)\) admits state-space <em>realizations</em> \(\{A,B,C,D\}\) (e.g. the canonical
 forms of Appendix&nbsp;<a class="xref" href="appB.html" data-ref="app:polynomial">B</a>); the realizations of minimal dimension are characterized in
 Section&nbsp;<a class="xref" href="#sec-app-cancel" data-ref="sec:app-cancel">A.6</a>.</p>

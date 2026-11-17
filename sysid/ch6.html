@@ -52,168 +52,262 @@ window.MathJax = {
   <button class="iconbtn" id="fontplus" title="Larger text">A+</button>
   <button class="iconbtn" id="themebtn" title="Light / dark theme"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button>
 </header>
-<nav class="sidebar" id="sidebar"><div class="navhead"><a href="index.html">Contents</a></div><ol class="navlist"><li><a href="notation.html"><span class="navnum"></span>Notation</a></li><li><a href="ch1.html"><span class="navnum">1</span>Introduction</a></li><li><a href="ch2.html"><span class="navnum">2</span>Fundamentals of linear algebra</a></li><li><a href="ch3.html"><span class="navnum">3</span>The singular value decomposition</a></li><li><a href="ch4.html"><span class="navnum">4</span>Least squares</a></li><li><a href="ch5.html"><span class="navnum">5</span>Introduction to system identification</a></li><li class="cur"><a href="ch6.html"><span class="navnum">6</span>Prediction-error methods for polynomial models</a><ol class="navsec"><li><a href="#s-6-1" data-sec="s-6-1"><span class="navnum">6.1</span>Input&ndash;output models with the delay operator</a></li><li><a href="#s-6-2" data-sec="s-6-2"><span class="navnum">6.2</span>Polynomial models with noise</a></li><li><a href="#sec-arx-predictor" data-sec="sec-arx-predictor"><span class="navnum">6.3</span>ARX models and their one-step-ahead predictor</a></li><li><a href="#s-6-4" data-sec="s-6-4"><span class="navnum">6.4</span>The prediction-error method for ARX models</a></li><li><a href="#sec-matlab-arx" data-sec="sec-matlab-arx"><span class="navnum">6.5</span>ARX models in MATLAB</a></li><li><a href="#sec-ordersel" data-sec="sec-ordersel"><span class="navnum">6.6</span>Model-order selection criteria</a></li><li><a href="#sec-beyond-ls" data-sec="sec-beyond-ls"><span class="navnum">6.7</span>Beyond least squares: why more advanced methods are needed</a></li><li><a href="#s-6-8" data-sec="s-6-8"><span class="navnum">6.8</span>Exercises</a></li><li><a href="#s-6-9" data-sec="s-6-9"><span class="navnum">6.9</span>Implementation in MATLAB and Python</a></li></ol></li><li><a href="ch7.html"><span class="navnum">7</span>Towards subspace identification: the Ho–Kalman realization</a></li><li><a href="ch8.html"><span class="navnum">8</span>Subspace identification: the MOESP method</a></li><li><a href="appA.html"><span class="navnum">A</span>Discrete-time LTI systems in state space</a></li><li><a href="appB.html"><span class="navnum">B</span>Polynomial input–output models</a></li><li><a href="references.html"><span class="navnum"></span>Bibliography</a></li></ol></nav>
+<nav class="sidebar" id="sidebar"><div class="navhead"><a href="index.html">Contents</a></div><ol class="navlist"><li><a href="notation.html"><span class="navnum"></span>Notation</a></li><li><a href="ch1.html"><span class="navnum">1</span>Introduction</a></li><li><a href="ch2.html"><span class="navnum">2</span>Fundamentals of linear algebra</a></li><li><a href="ch3.html"><span class="navnum">3</span>The singular value decomposition</a></li><li><a href="ch4.html"><span class="navnum">4</span>Least squares</a></li><li><a href="ch5.html"><span class="navnum">5</span>Introduction to system identification</a></li><li class="cur"><a href="ch6.html"><span class="navnum">6</span>Prediction-error methods for polynomial models</a><ol class="navsec"><li><a href="#sec-io-delay" data-sec="sec-io-delay"><span class="navnum">6.1</span>Input&ndash;output models with the delay operator</a></li><li><a href="#s-6-2" data-sec="s-6-2"><span class="navnum">6.2</span>Polynomial models with noise</a></li><li><a href="#sec-arx-predictor" data-sec="sec-arx-predictor"><span class="navnum">6.3</span>ARX models and their one-step-ahead predictor</a></li><li><a href="#sec-pem-arx" data-sec="sec-pem-arx"><span class="navnum">6.4</span>The prediction-error method for ARX models</a></li><li><a href="#sec-ordersel" data-sec="sec-ordersel"><span class="navnum">6.5</span>Model-order selection criteria</a></li><li><a href="#sec-beyond-ls" data-sec="sec-beyond-ls"><span class="navnum">6.6</span>Beyond least squares: why more advanced methods are needed</a></li><li><a href="#sec-matlab-arx" data-sec="sec-matlab-arx"><span class="navnum">6.7</span>Polynomial models in Ljung&rsquo;s book and in MATLAB</a></li><li><a href="#s-6-8" data-sec="s-6-8"><span class="navnum">6.8</span>Exercises</a></li><li><a href="#s-6-9" data-sec="s-6-9"><span class="navnum">6.9</span>Implementation in MATLAB and Python</a></li></ol></li><li><a href="ch7.html"><span class="navnum">7</span>Towards subspace identification: the Ho–Kalman realization</a></li><li><a href="ch8.html"><span class="navnum">8</span>Subspace identification: the MOESP method</a></li><li><a href="appA.html"><span class="navnum">A</span>Discrete-time LTI systems in state space</a></li><li><a href="appB.html"><span class="navnum">B</span>Polynomial input–output models</a></li><li><a href="references.html"><span class="navnum"></span>Bibliography</a></li></ol></nav>
 <div class="scrim" id="scrim"></div>
 <main class="content" id="content">
 <article class="chapter">
 <h1 class="chap" id="top"><span class="chapnum">Chapter 6</span><span class="chaptitle">Prediction-error methods for polynomial models</span></h1>
-<p>In this chapter we study a particular class of input&ndash;output (I/O) models, of course related
-to \(Y_f(z)=W(z)U(z)\), and the classical way of estimating them: <em>prediction-error
-methods</em> (PEM). The key question is: <em>what kind of identification problems can we
-solve via least squares?</em> The answer (ARX models) and its limitations motivate both the
-more general PEM and, later, subspace methods.</p>
-<h2 id="s-6-1" class="sec"><span class="secnum">6.1</span> Input&ndash;output models with the delay operator</h2>
-<p>Recall (Appendix&nbsp;<a class="xref" href="appA.html" data-ref="app:systems">A</a>) that the \(\Z\)-transform of the output of <a class="xref" href="ch5.html#eq-lti" data-ref="eq:lti">(5.2)</a> is</p>
+<p>In this chapter we study a particular class of linear input&ndash;output (I/O) models, the
+so-called <em>polynomial models</em>. Here the word <em>polynomial</em> refers to the
+representation of linear I/O relationships through polynomials in the delay (backward shift)
+operator \(q^{-1}\), i.e. as linear difference equations that relate the current output to
+past outputs, inputs and noise samples; the transfer functions of the system and of the noise
+are then ratios of such polynomials (Appendix&nbsp;<a class="xref" href="appB.html" data-ref="app:polynomial">B</a>). We will introduce the most
+established way of estimating them: <em>prediction-error methods</em> (PEM). The key question
+we will address is: <em>which identification problems can be solved via least squares?</em>
+The answer (ARX models) and its limitations motivate both the more general PEMs and, later,
+subspace methods.</p>
+<p>Polynomial models are not specific to system identification. Models of the same form, often
+without a measured input, are the standard tool of <em>time-series analysis and
+forecasting</em>: autoregressive (AR) models go back to Yule (1927, Section&nbsp;<a class="xref" href="ch1.html#sec-intro-dynamic" data-ref="sec:intro-dynamic">1.3</a>),
+and AR, moving-average (MA) and ARMA models, together with their extension to non-stationary
+series (ARIMA), were systematized by Box and Jenkins [<a class="cite" href="references.html#bib-BoxJenkins" data-cite="BoxJenkins">32</a>], whose name is also
+attached to one of the model classes of this chapter. In that literature the delay operator is
+usually called <em>backshift</em> or <em>lag</em> operator and denoted by \(B\) or \(L\)
+(\(By_t=y_{t-1}\)), and in econometrics the multivariable autoregression (VAR) is widely used.
+In <em>signal processing</em>, FIR and IIR digital filters are polynomial and rational functions
+of \(z^{-1}\), AR models are the basis of linear prediction (e.g. in speech coding) and of
+parametric spectral estimation, and adaptive filters (LMS, RLS) update on line the
+coefficients of FIR or ARX-type models. In <em>control</em>, ARMAX-type models underlie
+minimum-variance and generalized predictive control. Finally, nonlinear versions of the same
+structure (NARX, NARMAX) are among the most common black-box models in nonlinear
+identification and machine learning (Section&nbsp;<a class="xref" href="ch5.html#sec-static-dynamic" data-ref="sec:static-dynamic">5.1</a>). The letter X in ARX, ARMAX,
+NARX stands for <em>eXogenous</em>, i.e. measured, input \(u(k)\).</p>
+<h2 id="sec-io-delay" class="sec"><span class="secnum">6.1</span> Input&ndash;output models with the delay operator</h2>
+<p>Instead of a state-space model, a discrete-time LTI system can be described by a linear
+<em>difference equation</em> that expresses the current output as a linear combination of past
+outputs and of current and past inputs:</p>
+<div class="eq" id="eq-io-de">\[y(k)=a_1y(k-1)+\cdots+a_{n_a}y(k-n_a)+b_{n_k}u(k-n_k)+\cdots+b_{n_k+n_b-1}u(k-n_k-n_b+1). \tag{6.1}\]</div>
+<p>This is the natural starting point for identification: the equation tells how to compute
+(or predict) \(y(k)\) from the data, and it is <em>linear in the unknown coefficients</em> \(a_1, \dots, a_{n_a}\), \(b_{n_k}, \dots b_{n_k + n_b -1}\). Its
+structure is fixed by three integers, the <em>orders</em> of the input&ndash;output model:</p>
+<ul><li><p>\(n_a\), the number of past outputs (of \(a\)-coefficients);</p></li><li><p>\(n_k\ge0\), the <em>input delay</em>: \(u(k-n_k)\) is the most recent input sample that
+      affects \(y(k)\);</p></li><li><p>\(n_b\), the number of input samples (of \(b\)-coefficients).</p></li></ul>
+<p>Each coefficient is indexed by the delay of the sample it multiplies: \(a_i\) multiplies
+\(y(k-i)\) and \(b_j\) multiplies \(u(k-j)\). In identification \(n_a,n_b,n_k\) are design choices
+(Section&nbsp;<a class="xref" href="#sec-ordersel" data-ref="sec:ordersel">6.5</a>).</p>
+<p><strong class="runin">The delay operator.</strong>  Such equations are written compactly by means of the
+<em>delay (backward shift) operator</em> \(q^{-1}\),</p>
 <div class="eq">\[
-  Y(z)=\underbrace{zC(zI-A)^{-1}x(0)}_{\text{free output response}}
-      +\underbrace{\bigl[C(zI-A)^{-1}B+D\bigr]U(z)}_{\text{forced output response }Y_f(z)=W(z)U(z)},
+  q^{-\tau}f(k)=f(k-\tau),\qquad \tau\ge0
 \]</div>
-<p>so that, whenever \(x(0)=0\), \(Y(z)=W(z)U(z)\). For a SISO system (\(p=q=1\)) \(W(z)\) is a proper
-ratio of polynomials, which can be written in powers of \(z^{-1}\) (Appendix&nbsp;<a class="xref" href="appB.html" data-ref="app:polynomial">B</a>):</p>
+<p>(see Section&nbsp;<a class="xref" href="appB.html#sec-app-shift" data-ref="sec:app-shift">B.2</a> for further details). Defining the polynomials in \(q^{-1}\)</p>
+<div class="eq" id="eq-AB-orders">\[\begin{aligned}
+  A(q)&amp;=1-a_1q^{-1}-\cdots-a_{n_a}q^{-n_a},\\
+  B(q)&amp;=b_{n_k}q^{-n_k}+b_{n_k+1}q^{-(n_k+1)}+\cdots+b_{n_k+n_b-1}q^{-(n_k+n_b-1)},
+  \end{aligned} \tag{6.2}\]</div>
+<p>eq. <a class="xref" href="#eq-io-de" data-ref="eq:io-de">(6.1)</a> reads</p>
 <div class="eq">\[
-  W(z)=\frac{B(z)}{A(z)}=\frac{b_0+b_1z^{-1}+\cdots+b_nz^{-n}}{1-a_1z^{-1}-\cdots-a_nz^{-n}} .
+  A(q)\,y(k)=B(q)\,u(k)\qquad\text{or}\qquad y(k)=W(q)\,u(k),\quad W(q)=\frac{B(q)}{A(q)},
 \]</div>
-<p>Alternative notations are used in the system identification literature and books. A
-frequent one is \(y(k)=W(z)u(k)\), which is definitely wrong, since it mixes the complex
-variable \(z\in\C\) and the time \(k\). The correct way uses the <em>delay (backward shift)
-operator</em> \(q^{-1}\):</p>
+<p>where the rational operator \(W(q)\) is defined through the difference equation it
+represents. The minus signs in \(A\) are the convention of these notes: they make all the
+terms of <a class="xref" href="#eq-io-de" data-ref="eq:io-de">(6.1)</a> appear with a plus sign (for the convention of [<a class="cite" href="references.html#bib-Ljung" data-cite="Ljung">5</a>] and
+MATLAB see Section&nbsp;<a class="xref" href="#sec-matlab-arx" data-ref="sec:matlab-arx">6.7</a>). For instance, \(A(q)=1-a_1q^{-1}\) and
+\(B(q)=b_0+b_1q^{-1}\) (\(n_a=1\), \(n_b=2\), \(n_k=0\)) give \([1-a_1q^{-1}]y(k)=[b_0+b_1q^{-1}]u(k)\),
+i.e. \(y(k)=a_1y(k-1)+b_0u(k)+b_1u(k-1)\).</p>
+<p><strong class="runin">Relation with the transfer function.</strong>  With zero initial conditions, since
+\(\Z\{f(k-\tau)\}=z^{-\tau}F(z)\), the \(\Z\)-transform of \(A(q)y(k)=B(q)u(k)\) is
+\(A(z)Y(z)=B(z)U(z)\): hence \(Y(z)=W(z)U(z)\), where \(W(z)=B(z)/A(z)\) is the transfer
+function written in powers of \(z^{-1}\), obtained from \(W(q)\) by replacing \(q^{-1}\) with
+\(z^{-1}\). Conversely, the transfer function<sup class="fn"><a class="fnref" id="fnref-1" href="#fn-1">1</a></sup> \(W(z)=C(zI-A)^{-1}B+D\) of a SISO state-space
+system <a class="xref" href="ch5.html#eq-lti" data-ref="eq:lti">(5.2)</a> is a proper ratio of polynomials in \(z\), which
+takes this form once numerator and denominator are divided by \(z^n\) (Section&nbsp;<a class="xref" href="appB.html#sec-app-tf-de" data-ref="sec:app-tf-de">B.1</a>).
+In short,</p>
 <div class="eq">\[
-  q^{-\tau}f(k)=f(k-\tau),\qquad \tau\ge0,
+  \underbrace{Y(z)=W(z)U(z)}_{\text{$\Z$ domain}}\qquad\iff\qquad \underbrace{y(k)=W(q)u(k)}_{\text{time domain}} ;
 \]</div>
-<p>and writes \(y(k)=W(q)u(k)\), where \(W(q)\) is obtained from \(W(z)\) by replacing \(z^{-1}\)
-with \(q^{-1}\) and is interpreted as an operator acting on signals.</p>
-<div class="box example" id="ex-zq"><div class="box-title">Example 6.1: from \(W(z)\) to a difference equation</div><div class="box-body"><p>Let \(W(z)=\dfrac{B(z)}{A(z)}=\dfrac{b_0+b_1z^{-1}}{1-a_1z^{-1}}\). In the time domain</p>
+<p>writing \(y(k)=W(z)u(k)\), as sometimes found in the literature, is an abuse of notation,
+since it mixes the complex variable \(z\in\C\) and the time \(k\). The orders are related to the
+order \(n\) of the system, i.e. the degree of \(\det(zI-A)\): if \(a_{n_a}\neq0\),
+\(b_{n_k},b_{n_k+n_b-1}\neq0\) and \(A\), \(B\) have no common factors, then</p>
 <div class="eq">\[
-  y(k)=W(q)u(k)\iff A(q)y(k)=B(q)u(k)\iff [1-a_1q^{-1}]y(k)=[b_0+b_1q^{-1}]u(k),
+  n=\max(n_a,\;n_k+n_b-1),
 \]</div>
-<p>i.e. \(y(k)=a_1q^{-1}y(k)+b_0u(k)+b_1q^{-1}u(k)\) and, recalling \(q^{-\tau}f(k)=f(k-\tau)\),</p>
+<p>the largest lag appearing in <a class="xref" href="#eq-io-de" data-ref="eq:io-de">(6.1)</a>.</p>
+<div class="thm thm-remark" id="rem-same-n"><p><span class="thm-head"><span class="thm-name">Remark 6.1</span> <span class="thm-title">(Different lags and system order)</span>.</span> The largest lags of the output and of the input, \(n_a\) and \(n_k+n_b-1\), need not be equal.
+Comparing with \(W(z)\) in positive powers of \(z\) (Section&nbsp;<a class="xref" href="appB.html#sec-app-tf-de" data-ref="sec:app-tf-de">B.1</a>): the delay \(n_k\) is
+the relative degree of \(W\), and \(n_k=0\) if and only if \(W\) has a direct feedthrough
+term \(b_0u(k)\); \(n_a&lt;n\) means that \(W\) has poles in \(z=0\); \(n_k+n_b-1&lt;n\) means that \(W\) has zeros
+in \(z=0\). For instance, \(y(k)=a_1y(k-1)+b_3u(k-3)\) has \(n_a=1\), \(n_b=1\), \(n_k=3\), and</p>
 <div class="eq">\[
-  y(k)=a_1y(k-1)+b_0u(k)+b_1u(k-1).
+  W(z)=\frac{b_3z^{-3}}{1-a_1z^{-1}}=\frac{b_3}{z^2(z-a_1)}
 \]</div>
-<p>The same result is obtained starting from \(Y(z)=\frac{B(z)}{A(z)}U(z)\), i.e. \(A(z)Y(z)=B(z)U(z)\), \([1-a_1z^{-1}]Y(z)=[b_0+b_1z^{-1}]U(z)\), and taking the inverse
-\(\Z\)-transform with \(\Z^{-1}\{z^{-1}Y(z)\}=y(k-1)\) (zero initial conditions).</p></div></div>
-<p>It makes sense to write the I/O model of an LTI system adopting the time domain with the
-delay operator \(q^{-1}\):</p>
-<div class="eq">\[
-  \underbrace{Y(z)=W(z)U(z)}_{\text{$\Z$ domain}}\qquad\iff\qquad \underbrace{y(k)=W(q)u(k)}_{\text{time domain}} .
-\]</div>
+<p>has order \(n=3\) (two poles in \(z=0\)). One could always write both polynomials with the
+common degree \(n\), as is customary in systems theory (here
+\(A(z)=1-a_1z^{-1}-0\,z^{-2}-0\,z^{-3}\), \(B(z)=0+0\,z^{-1}+0\,z^{-2}+b_3z^{-3}\)), but in
+identification this would mean estimating coefficients that are known to be zero (\(7\)
+parameters instead of \(2\)): this is why the orders \(n_a,n_b,n_k\) are kept distinct.</p></div>
 <h2 id="s-6-2" class="sec"><span class="secnum">6.2</span> Polynomial models with noise</h2>
-<p>Consider the model \(y(k)=W(q)u(k)\) with \(W(q)=B(q)/A(q)\) and, from now on, focus on the
-SISO case \(p=q=1\). Differences between the model classes arise when one wants to model the
-<em>noise</em>. The general LTI I/O model with noise is</p>
-<div class="eq" id="eq-general-io">\[y(k)=W(q)u(k)+\underbrace{H(q)e(k)}_{v(k)}, \tag{6.1}\]</div>
-<p>where \(e(k)\) is a white random sequence with \(\E(e(k))=0\) and \(\E(e(i)e(j))=\lambda_e\delta_{ij}\)
-(the notes take \(\lambda_e=1\)), \(v(k)=H(q)e(k)\) is the (colored) disturbance, and
-\(H(q)\) is monic (\(H(q)=1+h_1q^{-1}+\cdots\)), stable and with a stable inverse. Both \(W\)
-and \(H\) are rational:</p>
+<p>From now on we focus on the SISO case (\(p=q=1\)). The model \(y(k)=W(q)u(k)\) describes only
+the effect of the measured input; the output is also affected by measurement noise,
+disturbances and unmodelled dynamics, which are described by a <em>noise</em> term. The
+general LTI I/O model with noise is</p>
+<div class="eq" id="eq-general-io">\[y(k)=W(q)u(k)+\underbrace{H(q)e(k)}_{v(k)}, \tag{6.3}\]</div>
+<p>where \(e(k)\) is a white random sequence with \(\E(e(k))=0\) and
+\(\E(e(i)e(j))=\sigma_e^2\delta_{ij}\) (the variance is denoted \(\lambda_e\) in [<a class="cite" href="references.html#bib-Ljung" data-cite="Ljung">5</a>] and
+in MATLAB, see Section&nbsp;<a class="xref" href="#sec-matlab-arx" data-ref="sec:matlab-arx">6.7</a>), and the disturbance \(v(k)=H(q)e(k)\) is a colored noise,
+obtained by filtering white noise with \(H(q)\). The noise filter is assumed to be</p>
+<ul><li><p><em>monic</em>, \(H(q)=1+h_1q^{-1}+\cdots\): this is no loss of generality, since a
+      constant gain can be absorbed into \(e(k)\). The noise level is then set by \(\sigma_e^2\)
+      alone, which is in general unknown and is estimated from the data as the sample
+      variance of the prediction errors, \(\hat\sigma_e^2=V_N(\hat\theta)\), the minimum of the
+      loss function <a class="xref" href="#eq-VN" data-ref="eq:VN">(6.8)</a> (Section&nbsp;<a class="xref" href="#sec-pem-arx" data-ref="sec:pem-arx">6.4</a>);</p></li><li><p><em>stable</em>, so that \(v(k)\) is a stationary process;</p></li><li><p>with a <em>stable inverse</em>, so that \(e(k)=H^{-1}(q)\bigl[y(k)-W(q)u(k)\bigr]\) can be
+      reconstructed from the measured data: this is what makes it possible to predict
+      \(y(k)\) (Section&nbsp;<a class="xref" href="#sec-beyond-ls" data-ref="sec:beyond-ls">6.6</a>).</p></li></ul>
+<p>Both \(W\) and \(H\) are rational:</p>
 <div class="eq">\[
-  W(q)=\frac{B(q)}{F(q)},\qquad H(q)=\frac{C(q)}{D(q)}=\frac{1+c_1q^{-1}+\cdots+c_{n_c}q^{-n_c}}{1+d_1q^{-1}+\cdots+d_{n_d}q^{-n_d}} .
+  W(q)=\frac{B(q)}{A(q)},\qquad H(q)=\frac{C(q)}{D(q)}=\frac{1+c_1q^{-1}+\cdots+c_{n_c}q^{-n_c}}{1+d_1q^{-1}+\cdots+d_{n_d}q^{-n_d}} .
 \]</div>
-<p>According to how \(W(q)\) and \(H(q)\) are structured one has some popular model classes
-(Figure&nbsp;<a class="xref" href="#fig-polymodels" data-ref="fig:polymodels">6.1</a> and Table&nbsp;<a class="xref" href="#tab-polymodels" data-ref="tab:polymodels">6.1</a>); these are called <em>polynomial
-models</em>, since they are linear models described by polynomials in \(q^{-1}\).</p>
-<ul><li><p><strong>Box&ndash;Jenkins (BJ)</strong>, the general one: \(y(k)=\dfrac{B(q)}{F(q)}u(k)+\dfrac{C(q)}{D(q)}e(k)\);
-      plant and noise dynamics are independently parametrized.</p></li><li><p><strong>ARMAX</strong> (AutoRegressive Moving-Average model with eXogenous input): \(F(q)=D(q)=A(q)\),</p>
+<p>These are called <em>polynomial models</em>, since they are linear models described by
+polynomials in \(q^{-1}\). The names of the model classes are built from the terms of the
+difference equation: <strong>AR</strong> (autoregressive) for the term \(A(q)y(k)\), <strong>X</strong>
+(eXogenous input) for \(B(q)u(k)\), and <strong>MA</strong> (moving average) for \(C(q)e(k)\). Without an
+input, one has the classical time-series models AR, \(A(q)y(k)=e(k)\), MA, \(y(k)=C(q)e(k)\), and
+ARMA, \(A(q)y(k)=C(q)e(k)\). The model classes used in identification are, from the simplest
+to the most general (Figure&nbsp;<a class="xref" href="#fig-polymodels" data-ref="fig:polymodels">6.1</a> and Table&nbsp;<a class="xref" href="#tab-polymodels" data-ref="tab:polymodels">6.1</a>):</p>
+<ul><li><p><strong>FIR</strong> (finite impulse response): \(A(q)=1\), \(H(q)=1\),
+      \(y(k)=B(q)u(k)+e(k)\); the output depends on a finite number of past inputs only, and
+      the coefficients \(b_j\) are the samples of the impulse response (Section&nbsp;<a class="xref" href="ch7.html#sec-hk-general" data-ref="sec:hk-general">7.4</a>).</p></li><li><p><strong>ARX</strong>: \(H(q)=1/A(q)\) (i.e. \(C=1\), \(D=A\) in BJ),
+      \(y(k)=\dfrac{B(q)}{A(q)}u(k)+\dfrac1{A(q)}e(k)\iff A(q)y(k)=B(q)u(k)+e(k)\).</p></li><li><p><strong>ARMAX</strong>: \(H(q)=C(q)/A(q)\) (i.e. \(D=A\) in BJ),</p>
 <div class="eq">\[
         y(k)=\frac{B(q)}{A(q)}u(k)+\frac{C(q)}{A(q)}e(k)\iff A(q)y(k)=B(q)u(k)+C(q)e(k),
       \]</div>
-<p>i.e. \([1-a_1q^{-1}-\cdots]y(k)=[b_0+b_1q^{-1}+\cdots]u(k)+[1+c_1q^{-1}+\cdots]e(k)\) and</p>
+<p>i.e. \([1-a_1q^{-1}-\cdots]y(k)=[b_{n_k}q^{-n_k}+\cdots]u(k)+[1+c_1q^{-1}+\cdots]e(k)\) and</p>
 <div class="eq">\begin{multline*}
-        y(k)=\underbrace{a_1y(k-1)+\cdots+a_ny(k-n)}_{\text{autoregressive part}}
-        +\underbrace{b_0u(k)+\cdots+b_nu(k-n)}_{\text{exogenous input}}\\
+        y(k)=\underbrace{a_1y(k-1)+\cdots+a_{n_a}y(k-n_a)}_{\text{autoregressive part}}
+        +\underbrace{b_{n_k}u(k-n_k)+\cdots+b_{n_k+n_b-1}u(k-n_k-n_b+1)}_{\text{exogenous input}}\\
         +\underbrace{e(k)+c_1e(k-1)+\cdots+c_{n_c}e(k-n_c)}_{\text{moving average}} .
-      \end{multline*}</div></li><li><p><strong>ARX</strong>: \(C(q)=1\) in ARMAX (i.e. \(C=1\), \(D=F=A\) in BJ):
-      \(y(k)=\dfrac{B(q)}{A(q)}u(k)+\dfrac1{A(q)}e(k)\iff A(q)y(k)=B(q)u(k)+e(k)\).</p></li><li><p><strong>Output error (OE)</strong>: \(H(q)=1\), \(y(k)=\dfrac{B(q)}{F(q)}u(k)+e(k)\): the noise is
-      white and additive on the output (measurement noise).</p></li></ul>
+      \end{multline*}</div></li><li><p><strong>Output error (OE)</strong>: \(H(q)=1\) (i.e. \(C=D=1\) in BJ),
+      \(y(k)=\dfrac{B(q)}{A(q)}u(k)+e(k)\).</p></li><li><p><strong>Box&ndash;Jenkins (BJ)</strong>, the general one:
+      \(y(k)=\dfrac{B(q)}{A(q)}u(k)+\dfrac{C(q)}{D(q)}e(k)\); plant and noise dynamics are
+      independently parametrized.</p></li></ul>
+<p>Hence FIR \(\subset\) ARX \(\subset\) ARMAX \(\subset\) BJ and FIR \(\subset\) OE \(\subset\) BJ.</p>
+<p><strong class="runin">Where the noise enters.</strong>  The classes differ in how the noise enters the model
+(Figure&nbsp;<a class="xref" href="#fig-polymodels" data-ref="fig:polymodels">6.1</a>). In ARX and ARMAX the noise is filtered by \(1/A(q)\), the same
+dynamics as the input: \(e(k)\), or \(C(q)e(k)\), is an <em>equation error</em>, i.e. a disturbance
+acting at the input of the dynamics. In OE (and FIR) the noise is added to the output without
+any dynamics: it is an <em>output error</em>, i.e. measurement noise. BJ allows noise
+dynamics that are independent of those of the plant. Note that \(A(q)\) is therefore the
+denominator shared by plant and noise in ARX and ARMAX, but only the plant denominator in OE
+and BJ.</p>
+<p>In these notes \(A(q)=1-a_1q^{-1}-\cdots-a_{n_a}q^{-n_a}\), so that the \(a_i\) appear with a
+plus sign in the difference equation \(y(k)=a_1y(k-1)+\cdots\), while \(C\) and \(D\) are written
+with plus signs. Another popular notation is the one of Ljung&rsquo;s textbook [<a class="cite" href="references.html#bib-Ljung" data-cite="Ljung">5</a>], also
+used by the MATLAB System Identification Toolbox, which adopts a different convention (plus
+signs in \(A\), and \(F(q)\) for the plant denominator of OE and BJ); the relationship between the
+two notations is summarized in Section&nbsp;<a class="xref" href="#sec-matlab-arx" data-ref="sec:matlab-arx">6.7</a>.</p>
 <figure class="fig" id="fig-polymodels"><div class="fig-img"><img src="figures/fig-polymodels.svg" alt="Figure 6.1" loading="lazy" style="width:702px"></div><figcaption><span class="fig-name">Figure 6.1:</span> Block diagrams of the main polynomial model structures; \(e(k)\) is white noise.</figcaption></figure>
-<figure class="tab" id="tab-polymodels"><figcaption><span class="fig-name">Table 6.1:</span> Polynomial model structures as special cases of
-\(A(q)y(k)=\frac{B(q)}{F(q)}u(k)+\frac{C(q)}{D(q)}e(k)\) (Ljung&rsquo;s general family).</figcaption><div class="tablewrap"><table class="tbl"><thead><tr><th class="al">model</th><th class="al">\(W(q)\)</th><th class="al">\(H(q)\)</th><th class="al">predictor linear in \(\theta\)?</th><th class="al">MATLAB</th></tr></thead><tbody><tr><td class="al">FIR</td><td class="al">\(B\)</td><td class="al">\(1\)</td><td class="al">yes</td><td class="al"><code>arx</code> with \(n_a=0\)</td></tr><tr><td class="al">ARX</td><td class="al">\(B/A\)</td><td class="al">\(1/A\)</td><td class="al">yes</td><td class="al"><code>arx(data,[na nb nk])</code></td></tr><tr><td class="al">ARMAX</td><td class="al">\(B/A\)</td><td class="al">\(C/A\)</td><td class="al">no</td><td class="al"><code>armax(data,[na nb nc nk])</code></td></tr><tr><td class="al">OE</td><td class="al">\(B/F\)</td><td class="al">\(1\)</td><td class="al">no</td><td class="al"><code>oe(data,[nb nf nk])</code></td></tr><tr><td class="al">BJ</td><td class="al">\(B/F\)</td><td class="al">\(C/D\)</td><td class="al">no</td><td class="al"><code>bj(data,[nb nc nd nf nk])</code></td></tr></tbody></table></div></figure>
-<div class="box keybox"><p><strong>Sign convention.</strong> Following the lecture notes, in this chapter the autoregressive
-polynomial is written as \(A(q)=1-a_1q^{-1}-\cdots-a_{n_a}q^{-n_a}\), so that the \(a_i\) appear
-with a plus sign in the difference equation \(y(k)=a_1y(k-1)+\cdots\). MATLAB (and Ljung&rsquo;s
-book) use \(A(q)=1+a_1q^{-1}+\cdots+a_{n_a}q^{-n_a}\): the coefficients differ by a sign
-(Section&nbsp;<a class="xref" href="#sec-matlab-arx" data-ref="sec:matlab-arx">6.5</a>). \(C,D,F\) are always written with plus signs.</p></div>
+<figure class="tab" id="tab-polymodels"><figcaption><span class="fig-name">Table 6.1:</span> Polynomial model structures as special cases of the Box&ndash;Jenkins model
+\(y(k)=\frac{B(q)}{A(q)}u(k)+\frac{C(q)}{D(q)}e(k)\). In the MATLAB commands <code>nf</code> is
+the order \(n_a\) of the plant denominator of OE and BJ, which MATLAB calls \(F(q)\)
+(see Section&nbsp;<a class="xref" href="#sec-matlab-arx" data-ref="sec:matlab-arx">6.7</a>).</figcaption><div class="tablewrap"><table class="tbl"><thead><tr><th class="al">model</th><th class="al">\(W(q)\)</th><th class="al">\(H(q)\)</th><th class="al">predictor linear in \(\theta\)?</th><th class="al">MATLAB</th></tr></thead><tbody><tr><td class="al">FIR</td><td class="al">\(B\)</td><td class="al">\(1\)</td><td class="al">yes</td><td class="al"><code>arx</code> with \(n_a=0\)</td></tr><tr><td class="al">ARX</td><td class="al">\(B/A\)</td><td class="al">\(1/A\)</td><td class="al">yes</td><td class="al"><code>arx(data,[na nb nk])</code></td></tr><tr><td class="al">ARMAX</td><td class="al">\(B/A\)</td><td class="al">\(C/A\)</td><td class="al">no</td><td class="al"><code>armax(data,[na nb nc nk])</code></td></tr><tr><td class="al">OE</td><td class="al">\(B/A\)</td><td class="al">\(1\)</td><td class="al">no</td><td class="al"><code>oe(data,[nb nf nk])</code></td></tr><tr><td class="al">BJ</td><td class="al">\(B/A\)</td><td class="al">\(C/D\)</td><td class="al">no</td><td class="al"><code>bj(data,[nb nc nd nf nk])</code></td></tr></tbody></table></div></figure>
 <h2 id="sec-arx-predictor" class="sec"><span class="secnum">6.3</span> ARX models and their one-step-ahead predictor</h2>
-<p>For an ARX model (\(C=1\) and \(D=F=A\) in BJ, or \(C=1\) in ARMAX),</p>
+<p>For an ARX model (\(C=1\) and \(D=A\) in BJ, or \(C=1\) in ARMAX),</p>
 <div class="eq">\[
   y(k)=\frac{B(q)}{A(q)}u(k)+\frac1{A(q)}e(k)\iff A(q)y(k)=B(q)u(k)+e(k),
 \]</div>
+<p>with \(A(q)\), \(B(q)\) as in <a class="xref" href="#eq-AB-orders" data-ref="eq:AB-orders">(6.2)</a>, i.e. <a class="xref" href="#eq-io-de" data-ref="eq:io-de">(6.1)</a> with the additional term \(e(k)\):</p>
 <div class="eq">\[
-  \underbrace{[1-a_1q^{-1}-\cdots-a_nq^{-n}]}_{A(q)}y(k)=\underbrace{[b_0+b_1q^{-1}+\cdots+b_nq^{-n}]}_{B(q)}u(k)+e(k),
-\]</div>
-<div class="eq">\[
-  y(k)=a_1q^{-1}y(k)+\cdots+a_nq^{-n}y(k)+b_0u(k)+b_1q^{-1}u(k)+\cdots+b_nq^{-n}u(k)+e(k),
+  y(k)=a_1y(k-1)+\cdots+a_{n_a}y(k-n_a)+b_{n_k}u(k-n_k)+\cdots+b_{n_k+n_b-1}u(k-n_k-n_b+1)+e(k),
 \]</div>
 <p>that is,</p>
-<div class="eq" id="eq-arx-time">\[y(k)=[1-A(q)]\,y(k)+B(q)\,u(k)+e(k). \tag{6.2}\]</div>
-<p>We have written this for \(m=n\) (numerator and denominator of the same degree, with a
-direct feedthrough term \(b_0\)); in other references you may find \(m=n-1\), in which case
-\(B(q)u(k)=b_1u(k-1)+\cdots+b_nu(k-n)\) (strictly proper model).</p>
+<div class="eq" id="eq-arx-time">\[y(k)=[1-A(q)]\,y(k)+B(q)\,u(k)+e(k). \tag{6.4}\]</div>
+<p>If \(n_k=0\) the model has a direct feedthrough term \(b_0u(k)\); since most physical systems
+are strictly proper, \(n_k\ge1\), and a common choice is \(n_k=1\), \(n_a=n_b=n\), i.e. \(B(q)u(k)=b_1u(k-1)+\cdots+b_nu(k-n)\), as in Example&nbsp;<a class="xref" href="#ex-arx" data-ref="ex:arx">6.1</a>. The example of
+Remark&nbsp;<a class="xref" href="#rem-same-n" data-ref="rem:same-n">6.1</a>, \(y(k)=a_1y(k-1)+b_3u(k-3)\), is an ARX model with \(n_a=1\), \(n_b=1\),
+\(n_k=3\).</p>
 <p>What we say now is that the <em>one-step predictor</em> for the value of \(y(k)\), given the
-measurements up to \(k-1\) (with the exception of \(u(k)\) if \(m=n\)), is</p>
+measurements up to \(k-1\), is</p>
 <div class="eq" id="eq-arx-pred">\[\boxed{\begin{aligned}\hat y(k|k-1)&amp;=[1-A(q,\theta)]\,y(k)+B(q,\theta)\,u(k)\\
-  &amp;=a_1y(k-1)+\cdots+a_ny(k-n)+b_0u(k)+\cdots+b_nu(k-n) ,\end{aligned}} \tag{6.3}\]</div>
-<p>because the term \(e(k)\) in <a class="xref" href="#eq-arx-time" data-ref="eq:arx-time">(6.2)</a> is independent of all the data up to time
-\(k-1\) and the best guess for the noise is its mean, \(\E(e(k))=0\). (It is a proper
-one-step-ahead prediction for \(b_0=0\).) The parameters are collected in</p>
+  &amp;=a_1y(k-1)+\cdots+a_{n_a}y(k-n_a)\\
+  &amp;\quad+b_{n_k}u(k-n_k)+\cdots+b_{n_k+n_b-1}u(k-n_k-n_b+1) ,\end{aligned}} \tag{6.5}\]</div>
+<p>because the term \(e(k)\) in <a class="xref" href="#eq-arx-time" data-ref="eq:arx-time">(6.4)</a> is independent of all the data up to time
+\(k-1\) and the best guess for the noise is its mean, \(\E(e(k))=0\). (If \(n_k=0\) the predictor
+also uses the current input \(u(k)\), which is assumed to be known at time \(k\).) The
+\(n_a+n_b\) parameters are collected in</p>
 <div class="eq">\[
-  \theta=[a_1\;\cdots\;a_n\mid b_0\;\cdots\;b_n]\T .
+  \theta=[a_1\;\cdots\;a_{n_a}\mid b_{n_k}\;\cdots\;b_{n_k+n_b-1}]\T .
 \]</div>
 <p>Whenever we fix \(\theta\) and put in the predictor the known values (training data)
-\(y(k-1),\dots,y(k-n)\), \(u(k),\dots,u(k-n)\), we end up with the value of the one-step predictor
-\(\hat y(k|k-1)\). Crucially, <a class="xref" href="#eq-arx-pred" data-ref="eq:arx-pred">(6.3)</a> is <em>linear in \(\theta\)</em>:</p>
-<div class="eq" id="eq-linreg">\[\hat y(k|k-1)=\varphi\T(k)\,\theta,\qquad
-  \varphi\T(k)=\bigl[\,y(k-1)\;\cdots\;y(k-n)\ \big|\ u(k)\;u(k-1)\;\cdots\;u(k-n)\,\bigr], \tag{6.4}\]</div>
+\(y(k-1),\dots,y(k-n_a)\), \(u(k-n_k),\dots,u(k-n_k-n_b+1)\), we end up with the value of the
+one-step predictor \(\hat y(k|k-1)\). Crucially, <a class="xref" href="#eq-arx-pred" data-ref="eq:arx-pred">(6.5)</a> is <em>linear in \(\theta\)</em>:</p>
+<div class="eq" id="eq-linreg">\[\begin{gathered}
+  \hat y(k|k-1)=\varphi\T(k)\,\theta,\\
+  \varphi\T(k)=\bigl[\,y(k-1)\;\cdots\;y(k-n_a)\ \big|\ u(k-n_k)\;\cdots\;u(k-n_k-n_b+1)\,\bigr],
+  \end{gathered} \tag{6.6}\]</div>
 <p>where \(\varphi(k)\) is the <em>regressor</em> vector. What is left to do is setting up an
 optimization procedure to minimize an index of error and select the best \(\hat\theta\).</p>
-<h2 id="s-6-4" class="sec"><span class="secnum">6.4</span> The prediction-error method for ARX models</h2>
+<h2 id="sec-pem-arx" class="sec"><span class="secnum">6.4</span> The prediction-error method for ARX models</h2>
 <p>The <em>prediction error</em> is</p>
 <div class="eq">\[
-  \varepsilon(k,\theta)=y(k)-\hat y(k|k-1,\theta),
+  \varepsilon(k,\theta)=y(k)-\hat y(k|k-1,\theta).
 \]</div>
-<p>and prediction-error methods choose \(\hat\theta\) by minimizing its sample variance:</p>
+<p>Suppose that the training data \(u(k)\), \(y(k)\), \(k=0,1,\dots,N\), are available. The regressor
+\(\varphi(k)\) in <a class="xref" href="#eq-linreg" data-ref="eq:linreg">(6.6)</a> contains \(y(k-1),\dots,y(k-n_a)\) and
+\(u(k-n_k),\dots,u(k-n_k-n_b+1)\), so it can be built from the available data only if
+\(k-n_a\ge0\) and \(k-n_k-n_b+1\ge0\), i.e. starting from</p>
+<div class="eq" id="eq-k0">\[k_0=\max(n_a,\;n_k+n_b-1). \tag{6.7}\]</div>
+<p>Prediction-error methods choose \(\hat\theta\) by minimizing the sample variance of the
+prediction errors that can be computed, i.e. the <em>loss function</em></p>
+<div class="eq" id="eq-VN">\[V_N(\theta)=\frac1{N-k_0+1}\sum_{k=k_0}^N\varepsilon^2(k,\theta)
+            =\frac1{N-k_0+1}\sum_{k=k_0}^N\bigl(y(k)-\hat y(k|k-1,\theta)\bigr)^2, \tag{6.8}\]</div>
+<p>that is, \(\hat\theta=\argmin_\theta V_N(\theta)\).
+Define</p>
 <div class="eq">\[
-  \hat\theta=\argmin_\theta\frac1N\sum_{k=1}^N\varepsilon^2(k,\theta)
-            =\argmin_\theta\frac1N\sum_{k=1}^N\bigl(y(k)-\hat y(k|k-1,\theta)\bigr)^2 .
+  Y_{k_0:N}=\bmat{y(k_0)\\ y(k_0+1)\\ \vdots\\ y(N)},\qquad
+  \Phi_{k_0:N}=\bmat{\varphi\T(k_0)\\ \varphi\T(k_0+1)\\ \vdots\\ \varphi\T(N)},\qquad
+  \theta=\bmat{a_1\\ \vdots\\ a_{n_a}\\ \hline b_{n_k}\\ \vdots\\ b_{n_k+n_b-1}},
 \]</div>
-<p>Define</p>
+<p>that is, \(N-k_0+1\) equations in the \(n_a+n_b\) unknown parameters. So, equivalently, with the
+vector of residuals \(Y_{k_0:N}-\Phi_{k_0:N}\theta\),</p>
 <div class="eq">\[
-  Y_{1:N}=\bmat{y(1)\\ y(2)\\ \vdots\\ y(N)},\qquad
-  \Phi_{1:N}=\bmat{\varphi\T(1)\\ \varphi\T(2)\\ \vdots\\ \varphi\T(N)},\qquad
-  \theta=\bmat{a_1\\ \vdots\\ a_n\\ \hline b_0\\ \vdots\\ b_n}.
+  \hat\theta=\argmin_\theta(Y_{k_0:N}-\Phi_{k_0:N}\theta)\T(Y_{k_0:N}-\Phi_{k_0:N}\theta),
 \]</div>
-<p>So, equivalently, with the vector of residuals \(Y_{1:N}-\Phi_{1:N}\theta\),</p>
+<p>whose solution is</p>
 <div class="eq">\[
-  \hat\theta=\argmin_\theta(Y_{1:N}-\Phi_{1:N}\theta)\T(Y_{1:N}-\Phi_{1:N}\theta)
-  \quad\implies\quad
-  \boxed{\hat\theta=(\Phi_{1:N}\T\Phi_{1:N})^{-1}\Phi_{1:N}\T Y_{1:N}=\Phi_{1:N}\pinvsym Y_{1:N} ,}
+  \boxed{\hat\theta=(\Phi_{k_0:N}\T\Phi_{k_0:N})^{-1}\Phi_{k_0:N}\T Y_{k_0:N}=\Phi_{k_0:N}\pinvsym Y_{k_0:N} ,}
 \]</div>
-<p>which is exactly the least-squares problem of Chapter&nbsp;<a class="xref" href="ch4.html" data-ref="ch:ls">4</a>. From
-\(\hat\theta=[\hat a_1\cdots\hat a_n\mid\hat b_0\cdots\hat b_n]\T\) we obtain \(\hat A(q)\) and
+<p>which is exactly the least-squares solution of Chapter&nbsp;<a class="xref" href="ch4.html" data-ref="ch:ls">4</a>. From
+\(\hat\theta=[\hat a_1\cdots\hat a_{n_a}\mid\hat b_{n_k}\cdots\hat b_{n_k+n_b-1}]\T\) we obtain \(\hat A(q)\) and
 \(\hat B(q)\).</p>
-<div class="box algobox" id="alg-arx"><div class="box-title">Algorithm 6.1: estimation of ARX models</div><div class="box-body"><ol><li><p>Collect a training dataset on your system (possibly also a testing dataset to
-      validate the model).</p></li><li><p>Build \(Y_{1:N}\) and</p>
+<div class="box algobox" id="alg-arx"><div class="box-title">Algorithm 6.1: estimation of ARX models</div><div class="box-body"><ol><li><p>Collect a training dataset \(u(k)\), \(y(k)\), \(k=0,\dots,N\) on your system (possibly also
+      a testing dataset to validate the model).</p></li><li><p>Compute \(k_0=\max(n_a,\,n_k+n_b-1)\) and build \(Y_{k_0:N}\) and</p>
 <div class="eq">\[
-  \Phi_{1:N}=\bmat{\varphi\T(1)\\ \vdots\\ \varphi\T(N)}
-  =\bmat{y(0)&amp;0&amp;\cdots&amp;0 &amp; u(1)&amp;u(0)&amp;\cdots&amp;0\\
-         y(1)&amp;y(0)&amp;\cdots&amp;0 &amp; u(2)&amp;u(1)&amp;\cdots&amp;0\\
-         \vdots&amp;\vdots&amp;&amp;\vdots&amp;\vdots&amp;\vdots&amp;&amp;\vdots\\
-         y(N-1)&amp;y(N-2)&amp;\cdots&amp;y(N-n) &amp; u(N)&amp;u(N-1)&amp;\cdots&amp;u(N-n)},
+  \Phi_{k_0:N}=\bmat{\varphi\T(k_0)\\ \vdots\\ \varphi\T(N)}
+  =\bmat{y(k_0-1)&amp;\cdots&amp;y(k_0-n_a) &amp; u(k_0-n_k)&amp;\cdots&amp;u(k_0-n_k-n_b+1)\\
+         y(k_0)&amp;\cdots&amp;y(k_0-n_a+1) &amp; u(k_0-n_k+1)&amp;\cdots&amp;u(k_0-n_k-n_b+2)\\
+         \vdots&amp;&amp;\vdots&amp;\vdots&amp;&amp;\vdots\\
+         y(N-1)&amp;\cdots&amp;y(N-n_a) &amp; u(N-n_k)&amp;\cdots&amp;u(N-n_k-n_b+1)},
 \]</div>
-<p>where samples before time \(0\) are set to zero; alternatively (and preferably), start
-      the regression at \(k=n\), so that only measured samples appear in \(\Phi\).</p></li><li><p>Solve \(\hat\theta=\Phi_{1:N}\pinvsym Y_{1:N}\) (in practice with a QR-based solver) and
-      form \(\hat A(q)\), \(\hat B(q)\).</p></li></ol></div></div>
-<p><strong class="runin">Identifiability.</strong>  \(\hat\theta\) is unique iff \(\Phi_{1:N}\) is full column rank, i.e. \(\Phi\T\Phi\) nonsingular, so that \(\Phi\pinvsym=(\Phi\T\Phi)^{-1}\Phi\T\) can be formed. This is
+<p>which contains only measured samples. For instance, for \(n_a=n_b=2\) and \(n_k=1\)
+      (Example&nbsp;<a class="xref" href="#ex-arx" data-ref="ex:arx">6.1</a>), \(\varphi\T(k)=[\,y(k-1)\;y(k-2)\mid u(k-1)\;u(k-2)\,]\), \(k_0=2\), and the
+      first row of \(\Phi_{k_0:N}\) is \(\varphi\T(2)=[\,y(1)\;y(0)\mid u(1)\;u(0)\,]\).</p></li><li><p>Solve \(\hat\theta=\Phi_{k_0:N}\pinvsym Y_{k_0:N}\) and form \(\hat A(q)\), \(\hat B(q)\).</p></li></ol></div></div>
+<p>Some references build the regression from \(k=1\) and set the samples before time \(0\), which
+are not available, to zero. This is exact only if the system was at rest before \(k=0\);
+otherwise it introduces an error in the first rows, which is avoided by starting from \(k_0\)
+at the price of losing a few equations.</p>
+<p><strong class="runin">Identifiability.</strong>  \(\hat\theta\) is unique iff \(\Phi_{k_0:N}\) is full column rank, i.e. \(\Phi\T\Phi\) nonsingular, so that \(\Phi\pinvsym=(\Phi\T\Phi)^{-1}\Phi\T\) can be formed. This is
 where persistency of excitation (Definition&nbsp;<a class="xref" href="ch5.html#def-pe" data-ref="def:pe">5.1</a>) enters: it can be proven that, if the noise
-\(e\) has positive variance and the system is operated in open loop, \(\Phi_{1:N}\T\Phi_{1:N}\) is
+\(e\) has positive variance and the system is operated in open loop, \(\Phi_{k_0:N}\T\Phi_{k_0:N}\) is
 nonsingular (for \(N\) large) when \(u\) is persistently exciting of order equal to the number
 \(n_b\) of coefficients of \(B(q)\); in the noise-free case the order must be at least
 \(n_a+n_b\) (the total number of parameters) [<a class="cite" href="references.html#bib-SoderstromStoica" data-cite="SoderstromStoica">7</a>]. To form the regressor
-we have to guess (or to know) the orders of \(A(q)\) and \(B(q)\) (and the delay):
-Section&nbsp;<a class="xref" href="#sec-ordersel" data-ref="sec:ordersel">6.6</a>.</p>
-<div class="box example" id="ex-arx"><div class="box-title">Example 6.2: ARX estimation</div><div class="box-body"><p>Data are generated by the ARX system \(y(k)=1.5y(k-1)-0.7y(k-2)+u(k-1)+0.5u(k-2)+e(k)\)
+we have to guess (or to know) the orders of \(A(q)\) and \(B(q)\) (and the delay): this will be discussed in 
+Section&nbsp;<a class="xref" href="#sec-ordersel" data-ref="sec:ordersel">6.5</a>.</p>
+<div class="box example" id="ex-arx"><div class="box-title">Example 6.1: ARX estimation</div><div class="box-body"><p>Data are generated by the ARX system \(y(k)=1.5y(k-1)-0.7y(k-2)+u(k-1)+0.5u(k-2)+e(k)\)
 (poles \(0.75\pm0.37j\)), with \(u\) white Gaussian of unit variance and \(e\) white with standard
-deviation \(0.3\). The LS estimates for three data lengths are:</p>
+deviation \(0.3\). Algorithm&nbsp;<a class="xref" href="#alg-arx" data-ref="alg:arx">6.1</a> is applied to estimate the parameters of the ARX model, with \(n_a = 2\), \(n_b=2\), \(n_k=1\) assumed to be known. The least squares estimates for the three data lengths are:</p>
 <div class="center"><div class="tablewrap"><table class="tbl"><thead><tr><th class="al"></th><th class="ac">\(a_1\)</th><th class="ac">\(a_2\)</th><th class="ac">\(b_1\)</th><th class="ac">\(b_2\)</th></tr></thead><tbody><tr><td class="al">true</td><td class="ac">\(1.5\)</td><td class="ac">\(-0.7\)</td><td class="ac">\(1\)</td><td class="ac">\(0.5\)</td></tr><tr><td class="al">\(N=50\)</td><td class="ac">\(1.510\)</td><td class="ac">\(-0.697\)</td><td class="ac">\(1.041\)</td><td class="ac">\(0.495\)</td></tr><tr><td class="al">\(N=500\)</td><td class="ac">\(1.491\)</td><td class="ac">\(-0.695\)</td><td class="ac">\(1.008\)</td><td class="ac">\(0.491\)</td></tr><tr><td class="al">\(N=5000\)</td><td class="ac">\(1.500\)</td><td class="ac">\(-0.700\)</td><td class="ac">\(1.001\)</td><td class="ac">\(0.498\)</td></tr></tbody></table></div></div>
 <p>The estimates converge to the true values (consistency) and \(\kappa(\Phi)\approx8\): the
 problem is well conditioned. On fresh validation data the one-step-ahead prediction has
@@ -221,8 +315,87 @@ problem is well conditioned. On fresh validation data the one-step-ahead predict
 simulation \(\hat y=\hat W(q)u\) has \(\mathrm{RMSE}=0.903\): the difference is the
 contribution of the noise filtered by \(1/A(q)\), which a pure simulation cannot reproduce.</p></div></div>
 <div class="widget" id="w-arx" data-widget="arx"></div>
-<h2 id="sec-matlab-arx" class="sec"><span class="secnum">6.5</span> ARX models in MATLAB</h2>
-<p>In MATLAB the ARX model is written as \(A(q)y(k)=B(q)u(k-n_k)+e(k)\) with</p>
+<h2 id="sec-ordersel" class="sec"><span class="secnum">6.5</span> Model-order selection criteria</h2>
+<p>Some model-selection criteria are commonly adopted (also by MATLAB). Define \(d\) the size of
+the regressor (i.e. the number of parameters to be estimated), \(N\) the cardinality of the
+training dataset and \(V_N(\hat\theta)\) the loss function <a class="xref" href="#eq-VN" data-ref="eq:VN">(6.8)</a> evaluated at the
+estimate, i.e. the mean squared prediction error on the training data. One chooses the model (the order) that
+minimizes:</p>
+<div class="eq">\begin{align*}
+  \text{AIC (Akaike's Information Criterion):}\quad &amp; \log V_N+\frac{2d}{N}\quad\Bigl(\approx\log\bigl[(1+\tfrac{2d}N)V_N\bigr],\ d\ll N\Bigr),\\
+  \text{FPE (Akaike's Final Prediction Error):}\quad &amp; \frac{1+d/N}{1-d/N}\,V_N,\\
+  \text{MDL (Rissanen's Min.\ Description Length):}\quad &amp; \log V_N+\frac{d\ln N}{N}\quad\Bigl(\text{or } V_N\bigl(1+\tfrac{d\ln N}{N}\bigr)\Bigr).
+\end{align*}</div>
+<p>All criteria add to the training loss (which always decreases with \(d\)) a penalty that
+grows with the number of parameters. FPE is an estimate of the prediction-error variance
+that the model would have on new data; AIC and FPE are asymptotically equivalent; MDL
+penalizes more heavily (factor \(\ln N\) instead of \(2\)) and tends to select more
+parsimonious models (it is consistent: it selects the true order with probability one as
+\(N\to\infty\) when the true system is in the model class).</p>
+<p><strong class="runin">Common approach.</strong></p>
+<ul><li><p>whenever validation can be conducted on data unseen during estimation (testing
+      dataset \(\neq\) training dataset), compute RMSE/NRMSE/FIT on the <em>testing data</em> and
+      compare them with the same indices on the <em>training data</em>: a training error much
+      smaller than the testing error reveals overfitting;</p></li><li><p>compute AIC, FPE, MDL if the choice has to be made on the same dataset used for training
+      (e.g. because data are scarce).</p></li></ul>
+<h2 id="sec-beyond-ls" class="sec"><span class="secnum">6.6</span> Beyond least squares: why more advanced methods are needed</h2>
+<p>The ARX model is so popular because its predictor is linear in \(\theta\) and the PEM reduces
+to linear least squares, with a unique, closed-form solution. For the other model classes
+this is not the case.</p>
+<p><strong class="runin">The general one-step-ahead predictor.</strong>  For <a class="xref" href="#eq-general-io" data-ref="eq:general-io">(6.3)</a> with \(H\) monic
+and inversely stable, \(e(k)=H^{-1}(q)[y(k)-W(q)u(k)]\) and
+\(y(k)=W(q)u(k)+[H(q)-1]e(k)+e(k)\), where \([H(q)-1]e(k)\) only depends on past noise samples.
+Replacing \(e(k)\) by its mean,</p>
+<div class="eq" id="eq-gen-pred">\[\begin{aligned}
+  \hat y(k|k-1,\theta)&amp;=H^{-1}(q,\theta)W(q,\theta)u(k)+\bigl[1-H^{-1}(q,\theta)\bigr]y(k),\\
+  \varepsilon(k,\theta)&amp;=H^{-1}(q,\theta)\bigl[y(k)-W(q,\theta)u(k)\bigr].
+  \end{aligned} \tag{6.9}\]</div>
+<p>For ARX (\(W=B/A\), \(H=1/A\)) this is <a class="xref" href="#eq-arx-pred" data-ref="eq:arx-pred">(6.5)</a>. For the other structures:</p>
+<div class="eq">\[
+  \text{ARMAX: }\ \hat y(k|k-1)=\frac{B(q)}{C(q)}u(k)+\Bigl[1-\frac{A(q)}{C(q)}\Bigr]y(k),\qquad
+  \text{OE: }\ \hat y(k|k-1)=\frac{B(q)}{A(q)}u(k),
+\]</div>
+<p>and the prediction error depends <em>nonlinearly</em> on the parameters appearing in the
+denominators (\(C\) for ARMAX, \(A\) for OE, \(A\) and \(C\) for BJ). The PEM cost \(V_N(\theta)\) in <a class="xref" href="#eq-VN" data-ref="eq:VN">(6.8)</a> must
+then be minimized iteratively (Gauss&ndash;Newton or Levenberg&ndash;Marquardt), with the risk of
+local minima and the need of good initial estimates (typically provided by ARX or subspace
+methods, Chapter&nbsp;<a class="xref" href="ch8.html" data-ref="ch:moesp">8</a>). For ARMAX, a classical approximation is the
+<em>pseudo-linear regression</em> (extended least squares), in which the unknown \(e(k-i)\) in
+the regressor are replaced by the residuals of the previous iteration.</p>
+<p><strong class="runin">Least squares on the wrong model class is biased.</strong>  If the data are not generated
+by an ARX system, the ARX least-squares estimate is in general <em>biased</em>, even for
+\(N\to\infty\). Suppose the true system is OE, \(y=\frac BAu+e\). Multiplying by \(A\),</p>
+<div class="eq">\[
+  A(q)y(k)=B(q)u(k)+\underbrace{A(q)e(k)}_{\text{colored equation error}},
+\]</div>
+<p>which has the ARX form but with the equation error \(A(q)e(k)=e(k)-a_1e(k-1)-\cdots\), which is
+correlated with the regressors \(y(k-1),y(k-2),\dots\) (they contain \(e(k-1),e(k-2),\dots\)).
+The normal equations then converge to \(\E[\varphi\varphi\T]\theta^*=\E[\varphi y]\neq\E[\varphi\varphi\T]\theta_0\).</p>
+<div class="box example" id="ex-oe-bias"><div class="box-title">Example 6.2: bias of ARX least squares on output-error data</div><div class="box-body"><p>Data are generated by the OE system \(y(k)=\dfrac{q^{-1}+0.5q^{-2}}{1-1.5q^{-1}+0.7q^{-2}}u(k)+e(k)\),
+with \(u\) white of unit variance, \(e\) white with standard deviation \(0.5\), \(N=500\). Over
+\(100\) Monte Carlo runs we compare the ARX least-squares estimate (with \(n_a=n_b=2\), \(n_k=1\))
+and the PEM estimate of the OE model (nonlinear LS on the simulation error, initialized
+with the ARX estimate). Coefficients are reported with the sign convention of the notes,
+\(A(q)=1-a_1q^{-1}-a_2q^{-2}\) (so that \(a_1=1.5\), \(a_2=-0.7\)):</p>
+<div class="center"><div class="tablewrap"><table class="tbl"><thead><tr><th class="al"></th><th class="ac">\(a_1\)</th><th class="ac">\(a_2\)</th><th class="ac">\(b_1\)</th><th class="ac">\(b_2\)</th></tr></thead><tbody><tr><td class="al">true</td><td class="ac">\(1.500\)</td><td class="ac">\(-0.700\)</td><td class="ac">\(1.000\)</td><td class="ac">\(0.500\)</td></tr><tr><td class="al">ARX&ndash;LS (mean \(\pm\) std)</td><td class="ac">\(1.330\pm0.023\)</td><td class="ac">\(-0.540\pm0.021\)</td><td class="ac">\(0.995\pm0.044\)</td><td class="ac">\(0.670\pm0.048\)</td></tr><tr><td class="al">PEM&ndash;OE (mean \(\pm\) std)</td><td class="ac">\(1.500\pm0.004\)</td><td class="ac">\(-0.700\pm0.003\)</td><td class="ac">\(1.000\pm0.018\)</td><td class="ac">\(0.501\pm0.025\)</td></tr></tbody></table></div></div>
+<p>The LS estimates are systematically wrong (the bias is many standard deviations), while
+the PEM estimate of the correct model class is unbiased and even less variable. This is the
+motivation to the need of using something more advanced than ordinary least squares.</p></div></div>
+<div class="widget" id="w-oebias" data-widget="oebias"></div>
+<p>These limitations (nonlinear optimization for all structures but ARX, the need to choose
+many orders \(n_a,n_b,n_c,n_d,n_k\), the difficult parametrization of MIMO polynomial
+models, and the fact that they do not directly provide a state-space model) motivate the <em>subspace</em> approach of Chapters&nbsp;<a class="xref" href="ch7.html" data-ref="ch:hokalman">7</a> and <a class="xref" href="ch8.html" data-ref="ch:moesp">8</a>, which
+estimates MIMO state-space models with SVDs and linear least squares only.</p>
+<h2 id="sec-matlab-arx" class="sec"><span class="secnum">6.7</span> Polynomial models in Ljung&rsquo;s book and in MATLAB</h2>
+<p>The notation of [<a class="cite" href="references.html#bib-Ljung" data-cite="Ljung">5</a>], which is also the one of the MATLAB System Identification
+Toolbox, differs from the one of these notes in a few points, summarized in
+Table&nbsp;<a class="xref" href="#tab-notation-ljung" data-ref="tab:notation-ljung">6.2</a>.</p>
+<div class="center"><figure class="tab" id="tab-notation-ljung"><figcaption><span class="fig-name">Table 6.2:</span> Notation of these notes and of [<a class="cite" href="references.html#bib-Ljung" data-cite="Ljung">5</a>] and MATLAB.</figcaption><div class="tablewrap"><table class="tbl"><thead><tr><th class="ap"></th><th class="ap">these notes</th><th class="ap">[<a class="cite" href="references.html#bib-Ljung" data-cite="Ljung">5</a>] and MATLAB</th></tr></thead><tbody><tr><td class="ap">autoregressive polynomial</td><td class="ap">\(A(q)=1-a_1q^{-1}-\cdots-a_{n_a}q^{-n_a}\)</td><td class="ap">\(A(q)=1+a_1q^{-1}+\cdots+a_{n_a}q^{-n_a}\) (\(a_i\to-a_i\))</td></tr><tr><td class="ap">plant denominator of OE, BJ</td><td class="ap">\(A(q)\), order \(n_a\)</td><td class="ap">\(F(q)=1+f_1q^{-1}+\cdots+f_{n_f}q^{-n_f}\), \(n_f=n_a\), \(f_i=-a_i\)</td></tr><tr><td class="ap">general model</td><td class="ap">BJ: \(y(k)=\frac{B(q)}{A(q)}u(k)+\frac{C(q)}{D(q)}e(k)\)</td><td class="ap">\(A(q)y(k)=\frac{B(q)}{F(q)}u(k-n_k)+\frac{C(q)}{D(q)}e(k)\)</td></tr><tr><td class="ap">input delay \(n_k\)</td><td class="ap">embedded in \(B\), which starts from \(b_{n_k}q^{-n_k}\)</td><td class="ap">explicit, \(u(k-n_k)\), with \(B(q)=b_1+b_2q^{-1}+\cdots+b_{n_b}q^{-n_b+1}\)</td></tr><tr><td class="ap">\(C(q)\), \(D(q)\)</td><td class="ap">plus signs</td><td class="ap">plus signs</td></tr><tr><td class="ap">noise variance</td><td class="ap">\(\sigma_e^2\)</td><td class="ap">\(\lambda_e\) (or \(\lambda_0\)); \(\Lambda_e\) (covariance matrix) if MIMO</td></tr></tbody></table></div></figure></div>
+<p>In Ljung&rsquo;s general family \(A(q)\) is a common autoregressive factor: ARX is obtained with
+\(F=C=D=1\), ARMAX with \(F=D=1\), OE with \(A=C=D=1\) and BJ with \(A=1\), i.e. \(y=\frac BFu+\frac CDe\). The OE and BJ models of these notes are therefore those of
+[<a class="cite" href="references.html#bib-Ljung" data-cite="Ljung">5</a>] with \(F=A\); accordingly, in the commands <code>oe(data,[nb nf nk])</code> and
+<code>bj(data,[nb nc nd nf nk])</code> the order <code>nf</code> is our \(n_a\) (Table&nbsp;<a class="xref" href="#tab-polymodels" data-ref="tab:polymodels">6.1</a>).</p>
+<p><strong class="runin">ARX models in MATLAB.</strong>  In MATLAB the ARX model is written as \(A(q)y(k)=B(q)u(k-n_k)+e(k)\) with</p>
 <div class="eq">\[
   B(q)=b_1+b_2q^{-1}+\cdots+b_{n_b}q^{-n_b+1},\qquad A(q)=1+a_1q^{-1}+\cdots+a_{n_a}q^{-n_a}
 \]</div>
@@ -244,93 +417,21 @@ zero encodes the delay) and <code>A = [1 1 -1]</code>.</p>
 \(n_k=0\), \(n_b=2\), \(n_a=2\), <code>B = [2 -1]</code>, <code>A = [1 2 1]</code>.</p>
 <p>In the convention of the notes the second model reads \(y(k)=-2y(k-1)-y(k-2)+2u(k)-u(k-1)+e(k)\),
 i.e. \(a_1^{\text{notes}}=-2\), \(a_2^{\text{notes}}=-1\).</p></div></div>
-<h2 id="sec-ordersel" class="sec"><span class="secnum">6.6</span> Model-order selection criteria</h2>
-<p>Some model-selection criteria are commonly adopted (also by MATLAB). Define \(d\) the size of
-the regressor (i.e. the number of parameters to be estimated), \(N\) the cardinality of the
-training dataset and</p>
-<div class="eq">\[
-  V_N(\hat\theta)=\frac1N\sum_{k=0}^{N-1}\varepsilon^2(k,\hat\theta)
-\]</div>
-<p>the loss function evaluated on the training data. One chooses the model (the order) that
-minimizes:</p>
-<div class="eq">\begin{align*}
-  \text{AIC (Akaike's Information Criterion):}\quad &amp; \log V_N+\frac{2d}{N}\quad\Bigl(\approx\log\bigl[(1+\tfrac{2d}N)V_N\bigr],\ d\ll N\Bigr),\\
-  \text{FPE (Akaike's Final Prediction Error):}\quad &amp; \frac{1+d/N}{1-d/N}\,V_N,\\
-  \text{MDL (Rissanen's Min.\ Description Length):}\quad &amp; \log V_N+\frac{d\ln N}{N}\quad\Bigl(\text{or } V_N\bigl(1+\tfrac{d\ln N}{N}\bigr)\Bigr).
-\end{align*}</div>
-<p>All criteria add to the training loss (which always decreases with \(d\)) a penalty that
-grows with the number of parameters. FPE is an estimate of the prediction-error variance
-that the model would have on new data; AIC and FPE are asymptotically equivalent; MDL
-penalizes more heavily (factor \(\ln N\) instead of \(2\)) and tends to select more
-parsimonious models (it is consistent: it selects the true order with probability one as
-\(N\to\infty\) when the true system is in the model class).</p>
-<p><strong class="runin">Common approach.</strong></p>
-<ul><li><p>RMSE/NRMSE/FIT on <em>testing data</em>, whenever validation can be properly conducted
-      on data unseen during the estimation (training dataset \(\neq\) testing dataset);</p></li><li><p>AIC, FPE, MDL if the choice has to be made on the same dataset used for training
-      (e.g. because data are scarce).</p></li></ul>
-<h2 id="sec-beyond-ls" class="sec"><span class="secnum">6.7</span> Beyond least squares: why more advanced methods are needed</h2>
-<p>The ARX model is so popular because its predictor is linear in \(\theta\) and the PEM reduces
-to linear least squares, with a unique, closed-form solution. For the other model classes
-this is not the case.</p>
-<p><strong class="runin">The general one-step-ahead predictor.</strong>  For <a class="xref" href="#eq-general-io" data-ref="eq:general-io">(6.1)</a> with \(H\) monic
-and inversely stable, \(e(k)=H^{-1}(q)[y(k)-W(q)u(k)]\) and
-\(y(k)=W(q)u(k)+[H(q)-1]e(k)+e(k)\), where \([H(q)-1]e(k)\) only depends on past noise samples.
-Replacing \(e(k)\) by its mean,</p>
-<div class="eq" id="eq-gen-pred">\[\begin{aligned}
-  \hat y(k|k-1,\theta)&amp;=H^{-1}(q,\theta)W(q,\theta)u(k)+\bigl[1-H^{-1}(q,\theta)\bigr]y(k),\\
-  \varepsilon(k,\theta)&amp;=H^{-1}(q,\theta)\bigl[y(k)-W(q,\theta)u(k)\bigr].
-  \end{aligned} \tag{6.5}\]</div>
-<p>For ARX (\(W=B/A\), \(H=1/A\)) this is <a class="xref" href="#eq-arx-pred" data-ref="eq:arx-pred">(6.3)</a>. For the other structures:</p>
-<div class="eq">\[
-  \text{ARMAX: }\ \hat y(k|k-1)=\frac{B(q)}{C(q)}u(k)+\Bigl[1-\frac{A(q)}{C(q)}\Bigr]y(k),\qquad
-  \text{OE: }\ \hat y(k|k-1)=\frac{B(q)}{F(q)}u(k),
-\]</div>
-<p>and the prediction error depends <em>nonlinearly</em> on the parameters appearing in the
-denominators (\(C\), \(F\), \(D\)). The PEM cost \(V_N(\theta)=\frac1N\sum\varepsilon^2(k,\theta)\) must
-then be minimized iteratively (Gauss&ndash;Newton or Levenberg&ndash;Marquardt), with the risk of
-local minima and the need of good initial estimates (typically provided by ARX or subspace
-methods, Chapter&nbsp;<a class="xref" href="ch8.html" data-ref="ch:moesp">8</a>). For ARMAX, a classical approximation is the
-<em>pseudo-linear regression</em> (extended least squares), in which the unknown \(e(k-i)\) in
-the regressor are replaced by the residuals of the previous iteration.</p>
-<p><strong class="runin">Least squares on the wrong model class is biased.</strong>  If the data are not generated
-by an ARX system, the ARX least-squares estimate is in general <em>biased</em>, even for
-\(N\to\infty\). Suppose the true system is OE, \(y=\frac BFu+e\). Multiplying by \(F\),</p>
-<div class="eq">\[
-  F(q)y(k)=B(q)u(k)+\underbrace{F(q)e(k)}_{\text{colored equation error}},
-\]</div>
-<p>which has the ARX form but with the equation error \(F(q)e(k)=e(k)+f_1e(k-1)+\cdots\), which is
-correlated with the regressors \(y(k-1),y(k-2),\dots\) (they contain \(e(k-1),e(k-2),\dots\)).
-The normal equations then converge to \(\E[\varphi\varphi\T]\theta^*=\E[\varphi y]\neq\E[\varphi\varphi\T]\theta_0\).</p>
-<div class="box example" id="ex-oe-bias"><div class="box-title">Example 6.4: bias of ARX least squares on output-error data</div><div class="box-body"><p>Data are generated by the OE system \(y(k)=\dfrac{q^{-1}+0.5q^{-2}}{1-1.5q^{-1}+0.7q^{-2}}u(k)+e(k)\),
-with \(u\) white of unit variance, \(e\) white with standard deviation \(0.5\), \(N=500\). Over
-\(100\) Monte Carlo runs we compare the ARX least-squares estimate (with \(n_a=n_b=2\), \(n_k=1\))
-and the PEM estimate of the OE model (nonlinear LS on the simulation error, initialized
-with the ARX estimate). Coefficients are reported as \(F(q)=1+f_1q^{-1}+f_2q^{-2}\):</p>
-<div class="center"><div class="tablewrap"><table class="tbl"><thead><tr><th class="al"></th><th class="ac">\(f_1\)</th><th class="ac">\(f_2\)</th><th class="ac">\(b_1\)</th><th class="ac">\(b_2\)</th></tr></thead><tbody><tr><td class="al">true</td><td class="ac">\(-1.500\)</td><td class="ac">\(0.700\)</td><td class="ac">\(1.000\)</td><td class="ac">\(0.500\)</td></tr><tr><td class="al">ARX&ndash;LS (mean \(\pm\) std)</td><td class="ac">\(-1.330\pm0.023\)</td><td class="ac">\(0.540\pm0.021\)</td><td class="ac">\(0.995\pm0.044\)</td><td class="ac">\(0.670\pm0.048\)</td></tr><tr><td class="al">PEM&ndash;OE (mean \(\pm\) std)</td><td class="ac">\(-1.500\pm0.004\)</td><td class="ac">\(0.700\pm0.003\)</td><td class="ac">\(1.000\pm0.018\)</td><td class="ac">\(0.501\pm0.025\)</td></tr></tbody></table></div></div>
-<p>The LS estimates are systematically wrong (the bias is many standard deviations), while
-the PEM estimate of the correct model class is unbiased and even less variable. This is the
-motivation to the need of using something more advanced than ordinary least squares.</p></div></div>
-<div class="widget" id="w-oebias" data-widget="oebias"></div>
-<p>These limitations (nonlinear optimization for all structures but ARX, the need to choose
-many orders \(n_a,n_b,n_c,n_d,n_f,n_k\), the difficult parametrization of MIMO polynomial
-models, and the fact that the direct state-space model estimation is not built into the
-methodology) motivate the <em>subspace</em> approach of Chapters&nbsp;<a class="xref" href="ch7.html" data-ref="ch:hokalman">7</a> and <a class="xref" href="ch8.html" data-ref="ch:moesp">8</a>, which
-estimates MIMO state-space models with SVDs and linear least squares only.</p>
 <h2 id="s-6-8" class="sec"><span class="secnum">6.8</span> Exercises</h2>
-<div class="exercise" id="exercise-6-1"><p><span class="thm-head"><span class="ex-name">Exercise 6.1</span>.</span> Write the ARX regression <a class="xref" href="#eq-linreg" data-ref="eq:linreg">(6.4)</a> for \(n_a=2\), \(n_b=3\), \(n_k=2\) and give the
-dimensions of \(\Phi_{1:N}\).</p></div>
+<div class="exercise" id="exercise-6-1"><p><span class="thm-head"><span class="ex-name">Exercise 6.1</span>.</span> Write the ARX regression <a class="xref" href="#eq-linreg" data-ref="eq:linreg">(6.6)</a> for \(n_a=2\), \(n_b=3\), \(n_k=2\), compute \(k_0\) and
+give the dimensions of \(\Phi_{k_0:N}\).</p></div>
 <div class="exercise" id="exercise-6-2"><p><span class="thm-head"><span class="ex-name">Exercise 6.2</span>.</span> Derive the one-step-ahead predictor of the ARMAX model \(y(k)=a\,y(k-1)+b\,u(k-1)+e(k)+c\,e(k-1)\)
 and show that it satisfies the recursion \(\hat y(k|k-1)=-c\,\hat y(k-1|k-2)+(a+c)\,y(k-1)+b\,u(k-1)\).
 Why can it not be written as \(\varphi\T(k)\theta\) with \(\varphi\) built from measured data only?</p></div>
-<div class="exercise" id="exercise-6-3"><p><span class="thm-head"><span class="ex-name">Exercise 6.3</span>.</span> Using Example&nbsp;<a class="xref" href="#ex-oe-bias" data-ref="ex:oe-bias">6.4</a>, compute the asymptotic bias of the ARX estimate for a first-order
-OE system \(y(k)=\frac{b\,q^{-1}}{1+f\,q^{-1}}u(k)+e(k)\) with white \(u\) (variance \(\lambda_u\)) and
-\(e\) (variance \(\lambda_e\)), and discuss its dependence on the signal-to-noise ratio.</p><div class="ex-links"><a class="ex-link" href="#w-oebias">Explore the bias numerically</a></div></div>
+<div class="exercise" id="exercise-6-3"><p><span class="thm-head"><span class="ex-name">Exercise 6.3</span>.</span> Using Example&nbsp;<a class="xref" href="#ex-oe-bias" data-ref="ex:oe-bias">6.2</a>, compute the asymptotic bias of the ARX estimate for a first-order
+OE system \(y(k)=\frac{b\,q^{-1}}{1-a\,q^{-1}}u(k)+e(k)\) with white \(u\) (variance \(\sigma_u^2\)) and
+\(e\) (variance \(\sigma_e^2\)), and discuss its dependence on the signal-to-noise ratio.</p><div class="ex-links"><a class="ex-link" href="#w-oebias">Explore the bias numerically</a></div></div>
 <div class="exercise" id="exercise-6-4"><p><span class="thm-head"><span class="ex-name">Exercise 6.4</span>.</span> Generate data from an ARX system of order \(3\) and use AIC, FPE, MDL and the testing RMSE to
 select \(n_a=n_b\in\{1,\dots,6\}\). Repeat for an OE system: which orders are selected now,
 and why?</p></div>
 <div class="exercise" id="exercise-6-5"><p><span class="thm-head"><span class="ex-name">Exercise 6.5</span>.</span> Repeat Example&nbsp;<a class="xref" href="ch5.html#ex-poly-order" data-ref="ex:poly-order">5.1</a> \(100\) times with different noise realizations and plot the
 histogram of the orders selected by (a) minimum testing RMSE, (b) AIC, (c) MDL
-(Section&nbsp;<a class="xref" href="#sec-ordersel" data-ref="sec:ordersel">6.6</a>; for a polynomial of degree \(d\) the number of parameters is \(d+1\) and
+(Section&nbsp;<a class="xref" href="#sec-ordersel" data-ref="sec:ordersel">6.5</a>; for a polynomial of degree \(d\) the number of parameters is \(d+1\) and
 \(V_N\) is the training MSE). Which criterion is more reliable? What happens with \(N=300\)?</p></div>
 <h2 id="s-6-9" class="sec"><span class="secnum">6.9</span> Implementation in MATLAB and Python</h2>
 <p>The function <code>arx_ls</code> implements Algorithm&nbsp;<a class="xref" href="#alg-arx" data-ref="alg:arx">6.1</a> (convention of the notes,
@@ -338,7 +439,8 @@ discarding the first samples):</p>
 <div class="code" data-lang="matlab"><div class="code-head"><span class="code-lang">MATLAB</span><span class="code-title">arx_ls.m</span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button><a class="code-btn" href="code/matlab/arx_ls.m" download>Download</a></span></div><pre><code class="hl"><span class="k">function</span><span class="w"> </span><span class="nf">[a, b, Phi, Yv] = arx_ls</span><span class="p">(</span>u, y, na, nb, nk<span class="p">)</span><span class="w"></span>
 <span class="c">%ARX_LS  Least-squares estimate of a SISO ARX model, lecture-notes convention:</span><span class="w"></span>
 <span class="c">%   y(k) = a1 y(k-1) + ... + a_na y(k-na)</span><span class="w"></span>
-<span class="c">%        + b1 u(k-nk) + ... + b_nb u(k-nk-nb+1) + e(k),</span><span class="w"></span>
+<span class="c">%        + b_nk u(k-nk) + ... + b_(nk+nb-1) u(k-nk-nb+1) + e(k),</span><span class="w"></span>
+<span class="c">%   (b(1) = b_nk, ..., b(nb) = b_(nk+nb-1): each b_j multiplies u(k-j)),</span><span class="w"></span>
 <span class="c">%   i.e. A(q) = 1 - a1 q^-1 - ... - a_na q^-na  (MATLAB&#39;s arx uses +a_i).</span><span class="w"></span>
 <span class="c">%   u, y : column vectors (samples k = 0..N-1)</span><span class="w"></span>
 <span class="c">%   The first max(na, nk+nb-1) samples are used only as initial conditions.</span><span class="w"></span>
@@ -355,7 +457,8 @@ discarding the first samples):</p>
 </code></pre><textarea class="code-src" hidden>function [a, b, Phi, Yv] = arx_ls(u, y, na, nb, nk)
 %ARX_LS  Least-squares estimate of a SISO ARX model, lecture-notes convention:
 %   y(k) = a1 y(k-1) + ... + a_na y(k-na)
-%        + b1 u(k-nk) + ... + b_nb u(k-nk-nb+1) + e(k),
+%        + b_nk u(k-nk) + ... + b_(nk+nb-1) u(k-nk-nb+1) + e(k),
+%   (b(1) = b_nk, ..., b(nb) = b_(nk+nb-1): each b_j multiplies u(k-j)),
 %   i.e. A(q) = 1 - a1 q^-1 - ... - a_na q^-na  (MATLAB's arx uses +a_i).
 %   u, y : column vectors (samples k = 0..N-1)
 %   The first max(na, nk+nb-1) samples are used only as initial conditions.
@@ -369,9 +472,10 @@ Yv = y(k0:N);
 theta = Phi \ Yv;                        % LS solution (QR based, same as pinv(Phi)*Yv)
 a = theta(1:na);  b = theta(na+1:end);
 end</textarea></div>
-<p>The script below reproduces Examples&nbsp;<a class="xref" href="#ex-arx" data-ref="ex:arx">6.2</a> and <a class="xref" href="#ex-oe-bias" data-ref="ex:oe-bias">6.4</a> with core MATLAB only: the PEM for
+<p>The script below reproduces Examples&nbsp;<a class="xref" href="#ex-arx" data-ref="ex:arx">6.1</a> and <a class="xref" href="#ex-oe-bias" data-ref="ex:oe-bias">6.2</a> with core MATLAB only: the PEM for
 the OE model is solved with <code>fminsearch</code> on the sum of squared simulation errors
-(<code>filter(B,F,u)</code> computes \(\frac{B(q)}{F(q)}u(k)\) with zero initial conditions).</p>
+(<code>filter(b,a,u)</code> computes \(\frac{B(q)}{A(q)}u(k)\) with zero initial conditions, where
+<code>a</code> contains the coefficients of \(A(q)\) with MATLAB&rsquo;s sign, \([1\ {-a_1}\ {-a_2}]\)).</p>
 <div class="code" data-lang="matlab"><div class="code-head"><span class="code-lang">MATLAB</span><span class="code-title">ch6_arx.m</span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button><a class="code-btn" href="code/matlab/ch6_arx.m" download>Download</a></span></div><pre><code class="hl"><span class="c">%% Chapter 6 - ARX models by least squares; bias of LS on OE data</span><span class="w"></span>
 <span class="nb">randn</span><span class="p">(</span><span class="s">&#39;seed&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">);</span><span class="w"></span>
 <span class="n">a0</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mf">1.5</span><span class="p">;</span><span class="w"> </span><span class="o">-</span><span class="mf">0.7</span><span class="p">];</span><span class="w">  </span><span class="n">b0</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="mf">0.5</span><span class="p">];</span><span class="w">        </span><span class="c">% A(q) = 1 - 1.5 q^-1 + 0.7 q^-2</span><span class="w"></span>
@@ -389,20 +493,20 @@ the OE model is solved with <code>fminsearch</code> on the sum of squared simula
 <span class="nb">fprintf</span><span class="p">(</span><span class="s">&#39;RMSE prediction %.3f, RMSE simulation %.3f\n&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">...</span><span class="w"></span>
 <span class="w">        </span><span class="nb">sqrt</span><span class="p">(</span><span class="nb">mean</span><span class="p">((</span><span class="n">yv</span><span class="o">-</span><span class="n">ypred</span><span class="p">)</span><span class="o">.^</span><span class="mi">2</span><span class="p">)),</span><span class="w"> </span><span class="nb">sqrt</span><span class="p">(</span><span class="nb">mean</span><span class="p">((</span><span class="n">yv</span><span class="o">-</span><span class="n">ysim</span><span class="p">)</span><span class="o">.^</span><span class="mi">2</span><span class="p">)));</span><span class="w"></span>
 
-<span class="c">%% Output-error data: y = B/F u + e (white e): ARX-LS becomes biased</span><span class="w"></span>
-<span class="n">F</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="mf">1.5</span><span class="w"> </span><span class="mf">0.7</span><span class="p">];</span><span class="w"></span>
+<span class="c">%% Output-error data: y = B/A u + e (white e): ARX-LS becomes biased</span><span class="w"></span>
+<span class="n">Ao</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="mf">1.5</span><span class="w"> </span><span class="mf">0.7</span><span class="p">];</span><span class="w">                       </span><span class="c">% A(q) = 1 - a1 q^-1 - a2 q^-2, a = [1.5 -0.7]</span><span class="w"></span>
 <span class="n">MC</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">50</span><span class="p">;</span><span class="w">  </span><span class="n">th_arx</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">zeros</span><span class="p">(</span><span class="n">MC</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">);</span><span class="w">  </span><span class="n">th_oe</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">th_arx</span><span class="p">;</span><span class="w"></span>
 <span class="n">opts</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">optimset</span><span class="p">(</span><span class="s">&#39;TolX&#39;</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-8</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;TolFun&#39;</span><span class="p">,</span><span class="w"> </span><span class="mf">1e-10</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;MaxFunEvals&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">4000</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;MaxIter&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">4000</span><span class="p">);</span><span class="w"></span>
 <span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">MC</span><span class="w"></span>
 <span class="w">    </span><span class="n">u</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">randn</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">y</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">filter</span><span class="p">(</span><span class="n">Bq</span><span class="p">,</span><span class="w"> </span><span class="n">F</span><span class="p">,</span><span class="w"> </span><span class="n">u</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">0.5</span><span class="o">*</span><span class="nb">randn</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">y</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">filter</span><span class="p">(</span><span class="n">Bq</span><span class="p">,</span><span class="w"> </span><span class="n">Ao</span><span class="p">,</span><span class="w"> </span><span class="n">u</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">0.5</span><span class="o">*</span><span class="nb">randn</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
 <span class="w">    </span><span class="p">[</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">arx_ls</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">th_arx</span><span class="p">(</span><span class="nb">i</span><span class="p">,</span><span class="w"> </span><span class="p">:)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="o">-</span><span class="n">a</span><span class="o">&#39;</span><span class="w"> </span><span class="n">b</span><span class="o">&#39;</span><span class="p">];</span><span class="w">             </span><span class="c">% reported with the (+) convention of F</span><span class="w"></span>
+<span class="w">    </span><span class="n">th_arx</span><span class="p">(</span><span class="nb">i</span><span class="p">,</span><span class="w"> </span><span class="p">:)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">a</span><span class="o">&#39;</span><span class="w"> </span><span class="n">b</span><span class="o">&#39;</span><span class="p">];</span><span class="w">              </span><span class="c">% [a1 a2 b1 b2], sign convention of the notes</span><span class="w"></span>
 <span class="w">    </span><span class="c">% PEM for the OE model: minimize sum of squared simulation errors</span><span class="w"></span>
-<span class="w">    </span><span class="n">V</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">@(</span><span class="n">th</span><span class="p">)</span><span class="w"> </span><span class="nb">sum</span><span class="p">((</span><span class="n">y</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">filter</span><span class="p">([</span><span class="mi">0</span><span class="w"> </span><span class="n">th</span><span class="p">(</span><span class="mi">3</span><span class="p">:</span><span class="mi">4</span><span class="p">)],</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="n">th</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">)],</span><span class="w"> </span><span class="n">u</span><span class="p">))</span><span class="o">.^</span><span class="mi">2</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">V</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">@(</span><span class="n">th</span><span class="p">)</span><span class="w"> </span><span class="nb">sum</span><span class="p">((</span><span class="n">y</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">filter</span><span class="p">([</span><span class="mi">0</span><span class="w"> </span><span class="n">th</span><span class="p">(</span><span class="mi">3</span><span class="p">:</span><span class="mi">4</span><span class="p">)],</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="n">th</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">)],</span><span class="w"> </span><span class="n">u</span><span class="p">))</span><span class="o">.^</span><span class="mi">2</span><span class="p">);</span><span class="w"></span>
 <span class="w">    </span><span class="n">th_oe</span><span class="p">(</span><span class="nb">i</span><span class="p">,</span><span class="w"> </span><span class="p">:)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fminsearch</span><span class="p">(</span><span class="n">V</span><span class="p">,</span><span class="w"> </span><span class="n">th_arx</span><span class="p">(</span><span class="nb">i</span><span class="p">,</span><span class="w"> </span><span class="p">:),</span><span class="w"> </span><span class="n">opts</span><span class="p">);</span><span class="w"></span>
 <span class="k">end</span><span class="w"></span>
-<span class="nb">disp</span><span class="p">(</span><span class="s">&#39;true  [f1 f2 b1 b2] = [-1.5 0.7 1 0.5]&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="nb">disp</span><span class="p">(</span><span class="s">&#39;true  [a1 a2 b1 b2] = [1.5 -0.7 1 0.5]&#39;</span><span class="p">);</span><span class="w"></span>
 <span class="nb">disp</span><span class="p">([</span><span class="s">&#39;ARX-LS mean: &#39;</span><span class="w"> </span><span class="nb">num2str</span><span class="p">(</span><span class="nb">mean</span><span class="p">(</span><span class="n">th_arx</span><span class="p">),</span><span class="w"> </span><span class="mi">4</span><span class="p">)]);</span><span class="w"></span>
 <span class="nb">disp</span><span class="p">([</span><span class="s">&#39;PEM-OE mean: &#39;</span><span class="w"> </span><span class="nb">num2str</span><span class="p">(</span><span class="nb">mean</span><span class="p">(</span><span class="n">th_oe</span><span class="p">),</span><span class="w"> </span><span class="mi">4</span><span class="p">)]);</span><span class="w"></span>
 </code></pre><textarea class="code-src" hidden>%% Chapter 6 - ARX models by least squares; bias of LS on OE data
@@ -422,29 +526,29 @@ ysim  = filter(Bhat, Ahat, uv);                        % W(q)u, no measured y us
 fprintf('RMSE prediction %.3f, RMSE simulation %.3f\n', ...
         sqrt(mean((yv-ypred).^2)), sqrt(mean((yv-ysim).^2)));
 
-%% Output-error data: y = B/F u + e (white e): ARX-LS becomes biased
-F = [1 -1.5 0.7];
+%% Output-error data: y = B/A u + e (white e): ARX-LS becomes biased
+Ao = [1 -1.5 0.7];                       % A(q) = 1 - a1 q^-1 - a2 q^-2, a = [1.5 -0.7]
 MC = 50;  th_arx = zeros(MC, 4);  th_oe = th_arx;
 opts = optimset('TolX', 1e-8, 'TolFun', 1e-10, 'MaxFunEvals', 4000, 'MaxIter', 4000);
 for i = 1:MC
     u = randn(N, 1);
-    y = filter(Bq, F, u) + 0.5*randn(N, 1);
+    y = filter(Bq, Ao, u) + 0.5*randn(N, 1);
     [a, b] = arx_ls(u, y, 2, 2, 1);
-    th_arx(i, :) = [-a' b'];             % reported with the (+) convention of F
+    th_arx(i, :) = [a' b'];              % [a1 a2 b1 b2], sign convention of the notes
     % PEM for the OE model: minimize sum of squared simulation errors
-    V = @(th) sum((y - filter([0 th(3:4)], [1 th(1:2)], u)).^2);
+    V = @(th) sum((y - filter([0 th(3:4)], [1 -th(1:2)], u)).^2);
     th_oe(i, :) = fminsearch(V, th_arx(i, :), opts);
 end
-disp('true  [f1 f2 b1 b2] = [-1.5 0.7 1 0.5]');
+disp('true  [a1 a2 b1 b2] = [1.5 -0.7 1 0.5]');
 disp(['ARX-LS mean: ' num2str(mean(th_arx), 4)]);
 disp(['PEM-OE mean: ' num2str(mean(th_oe), 4)]);</textarea></div>
 <p>With the System Identification Toolbox the same tasks read:</p>
 <div class="code" data-lang="matlab"><div class="code-head"><span class="code-lang">MATLAB</span><span class="code-title"></span><span class="code-btns"><button class="code-btn copy" title="Copy">Copy</button></span></div><pre><code class="hl"><span class="n">m0</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="n">idpoly</span><span class="p">([</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="mf">1.5</span><span class="w"> </span><span class="mf">0.7</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mf">0.5</span><span class="p">]);</span><span class="w">     </span><span class="c">% A = [1 a1 a2] (MATLAB sign), B with nk = 1</span><span class="w"></span>
 <span class="n">ze</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="n">iddata</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w">                      </span><span class="c">% estimation data (Ts = 1)</span><span class="w"></span>
 <span class="n">marx</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">arx</span><span class="p">(</span><span class="n">ze</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">2</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span><span class="w">                     </span><span class="c">% [na nb nk]</span><span class="w"></span>
-<span class="n">moe</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">oe</span><span class="p">(</span><span class="n">ze</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">2</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span><span class="w">                      </span><span class="c">% [nb nf nk]</span><span class="w"></span>
+<span class="n">moe</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">oe</span><span class="p">(</span><span class="n">ze</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">2</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span><span class="w">                      </span><span class="c">% [nb nf nk], nf = our na</span><span class="w"></span>
 <span class="n">mam</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">armax</span><span class="p">(</span><span class="n">ze</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">2</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span><span class="w">                 </span><span class="c">% [na nb nc nk]</span><span class="w"></span>
-<span class="n">mbj</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">bj</span><span class="p">(</span><span class="n">ze</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">2</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span><span class="w">                  </span><span class="c">% [nb nc nd nf nk]</span><span class="w"></span>
+<span class="n">mbj</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="n">bj</span><span class="p">(</span><span class="n">ze</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">2</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="mi">1</span><span class="p">]);</span><span class="w">                  </span><span class="c">% [nb nc nd nf nk], nf = our na</span><span class="w"></span>
 <span class="n">V</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">arxstruc</span><span class="p">(</span><span class="n">ze</span><span class="p">,</span><span class="w"> </span><span class="n">zv</span><span class="p">,</span><span class="w"> </span><span class="n">struc</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">));</span><span class="w">    </span><span class="c">% loss for many ARX orders</span><span class="w"></span>
 <span class="n">nn</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">selstruc</span><span class="p">(</span><span class="n">V</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;aic&#39;</span><span class="p">);</span><span class="w">                     </span><span class="c">% order selection (also &#39;mdl&#39;)</span><span class="w"></span>
 <span class="p">[</span><span class="n">aic</span><span class="p">(</span><span class="n">marx</span><span class="p">),</span><span class="w"> </span><span class="n">fpe</span><span class="p">(</span><span class="n">marx</span><span class="p">)]</span><span class="w"></span>
@@ -452,9 +556,9 @@ disp(['PEM-OE mean: ' num2str(mean(th_oe), 4)]);</textarea></div>
 </code></pre><textarea class="code-src" hidden>m0   = idpoly([1 -1.5 0.7], [0 1 0.5]);     % A = [1 a1 a2] (MATLAB sign), B with nk = 1
 ze   = iddata(y, u, 1);                      % estimation data (Ts = 1)
 marx = arx(ze, [2 2 1]);                     % [na nb nk]
-moe  = oe(ze, [2 2 1]);                      % [nb nf nk]
+moe  = oe(ze, [2 2 1]);                      % [nb nf nk], nf = our na
 mam  = armax(ze, [2 2 1 1]);                 % [na nb nc nk]
-mbj  = bj(ze, [2 1 1 2 1]);                  % [nb nc nd nf nk]
+mbj  = bj(ze, [2 1 1 2 1]);                  % [nb nc nd nf nk], nf = our na
 V = arxstruc(ze, zv, struc(1:6, 1:6, 1));    % loss for many ARX orders
 nn = selstruc(V, 'aic');                     % order selection (also 'mdl')
 [aic(marx), fpe(marx)]
@@ -487,7 +591,7 @@ predictors), \(\hat\theta_N\to\theta^*=\argmin_\theta\bar V(\theta)\) with proba
 where \(\bar V(\theta)=\lim\E\varepsilon^2(k,\theta)\). If the true system belongs to the model
 class and the data are informative, \(\theta^*=\theta_0\) (consistency). Moreover
 \(\sqrt N(\hat\theta_N-\theta_0)\) is asymptotically Gaussian with covariance
-\(\lambda_e\bigl[\E\psi(k)\psi\T(k)\bigr]^{-1}\), \(\psi=-\partial\varepsilon/\partial\theta\), which
+\(\sigma_e^2\bigl[\E\psi(k)\psi\T(k)\bigr]^{-1}\), \(\psi=-\partial\varepsilon/\partial\theta\), which
 equals the Cramér&ndash;Rao bound for Gaussian noise: PEM is asymptotically efficient
 [<a class="cite" href="references.html#bib-Ljung" data-cite="Ljung">5</a>].</p>
 <p><em>Frequency-domain interpretation of the bias.</em> By Parseval&rsquo;s theorem, for an
@@ -498,13 +602,15 @@ open-loop experiment and a fixed noise model \(H_*\),</p>
 \]</div>
 <p>so the model fit is weighted by the input spectrum divided by the noise-model spectrum. For
 ARX, \(1/|H|^2=|A|^2\) is a high-pass weighting: ARX models tend to fit high frequencies
-too much, which explains the bias of Example&nbsp;<a class="xref" href="#ex-oe-bias" data-ref="ex:oe-bias">6.4</a> (Ljung, Ch.&nbsp;8).</p>
+too much, which explains the bias of Example&nbsp;<a class="xref" href="#ex-oe-bias" data-ref="ex:oe-bias">6.2</a> (Ljung, Ch.&nbsp;8).</p>
 <p><em>Instrumental variables (IV).</em> A way to remove the bias of LS while keeping a linear
 estimator is to replace the normal equations with
 \(\bigl(\sum\zeta(k)\varphi\T(k)\bigr)\hat\theta=\sum\zeta(k)y(k)\), where the <em>instruments</em>
 \(\zeta(k)\) are correlated with \(\varphi(k)\) but uncorrelated with the equation error (e.g. delayed inputs, or the regressor built with a simulated noise-free output). IV estimators
 are consistent for any colored equation error in open loop, and the same idea appears in
 subspace methods (PI/PO-MOESP, Chapter&nbsp;<a class="xref" href="ch8.html" data-ref="ch:moesp">8</a>).</p></div></details>
+<section class="footnotes"><ol><li id="fn-1">Here \(A,B,C,D\) denote the state-space matrices,
+not the polynomials \(A(q)\), \(B(q)\). <a class="fnback" href="#fnref-1">&#8617;</a></li></ol></section>
 </article>
 <nav class="pagenav"><a class="pn prev" href="ch5.html"><span>&larr; Previous</span><b>Introduction to system identification</b></a><a class="pn next" href="ch7.html"><span>Next &rarr;</span><b>Towards subspace identification: the Ho–Kalman realization</b></a></nav>
 <footer class="foot">Lecture notes by Vittorio De Iuliis · University of L'Aquila · a.y. 2024–2025 · interactive web edition generated from the LaTeX sources</footer>

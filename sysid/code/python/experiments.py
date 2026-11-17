@@ -147,28 +147,28 @@ def poly_order_selection():
 
 # ----------------------------------------------------------------- Chapter 6
 def arx_vs_oe():
-    """True system is OE: y = B/F u + e. Compare ARX-LS (biased) with the
+    """True system is OE: y = B/A u + e. Compare ARX-LS (biased) with the
     PEM estimate of the OE model (nonlinear LS), Monte Carlo."""
     rng = np.random.default_rng(11)
     b_true = np.array([1.0, 0.5])            # B(q) = q^-1 + 0.5 q^-2
-    f_true = np.array([1.0, -1.5, 0.7])      # F(q) = 1 - 1.5 q^-1 + 0.7 q^-2
+    a_true = np.array([1.5, -0.7])           # A(q) = 1 - a1 q^-1 - a2 q^-2 = 1 - 1.5 q^-1 + 0.7 q^-2
     N, sig, MC = 500, 0.5, 100
     est_arx, est_oe = [], []
     for _ in range(MC):
         u = rng.standard_normal(N)
-        y0 = lfilter(np.r_[0, b_true], f_true, u)
+        y0 = lfilter(np.r_[0, b_true], np.r_[1, -a_true], u)
         y = y0 + sig * rng.standard_normal(N)
         a, b, _, _ = arx_ls(u, y, 2, 2, 1)
-        est_arx.append(np.r_[-a, b])          # report as F-coefficients (+ convention)
+        est_arx.append(np.r_[a, b])           # [a1 a2 b1 b2], sign convention of the notes
 
         def res(th):
-            return y - lfilter(np.r_[0, th[2:]], np.r_[1, th[:2]], u)
-        th0 = np.r_[-a, b]
+            return y - lfilter(np.r_[0, th[2:]], np.r_[1, -th[:2]], u)
+        th0 = np.r_[a, b]
         sol = least_squares(res, th0)
         est_oe.append(sol.x)
     est_arx, est_oe = np.array(est_arx), np.array(est_oe)
-    true = np.r_[f_true[1:], b_true]
-    print("[OE] true      f1 f2 b1 b2:", true)
+    true = np.r_[a_true, b_true]
+    print("[OE] true      a1 a2 b1 b2:", true)
     print("[OE] ARX-LS mean:", est_arx.mean(0), " std:", est_arx.std(0))
     print("[OE] PEM-OE mean:", est_oe.mean(0), " std:", est_oe.std(0))
     return true, est_arx, est_oe

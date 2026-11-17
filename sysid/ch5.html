@@ -52,7 +52,7 @@ window.MathJax = {
   <button class="iconbtn" id="fontplus" title="Larger text">A+</button>
   <button class="iconbtn" id="themebtn" title="Light / dark theme"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button>
 </header>
-<nav class="sidebar" id="sidebar"><div class="navhead"><a href="index.html">Contents</a></div><ol class="navlist"><li><a href="notation.html"><span class="navnum"></span>Notation</a></li><li><a href="ch1.html"><span class="navnum">1</span>Introduction</a></li><li><a href="ch2.html"><span class="navnum">2</span>Fundamentals of linear algebra</a></li><li><a href="ch3.html"><span class="navnum">3</span>The singular value decomposition</a></li><li><a href="ch4.html"><span class="navnum">4</span>Least squares</a></li><li class="cur"><a href="ch5.html"><span class="navnum">5</span>Introduction to system identification</a><ol class="navsec"><li><a href="#s-5-1" data-sec="s-5-1"><span class="navnum">5.1</span>From static to dynamic estimation problems</a></li><li><a href="#sec-what-ident" data-sec="sec-what-ident"><span class="navnum">5.2</span>What can be identified from input&ndash;output data</a></li><li><a href="#sec-cycle" data-sec="sec-cycle"><span class="navnum">5.3</span>The system-identification cycle</a></li><li><a href="#sec-validation" data-sec="sec-validation"><span class="navnum">5.4</span>Measures of error and accuracy</a></li><li><a href="#sec-pe" data-sec="sec-pe"><span class="navnum">5.5</span>Persistency of excitation</a></li><li><a href="#s-5-6" data-sec="s-5-6"><span class="navnum">5.6</span>Exercises</a></li><li><a href="#s-5-7" data-sec="s-5-7"><span class="navnum">5.7</span>Implementation in MATLAB and Python</a></li></ol></li><li><a href="ch6.html"><span class="navnum">6</span>Prediction-error methods for polynomial models</a></li><li><a href="ch7.html"><span class="navnum">7</span>Towards subspace identification: the Ho–Kalman realization</a></li><li><a href="ch8.html"><span class="navnum">8</span>Subspace identification: the MOESP method</a></li><li><a href="appA.html"><span class="navnum">A</span>Discrete-time LTI systems in state space</a></li><li><a href="appB.html"><span class="navnum">B</span>Polynomial input–output models</a></li><li><a href="references.html"><span class="navnum"></span>Bibliography</a></li></ol></nav>
+<nav class="sidebar" id="sidebar"><div class="navhead"><a href="index.html">Contents</a></div><ol class="navlist"><li><a href="notation.html"><span class="navnum"></span>Notation</a></li><li><a href="ch1.html"><span class="navnum">1</span>Introduction</a></li><li><a href="ch2.html"><span class="navnum">2</span>Fundamentals of linear algebra</a></li><li><a href="ch3.html"><span class="navnum">3</span>The singular value decomposition</a></li><li><a href="ch4.html"><span class="navnum">4</span>Least squares</a></li><li class="cur"><a href="ch5.html"><span class="navnum">5</span>Introduction to system identification</a><ol class="navsec"><li><a href="#sec-static-dynamic" data-sec="sec-static-dynamic"><span class="navnum">5.1</span>From static to dynamic estimation problems</a></li><li><a href="#sec-what-ident" data-sec="sec-what-ident"><span class="navnum">5.2</span>What can be identified from input&ndash;output data</a></li><li><a href="#sec-cycle" data-sec="sec-cycle"><span class="navnum">5.3</span>The system-identification cycle</a></li><li><a href="#sec-validation" data-sec="sec-validation"><span class="navnum">5.4</span>Measures of error and accuracy</a></li><li><a href="#sec-pe" data-sec="sec-pe"><span class="navnum">5.5</span>Persistency of excitation</a></li><li><a href="#s-5-6" data-sec="s-5-6"><span class="navnum">5.6</span>Exercises</a></li><li><a href="#s-5-7" data-sec="s-5-7"><span class="navnum">5.7</span>Implementation in MATLAB and Python</a></li></ol></li><li><a href="ch6.html"><span class="navnum">6</span>Prediction-error methods for polynomial models</a></li><li><a href="ch7.html"><span class="navnum">7</span>Towards subspace identification: the Ho–Kalman realization</a></li><li><a href="ch8.html"><span class="navnum">8</span>Subspace identification: the MOESP method</a></li><li><a href="appA.html"><span class="navnum">A</span>Discrete-time LTI systems in state space</a></li><li><a href="appB.html"><span class="navnum">B</span>Polynomial input–output models</a></li><li><a href="references.html"><span class="navnum"></span>Bibliography</a></li></ol></nav>
 <div class="scrim" id="scrim"></div>
 <main class="content" id="content">
 <article class="chapter">
@@ -60,6 +60,21 @@ window.MathJax = {
 <div class="flushright"><div class="minipage"><p><em> System identification is the art and science of building mathematical models of
 dynamic systems from observed input&ndash;output data.</em></p>
 <p>L.&nbsp;Ljung [<a class="cite" href="references.html#bib-LjungPerspectives" data-cite="LjungPerspectives">6</a>]</p></div></div>
+<p>The definition of Lennart Ljung summarizes well the essence of the discipline: its mathematical rigour (the
+<em>science</em>) and the need for an imaginative kind of craftsmanship (the <em>art</em>) in
+understanding which model and which technique have to be chosen to solve a given problem.
+System identification is a long-standing branch of systems and control: the term
+<em>identification</em> was first used by Zadeh in 1956 [<a class="cite" href="references.html#bib-Zadeh1956" data-cite="Zadeh1956">28</a>], although many of the
+mathematical tools it relies on, such as least squares and maximum-likelihood estimators, are
+decades or even centuries older (Sections&nbsp;<a class="xref" href="ch1.html#sec-intro-ceres" data-ref="sec:intro-ceres">1.2</a> and <a class="xref" href="ch1.html#sec-intro-dynamic" data-ref="sec:intro-dynamic">1.3</a>). Seventy years of
+research have provided powerful tools to estimate dynamic models of growing complexity. In the
+1990s one might have thought that, at least for linear systems, identification had become a
+fully established discipline (a <em>technology</em>, one could say), from which no major
+breakthroughs were to be expected. Instead, within a few years two of them came into play:
+subspace methods and machine-learning tools, which have shed new light both on classical
+problems, such as linear and nonlinear identification, and on more recent ones, such as the
+identification of hybrid systems. Both the classical prediction-error approach and the subspace
+approach to linear identification are presented in Chapters&nbsp;<a class="xref" href="ch6.html" data-ref="ch:pem">6</a>, <a class="xref" href="ch7.html" data-ref="ch:hokalman">7</a> and <a class="xref" href="ch8.html" data-ref="ch:moesp">8</a>.</p>
 <p>The previous chapters have provided the tools: linear algebra, the singular value
 decomposition and least squares. In this chapter we turn to the problem that gives the course
 its name. Identifying a system means building a mathematical model of its dynamics from
@@ -70,7 +85,7 @@ explain how dynamic estimation problems differ from the static ones of Chapter&n
 the identification problem; we then discuss what can (and cannot) be identified from
 input&ndash;output data, the steps of the identification cycle, how to measure the accuracy of a
 model, and which inputs are rich enough to make identification possible.</p>
-<h2 id="s-5-1" class="sec"><span class="secnum">5.1</span> From static to dynamic estimation problems</h2>
+<h2 id="sec-static-dynamic" class="sec"><span class="secnum">5.1</span> From static to dynamic estimation problems</h2>
 <p>Up to now we have learned how to approximately (or even exactly) solve <em>static</em>
 estimation problems described by</p>
 <div class="eq">\[
@@ -202,7 +217,7 @@ given in Appendix&nbsp;<a class="xref" href="appA.html" data-ref="app:systems">A
       estimation method, and repeat estimation and validation. If no reasonable model performs
       satisfactorily, the problem most likely lies in the data: as a last resort, revise the
       pre-processing or repeat the experiments with a better design (steps 1&ndash;2).</p></li></ol>
-<figure class="fig" id="fig-idcycle"><div class="fig-img"><img src="figures/fig-idcycle.svg" alt="Figure 5.1" loading="lazy" style="width:334px"></div><figcaption><span class="fig-name">Figure 5.1:</span> The system-identification cycle (simplified from [<a class="cite" href="references.html#bib-VerhaegenVerdult" data-cite="VerhaegenVerdult">1</a>],
+<figure class="fig" id="fig-idcycle"><div class="fig-img"><img src="figures/fig-idcycle.svg" alt="Figure 5.1" loading="lazy" style="width:350px"></div><figcaption><span class="fig-name">Figure 5.1:</span> The system-identification cycle (simplified from [<a class="cite" href="references.html#bib-VerhaegenVerdult" data-cite="VerhaegenVerdult">1</a>],
 Fig.&nbsp;10.1). The training data are used for estimation and the testing data only for
 validation (step&nbsp;3). The iterations over model class, order and estimation method assume
 informative data; going back to steps 1&ndash;2 is the last resort (step&nbsp;7).</figcaption></figure>
@@ -255,7 +270,7 @@ testing RMSE is minimal at \(d=5\) (\(0.521\)) but practically identical at \(d=
 the <em>principle of parsimony</em> the simplest model with comparable performance is
 preferred, i.e. \(d=3\). This is also the order selected by the AIC and MDL criteria, which
 formalize the trade-off between fit and complexity and will be presented in detail in
-Section&nbsp;<a class="xref" href="ch6.html#sec-ordersel" data-ref="sec:ordersel">6.6</a>. The estimated cubic, \(0.507t^3-1.023t^2-0.970t+0.947\), is close to the
+Section&nbsp;<a class="xref" href="ch6.html#sec-ordersel" data-ref="sec:ordersel">6.5</a>. The estimated cubic, \(0.507t^3-1.023t^2-0.970t+0.947\), is close to the
 true one. The RMSE \(\approx0.5\) reached for \(d\ge3\) is of the order of the noise standard
 deviation: no model can do better on unseen data.</p></div></div>
 <figure class="fig" id="fig-poly-order"><div class="fig-img"><img src="figures/fig-poly-order.svg" alt="Figure 5.2" loading="lazy" style="width:700px"></div><figcaption><span class="fig-name">Figure 5.2:</span> Model-order selection for polynomial fitting (Example&nbsp;<a class="xref" href="#ex-poly-order" data-ref="ex:poly-order">5.1</a>). The training

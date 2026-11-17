@@ -15,19 +15,19 @@ ysim  = filter(Bhat, Ahat, uv);                        % W(q)u, no measured y us
 fprintf('RMSE prediction %.3f, RMSE simulation %.3f\n', ...
         sqrt(mean((yv-ypred).^2)), sqrt(mean((yv-ysim).^2)));
 
-%% Output-error data: y = B/F u + e (white e): ARX-LS becomes biased
-F = [1 -1.5 0.7];
+%% Output-error data: y = B/A u + e (white e): ARX-LS becomes biased
+Ao = [1 -1.5 0.7];                       % A(q) = 1 - a1 q^-1 - a2 q^-2, a = [1.5 -0.7]
 MC = 50;  th_arx = zeros(MC, 4);  th_oe = th_arx;
 opts = optimset('TolX', 1e-8, 'TolFun', 1e-10, 'MaxFunEvals', 4000, 'MaxIter', 4000);
 for i = 1:MC
     u = randn(N, 1);
-    y = filter(Bq, F, u) + 0.5*randn(N, 1);
+    y = filter(Bq, Ao, u) + 0.5*randn(N, 1);
     [a, b] = arx_ls(u, y, 2, 2, 1);
-    th_arx(i, :) = [-a' b'];             % reported with the (+) convention of F
+    th_arx(i, :) = [a' b'];              % [a1 a2 b1 b2], sign convention of the notes
     % PEM for the OE model: minimize sum of squared simulation errors
-    V = @(th) sum((y - filter([0 th(3:4)], [1 th(1:2)], u)).^2);
+    V = @(th) sum((y - filter([0 th(3:4)], [1 -th(1:2)], u)).^2);
     th_oe(i, :) = fminsearch(V, th_arx(i, :), opts);
 end
-disp('true  [f1 f2 b1 b2] = [-1.5 0.7 1 0.5]');
+disp('true  [a1 a2 b1 b2] = [1.5 -0.7 1 0.5]');
 disp(['ARX-LS mean: ' num2str(mean(th_arx), 4)]);
 disp(['PEM-OE mean: ' num2str(mean(th_oe), 4)]);

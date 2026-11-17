@@ -1,7 +1,8 @@
 function [a, b, Phi, Yv] = arx_ls(u, y, na, nb, nk)
 %ARX_LS  Least-squares estimate of a SISO ARX model, lecture-notes convention:
 %   y(k) = a1 y(k-1) + ... + a_na y(k-na)
-%        + b1 u(k-nk) + ... + b_nb u(k-nk-nb+1) + e(k),
+%        + b_nk u(k-nk) + ... + b_(nk+nb-1) u(k-nk-nb+1) + e(k),
+%   (b(1) = b_nk, ..., b(nb) = b_(nk+nb-1): each b_j multiplies u(k-j)),
 %   i.e. A(q) = 1 - a1 q^-1 - ... - a_na q^-na  (MATLAB's arx uses +a_i).
 %   u, y : column vectors (samples k = 0..N-1)
 %   The first max(na, nk+nb-1) samples are used only as initial conditions.

@@ -148,7 +148,7 @@ table.tbl { border-collapse: collapse; margin: 0 auto; font-size: .93rem; }
 .tbl thead tr { border-top: 1.5px solid var(--ink); border-bottom: 1px solid var(--ink); }
 .tbl tbody tr:last-child { border-bottom: 1.5px solid var(--ink); }
 .tbl tr.rule { border-top: 1px solid var(--ink); }
-.tbl .al { text-align: left; } .tbl .ac { text-align: center; } .tbl .ar { text-align: right; font-variant-numeric: tabular-nums; }
+.tbl .al { text-align: left; } .tbl .ap { text-align: left; } .tbl .ac { text-align: center; } .tbl .ar { text-align: right; font-variant-numeric: tabular-nums; }
 .tbl .vr { border-right: 1px solid var(--ink); }
 figure.tab figcaption { margin-bottom: .5em; }
 .notation-tbl td:first-child { white-space: nowrap; }
